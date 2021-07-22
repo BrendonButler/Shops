@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Shops:jar">
+    <output-path>$PROJECT_DIR$/../Spigot/plugins</output-path>
+    <root id="archive" name="Shops.jar">
+      <element id="module-output" name="Shops" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
+    </root>
+  </artifact>
+</component>

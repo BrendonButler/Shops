@@ -1,0 +1,12 @@
+name: Shops
+version: 0.0.0-BETA
+author: MrSparkzz
+main: net.sparkzz.shops.Shops
+api-version: 1.17
+
+#depend: PluginName
+website: shops.sparkzz.net
+#commands:
+  #<command>:
+    #description: appears in /help
+    #usage: command [one|two] <player_name>
