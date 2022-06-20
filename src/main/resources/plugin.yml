@@ -1,10 +1,10 @@
 name: Shops
-version: 0.1-PRERELEASE
-author: MrSparkzz
+version: 0.2-PRERELEASE
+author: MrSparkzz (Brendon Butler)
 main: net.sparkzz.shops.Shops
 api-version: 1.18
 
-#depend: PluginName
+depend: [ Vault ]
 website: shops.sparkzz.net
 commands:
   shop:
