@@ -1,5 +1,5 @@
 name: Shops
-version: 0.0.1-PRERELEASE
+version: 0.1-PRERELEASE
 author: MrSparkzz
 main: net.sparkzz.shops.Shops
 api-version: 1.18
@@ -7,8 +7,12 @@ api-version: 1.18
 #depend: PluginName
 website: shops.sparkzz.net
 commands:
+  shop:
+    description: Interact with current shop
+    usage: /<command> [buy|sell] <item> <quantity>
+    permission: shops.command.interact
   shops:
-    description: Shops command for plugin info
+    description: Shops plugin info
     usage: /<command>
     permission: shops.command.shops
 #commands:
