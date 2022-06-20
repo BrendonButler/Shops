@@ -1,11 +1,16 @@
 name: Shops
-version: 0.0.0-BETA
+version: 0.0.1-PRERELEASE
 author: MrSparkzz
 main: net.sparkzz.shops.Shops
-api-version: 1.17
+api-version: 1.18
 
 #depend: PluginName
 website: shops.sparkzz.net
+commands:
+  shops:
+    description: Shops command for plugin info
+    usage: /<command>
+    permission: shops.command.shops
 #commands:
   #<command>:
     #description: appears in /help

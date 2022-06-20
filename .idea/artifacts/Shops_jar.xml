@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/../Spigot/plugins</output-path>
     <root id="archive" name="Shops.jar">
       <element id="module-output" name="Shops" />
-      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/plugin.yml" />
     </root>
   </artifact>
 </component>
