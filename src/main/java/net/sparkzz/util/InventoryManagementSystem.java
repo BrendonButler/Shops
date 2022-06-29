@@ -13,6 +13,9 @@ public class InventoryManagementSystem {
 
     public boolean insert(Player player, Material material, int quantity) {
         // TODO: check inventory before adding items return if space is sufficient
+        Transaction transaction = new Transaction(player, new ItemStack(material, quantity), quantity, Transaction.TransactionType.SALE);
+
+
         player.getInventory().addItem(new ItemStack(material, quantity));
         return true;
     }
