@@ -1,5 +1,5 @@
 name: Shops
-version: 0.2-PRERELEASE
+version: '@project.version@'
 author: MrSparkzz (Brendon Butler)
 main: net.sparkzz.shops.Shops
 api-version: 1.18
