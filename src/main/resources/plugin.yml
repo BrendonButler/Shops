@@ -1,14 +1,18 @@
-name: Shops
-version: 0.0.1-PRERELEASE
-author: MrSparkzz
+name: @project.artifactId@
+version: @project.version@
+author: MrSparkzz (Brendon Butler)
 main: net.sparkzz.shops.Shops
 api-version: 1.18
 
-#depend: PluginName
+depend: [ Vault ]
 website: shops.sparkzz.net
 commands:
+  shop:
+    description: Interact with current shop
+    usage: /<command> [buy|sell] <item> <quantity>
+    permission: shops.command.interact
   shops:
-    description: Shops command for plugin info
+    description: Shops plugin info
     usage: /<command>
     permission: shops.command.shops
 #commands:
