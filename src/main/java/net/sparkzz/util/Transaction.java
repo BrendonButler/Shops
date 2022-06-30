@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class Transaction {
 
-    private boolean transactionReady;
+    private boolean transactionReady, financesReady = false, inventoryReady = false;
     private double cost;
     private ItemStack itemStack;
     private TransactionType type;
@@ -19,46 +19,49 @@ public class Transaction {
         this.type = type;
     }
 
-    public boolean validateFinances() {
-        boolean valid = false;
-
+    private void validateFinances() {
         switch (type) {
             case PURCHASE -> {
                 if (Shops.econ.getBalance(player) >= cost)
-                    valid = true;
+                    financesReady = true;
             }
             case SALE -> {
                 // TODO: check shop balance && shop infinite balance flag
-                valid = true;
+                financesReady = true;
             }
         }
-
-        return valid;
     }
 
-    public boolean validateInventory() {
-        boolean valid = false;
-
+    private void validateInventory() {
         switch (type) {
             case PURCHASE -> {
                 // TODO: check if shop has or will run out of inventory (or if infinite inventory)
-                // TODO: check player inventory for free space (use InventoryManagementSystem)
-                valid = true;
+                if (InventoryManagementSystem.canInsert(player, itemStack.getType(), itemStack.getAmount()))
+                    inventoryReady = true;
             }
             case SALE -> {
                 // TODO: check if shop has or will reach max capacity (or if infinite capacity)
                 if (player.getInventory().containsAtLeast(itemStack, itemStack.getAmount()))
-                    valid = true;
+                    inventoryReady = true;
             }
         }
+    }
 
-        return valid;
+    public boolean isFinancesReady() {
+        return financesReady;
+    }
+
+    public boolean isInventoryReady() {
+        return inventoryReady;
     }
 
     public boolean validateReady() {
         boolean valid = false;
 
-        if (validateFinances() && validateInventory()) {
+        validateFinances();
+        validateInventory();
+
+        if (financesReady && inventoryReady) {
             valid = true;
             transactionReady = true;
         }
@@ -69,17 +72,17 @@ public class Transaction {
     public void process() {
         switch (type) {
             case PURCHASE -> {
-                player.getInventory().remove(itemStack);
+                player.getInventory().addItem(itemStack);
                 Shops.econ.withdrawPlayer(player, cost);
             }
             case SALE -> {
-                player.getInventory().addItem(itemStack);
+                player.getInventory().remove(itemStack);
                 Shops.econ.depositPlayer(player, cost);
             }
         }
     }
 
-    protected enum TransactionType {
+    public enum TransactionType {
         PURCHASE, SALE;
     }
 }

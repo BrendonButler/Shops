@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ListIterator;
+
 /**
  * Helper class to manage player and store inventory
  *
@@ -11,18 +13,45 @@ import org.bukkit.inventory.ItemStack;
  */
 public class InventoryManagementSystem {
 
-    public boolean insert(Player player, Material material, int quantity) {
-        // TODO: check inventory before adding items return if space is sufficient
-        Transaction transaction = new Transaction(player, new ItemStack(material, quantity), quantity, Transaction.TransactionType.SALE);
+    private static int countQuantity(Player player, Material material) {
+        ListIterator<ItemStack> iterator = player.getInventory().iterator();
+        int quantity = 0;
 
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
 
-        player.getInventory().addItem(new ItemStack(material, quantity));
-        return true;
+            if (stack != null && stack.getType().equals(material))
+                quantity += stack.getAmount();
+        }
+
+        return quantity;
     }
 
-    public void takeBack(Player player, Material material, int quantity) {
-        player.getInventory().removeItem(new ItemStack(material, quantity));
+    private static int getAvailableSpace(Player player, Material material) {
+        ListIterator<ItemStack> iterator = player.getInventory().iterator();
+        int availableSpace = 0;
+
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+
+            if (stack == null)
+                availableSpace += material.getMaxStackSize();
+            else if (stack.getType().equals(material))
+                availableSpace += (stack.getMaxStackSize() - stack.getAmount());
+        }
+
+        return availableSpace;
     }
 
-    // TODO: Possibly create TransactionResponse class which checks if the transaction is possible, store the result and values to be processed or cancelled (validation)
+    public static boolean canInsert(Player player, Material material, int quantity) {
+        int availableSpace = getAvailableSpace(player, material);
+
+        return (quantity <= availableSpace);
+    }
+
+    public static boolean canRemove(Player player, Material material, int quantity) {
+        int inInventory = countQuantity(player, material);
+
+        return (quantity <= inInventory);
+    }
 }

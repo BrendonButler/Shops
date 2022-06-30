@@ -1,10 +1,11 @@
 package net.sparkzz.command;
 
-import net.sparkzz.shops.Shops;
+import net.sparkzz.util.Transaction;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import static org.bukkit.ChatColor.*;
 
@@ -26,30 +27,32 @@ public class BuySubCommand implements ISubCommand {
             quantity = Integer.parseInt(args[2]);
 
         if (material != null) {
-            boolean financialResult = Shops.pos.purchase((Player) sender, material, quantity);
-            boolean inventoryResult = Shops.ims.insert((Player) sender, material, quantity);
+            Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), quantity, Transaction.TransactionType.PURCHASE);
+            transaction.validateReady();
+            boolean financialResult = transaction.isFinancesReady();
+            boolean inventoryResult = transaction.isInventoryReady();
 
             if (!financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient funds and inventory space!", RED));
-                return false;
+                return true;
             }
 
             if (financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient inventory space!", RED));
-                Shops.pos.refund((Player) sender, quantity);
-                return false;
+                return true;
             }
 
             if (!financialResult && inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient funds!", RED));
-                Shops.ims.takeBack((Player) sender, material, quantity);
-                return false;
+                return true;
             }
 
+            transaction.process();
             sender.sendMessage(String.format("%sSuccess! You have purchased %s%s%s of %s%s%s for %s$%s%s.",
                     GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, quantity, GREEN));
+            return true;
         }
 
-        return true;
+        return false;
     }
 }
