@@ -1,4 +1,4 @@
-name: Shops
+name: '@project.artifactId@'
 version: '@project.version@'
 author: MrSparkzz (Brendon Butler)
 main: net.sparkzz.shops.Shops
