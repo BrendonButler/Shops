@@ -1,5 +1,5 @@
-name: '@project.artifactId@'
-version: '@project.version@'
+name: @project.artifactId@
+version: @project.version@
 author: MrSparkzz (Brendon Butler)
 main: net.sparkzz.shops.Shops
 api-version: 1.18

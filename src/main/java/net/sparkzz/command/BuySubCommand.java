@@ -26,6 +26,12 @@ public class BuySubCommand implements ISubCommand {
         if (args.length == 3)
             quantity = Integer.parseInt(args[2]);
 
+        // quantity less than or equal to 0, or greater than 2304 (max inventory capacity) is invalid
+        if (quantity <= 0 || quantity > 2304) {
+            sender.sendMessage(String.format("%sInvalid quantity (%d)!", RED, quantity));
+            return true;
+        }
+
         if (material != null) {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), quantity, Transaction.TransactionType.PURCHASE);
             transaction.validateReady();

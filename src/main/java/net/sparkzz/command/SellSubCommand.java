@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static org.bukkit.ChatColor.*;
-import static org.bukkit.ChatColor.GREEN;
 
 /**
  * Sell subcommand used for processing sell transactions
@@ -26,6 +25,12 @@ public class SellSubCommand implements ISubCommand {
 
         if (args.length == 3)
             quantity = Integer.parseInt(args[2]);
+
+        // quantity less than or equal to 0, or greater than 2304 (max inventory capacity) is invalid
+        if (quantity <= 0 || quantity > 2304) {
+            sender.sendMessage(String.format("%sInvalid quantity (%d)!", RED, quantity));
+            return true;
+        }
 
         if (material != null) {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), quantity, Transaction.TransactionType.SALE);
