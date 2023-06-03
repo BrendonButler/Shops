@@ -76,7 +76,7 @@ public class Transaction {
                 Shops.econ.withdrawPlayer(player, cost);
             }
             case SALE -> {
-                player.getInventory().remove(itemStack);
+                player.getInventory().removeItem(itemStack);
                 Shops.econ.depositPlayer(player, cost);
             }
         }

@@ -41,14 +41,10 @@ public class BuySubCommand implements ISubCommand {
             if (!financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient funds and inventory space!", RED));
                 return true;
-            }
-
-            if (financialResult && !inventoryResult) {
+            } else if (financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient inventory space!", RED));
                 return true;
-            }
-
-            if (!financialResult && inventoryResult) {
+            } else if (!financialResult) {
                 sender.sendMessage(String.format("%sInsufficient funds!", RED));
                 return true;
             }

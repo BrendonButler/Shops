@@ -27,6 +27,7 @@ public class Shops extends JavaPlugin {
     @Override
     public void onDisable() {
         // save
+        log.info("Shops has been disabled!");
     }
 
     @Override

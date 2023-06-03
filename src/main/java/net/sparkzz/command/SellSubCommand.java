@@ -41,14 +41,10 @@ public class SellSubCommand implements ISubCommand {
             if (!financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient funds and inventory!", RED));
                 return true;
-            }
-
-            if (financialResult && !inventoryResult) {
+            } else if (financialResult && !inventoryResult) {
                 sender.sendMessage(String.format("%sInsufficient inventory!", RED));
                 return true;
-            }
-
-            if (!financialResult && inventoryResult) {
+            } else if (!financialResult) {
                 sender.sendMessage(String.format("%sInsufficient funds!", RED));
                 return true;
             }

@@ -1,6 +1,6 @@
 name: @project.name@
 version: @project.version@
-author: MrSparkzz (Brendon Butler)
+author: MrSparkzz
 main: net.sparkzz.shops.Shops
 api-version: 1.18
 
