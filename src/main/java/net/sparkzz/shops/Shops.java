@@ -31,12 +31,11 @@ public class Shops extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        setupEconomy();
-        /*if (!setupEconomy()) {
-            log.severe("Disabled due to no Vault dependency found!");
+        if (!setupEconomy()) {
+            log.severe("Disabled due to missing economy dependency (see README)!");
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }*/
+        }
 
         desc = this.getDescription();
         pos = new PointOfSale();
@@ -48,11 +47,13 @@ public class Shops extends JavaPlugin {
     }
 
     private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> provider = null;
 
-        if (rsp == null) return false;
-        econ = rsp.getProvider();
+        if (getServer().getPluginManager().getPlugin("Vault") != null)
+            provider = getServer().getServicesManager().getRegistration(Economy.class);
+
+        if (provider != null)
+            econ = provider.getProvider();
 
         return econ != null;
     }

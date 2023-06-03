@@ -15,6 +15,7 @@
         <vault.version>1.7</vault.version>
     </properties>
 
+    <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
     <version>ALPHA</version>
