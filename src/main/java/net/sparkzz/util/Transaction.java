@@ -9,7 +9,7 @@ import static org.bukkit.ChatColor.*;
 
 public class Transaction {
 
-    private boolean transactionReady, financesReady = false, inventoryReady = false;
+    private boolean transactionReady = false, financesReady = false, inventoryReady = false;
     private double cost;
     private ItemStack itemStack;
     private TransactionType type;
@@ -96,18 +96,18 @@ public class Transaction {
         return inventoryReady;
     }
 
-    public boolean validateReady() {
-        boolean valid = false;
+    public boolean isTransactionReady() {
+        return transactionReady;
+    }
 
+    public boolean validateReady() {
         validateFinances();
         validateInventory();
 
-        if (financesReady && inventoryReady) {
-            valid = true;
+        if (financesReady && inventoryReady)
             transactionReady = true;
-        }
 
-        return valid;
+        return transactionReady;
     }
 
     public double getTotalCost() {

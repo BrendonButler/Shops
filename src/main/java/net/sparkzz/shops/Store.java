@@ -24,6 +24,7 @@ public class Store {
     public Store(String name) {
         ID = currentId += 1;
         items = new HashMap<>();
+        this.name = name;
     }
 
     public Store(String name, UUID owner) {

@@ -40,11 +40,7 @@ public class BuySubCommand implements ISubCommand {
                 return true;
             }
 
-            transaction.validateReady();
-            boolean financialResult = transaction.isFinancesReady();
-            boolean inventoryResult = transaction.isInventoryReady();
-
-            if (!financialResult || !inventoryResult) {
+            if (!transaction.validateReady()) {
                 sender.sendMessage(transaction.getTransactionMessage());
                 return true;
             }
