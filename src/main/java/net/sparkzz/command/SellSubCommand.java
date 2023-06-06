@@ -33,19 +33,25 @@ public class SellSubCommand implements ISubCommand {
         }
 
         if (material != null) {
-            Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), quantity, Transaction.TransactionType.SALE);
+            Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), Transaction.TransactionType.SALE);
+
+            if (args.length == 2) {
+                sender.sendMessage(String.format("%sPrice: %s%.2f", BLUE, GREEN, transaction.getTotalCost()));
+                return true;
+            }
+
             transaction.validateReady();
             boolean financialResult = transaction.isFinancesReady();
             boolean inventoryResult = transaction.isInventoryReady();
 
             if (!financialResult && !inventoryResult) {
-                sender.sendMessage(String.format("%sInsufficient funds and inventory!", RED));
+                sender.sendMessage(transaction.getTransactionMessage());
                 return true;
             } else if (financialResult && !inventoryResult) {
-                sender.sendMessage(String.format("%sInsufficient inventory!", RED));
+                sender.sendMessage(transaction.getTransactionMessage());
                 return true;
             } else if (!financialResult) {
-                sender.sendMessage(String.format("%sInsufficient funds!", RED));
+                sender.sendMessage(transaction.getTransactionMessage());
                 return true;
             }
 

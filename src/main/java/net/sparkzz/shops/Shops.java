@@ -2,8 +2,8 @@ package net.sparkzz.shops;
 
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
-import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.PointOfSale;
+import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,34 +17,35 @@ import java.util.logging.Logger;
  */
 public class Shops extends JavaPlugin {
 
+    public static Store shop;
     public static Economy econ;
-    public static InventoryManagementSystem ims;
     public static PluginDescriptionFile desc;
     public static PointOfSale pos;
 
-    private Logger log = getLogger();
+    private final Logger LOG = getLogger();
 
     @Override
     public void onDisable() {
-        // save
-        log.info("Shops has been disabled!");
+        // TODO: save
+        LOG.info("Shops has been disabled!");
     }
 
     @Override
     public void onEnable() {
         if (!setupEconomy()) {
-            log.severe("Disabled due to missing economy dependency (see README)!");
+            LOG.severe("Disabled due to missing economy dependency (see README)!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
         desc = this.getDescription();
         pos = new PointOfSale();
-        ims = new InventoryManagementSystem();
 
         CommandManager.registerCommands(this);
 
-        log.info("Shops has been enabled!");
+        testShop();
+
+        LOG.info("Shops has been enabled!");
     }
 
     private boolean setupEconomy() {
@@ -57,5 +58,11 @@ public class Shops extends JavaPlugin {
             econ = provider.getProvider();
 
         return econ != null;
+    }
+
+    private void testShop() {
+        shop = new Store("DEFAULT");
+        shop.addItem(Material.matchMaterial("ACACIA_BUTTON"), 10, 64, 1.5D, 0.5D);
+        shop.addItem(Material.matchMaterial("OBSIDIAN"), 10, 64, 5D, 2D);
     }
 }

@@ -1,14 +1,12 @@
 package net.sparkzz.command;
 
+import net.sparkzz.shops.Shops;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bukkit.ChatColor.RED;
@@ -35,10 +33,11 @@ public class ShopCommand extends CommandManager {
         }
 
         if (args.length == 2) {
-            // TODO: only show items within the shop
+            Set<Material> shopItems = Shops.shop.getItems().keySet();
+
             // Buy command autocomplete item list
             if (args[0].equalsIgnoreCase("buy"))
-                return Arrays.stream(Material.values())
+                return Arrays.stream(shopItems.toArray())
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
 
             // Sell command autocomplete item list
