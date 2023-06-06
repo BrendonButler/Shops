@@ -35,7 +35,7 @@ public class BuySubCommand implements ISubCommand {
         if (material != null) {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), Transaction.TransactionType.PURCHASE);
 
-            if (args.length == 2) {
+            if (args.length == 2 && transaction.getTotalCost() != -1) {
                 sender.sendMessage(String.format("%sPrice: %s%.2f", BLUE, GREEN, transaction.getTotalCost()));
                 return true;
             }
@@ -44,20 +44,14 @@ public class BuySubCommand implements ISubCommand {
             boolean financialResult = transaction.isFinancesReady();
             boolean inventoryResult = transaction.isInventoryReady();
 
-            if (!financialResult && !inventoryResult) {
-                sender.sendMessage(transaction.getTransactionMessage());
-                return true;
-            } else if (financialResult && !inventoryResult) {
-                sender.sendMessage(transaction.getTransactionMessage());
-                return true;
-            } else if (!financialResult) {
+            if (!financialResult || !inventoryResult) {
                 sender.sendMessage(transaction.getTransactionMessage());
                 return true;
             }
 
             transaction.process();
-            sender.sendMessage(String.format("%sSuccess! You have purchased %s%s%s of %s%s%s for %s$%s%s.",
-                    GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, quantity, GREEN));
+            sender.sendMessage(String.format("%sSuccess! You have purchased %s%s%s of %s%s%s for %s$%.2f%s.",
+                    GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, transaction.getTotalCost(), GREEN));
             return true;
         }
 

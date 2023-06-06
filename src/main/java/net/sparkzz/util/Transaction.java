@@ -50,10 +50,14 @@ public class Transaction {
             case PURCHASE -> {
                 if (Shops.econ.getBalance(player) >= cost)
                     financesReady = true;
+
+                if (!financesReady) transactionMessageBuilder(String.format("%sYou have insufficient funds!", RED));
             }
             case SALE -> {
                 if (store.hasInfiniteFunds() || store.getBalance() >= cost)
                     financesReady = true;
+
+                if (!financesReady) transactionMessageBuilder(String.format("%sStore has insufficient funds!", RED));
             }
         }
     }
