@@ -46,7 +46,7 @@ public class AddSubCommand implements ISubCommand {
             }
 
             store.addItem(material, quantity, maxQuantity, buyPrice, sellPrice);
-            sender.sendMessage(String.format("%sYou have successfully added %s %s %s to the shop with a buy price of %s%.2f%s, a sell price of %s%.2f%s, and a max quantity of %s%d%s!", GREEN, GOLD, (quantity > 0) ? "" + quantity + GREEN + "of" + GOLD + material : material, GREEN, GOLD, buyPrice, GREEN, GOLD, sellPrice, GREEN, GOLD, maxQuantity, GREEN));
+            sender.sendMessage(String.format("%sYou have successfully added %s%s%s to the shop with a buy price of %s%.2f%s, a sell price of %s%.2f%s, and a max quantity of %s%d%s!", GREEN, GOLD, (quantity > 0) ? "" + quantity + GREEN + " of " + GOLD + material : material, GREEN, GOLD, buyPrice, GREEN, GOLD, sellPrice, GREEN, GOLD, maxQuantity, GREEN));
             return true;
         }
 
