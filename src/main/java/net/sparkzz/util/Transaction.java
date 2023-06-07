@@ -2,6 +2,7 @@ package net.sparkzz.util;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,20 +23,12 @@ public class Transaction {
         this.itemStack = itemStack;
         this.type = type;
 
-        locateCurrentShop();
+        store = InventoryManagementSystem.locateCurrentShop(player);
 
         switch (type) {
-            case PURCHASE:
-                cost = (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
-                break;
-            case SALE:
-                cost = (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
+            case PURCHASE -> cost = (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
+            case SALE -> cost = (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
         }
-    }
-
-    private void locateCurrentShop() {
-        // TODO: locate the player within the bounds of a current shop
-        this.store = Shops.shop;
     }
 
     private void transactionMessageBuilder(String message) {
@@ -63,26 +56,34 @@ public class Transaction {
     }
 
     private void validateInventory() {
+        Material material = itemStack.getType();
+        int itemQuantity = itemStack.getAmount();
+
         switch (type) {
             case PURCHASE -> {
-                boolean canInsertPlayer = InventoryManagementSystem.canInsert(player, itemStack.getType(), itemStack.getAmount());
-                boolean canWithdrawStore = InventoryManagementSystem.containsAtLeast(store, itemStack) && (InventoryManagementSystem.countQuantity(store, itemStack.getType()) == -1 || InventoryManagementSystem.countQuantity(store, itemStack.getType()) >= itemStack.getAmount());
+                boolean canInsertPlayer = InventoryManagementSystem.canInsert(player, material, itemQuantity);
+                boolean canWithdrawStore = InventoryManagementSystem.containsAtLeast(store, itemStack) && (InventoryManagementSystem.countQuantity(store, material) == -1 || InventoryManagementSystem.countQuantity(store, material) >= itemQuantity);
+                boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").intValue() >= 0;
 
-                if (!canInsertPlayer) transactionMessageBuilder(String.format("%sNot enough inventory space!", RED));
-                if (!canWithdrawStore) transactionMessageBuilder(String.format("%sStore has insufficient stock!", RED));
+                if (!storeIsSelling) transactionMessageBuilder(String.format("%sThe Store is not currently selling any of these at this time!", RED));
+                else if (!canInsertPlayer) transactionMessageBuilder(String.format("%sYou have insufficient inventory space!", RED));
+                else if (!canWithdrawStore) transactionMessageBuilder(String.format("%sThe Store has insufficient stock!", RED));
 
-                if (canInsertPlayer && canWithdrawStore)
+                if (storeIsSelling && canInsertPlayer && canWithdrawStore)
                     inventoryReady = true;
             }
             case SALE -> {
-                // TODO: check if shop has or will reach max capacity (or if infinite capacity)
-                boolean canWithdrawPlayer = player.getInventory().containsAtLeast(itemStack, itemStack.getAmount());
-                boolean canDepositStore = store.getItems().containsKey(itemStack.getType());
+                boolean canWithdrawPlayer = player.getInventory().containsAtLeast(itemStack, itemQuantity);
+                boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").intValue() >= 0;
+                int quantity = store.getAttributes(material).get("quantity").intValue();
+                int maxQuantity = store.getAttributes(material).get("max_quantity").intValue();
+                boolean storeIsBuyingMore = storeIsBuying && (maxQuantity < 0 || maxQuantity >= quantity + itemQuantity);
 
-                if (!canWithdrawPlayer) transactionMessageBuilder(String.format("%sYou have an insufficient amount!", RED));
-                if (!canDepositStore) transactionMessageBuilder(String.format("%sThe store is not buying any of these at this time!", RED));
+                if (!storeIsBuying) transactionMessageBuilder(String.format("%sThe store is not buying any of these at this time!", RED));
+                else if (!storeIsBuyingMore) transactionMessageBuilder(String.format("%sThe store isn't buying any more of these at this time!", RED));
+                else if (!canWithdrawPlayer) transactionMessageBuilder(String.format("%sYou have an insufficient amount!", RED));
 
-                if (canWithdrawPlayer && canDepositStore)
+                if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;
             }
         }

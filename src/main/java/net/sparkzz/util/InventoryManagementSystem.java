@@ -1,5 +1,6 @@
 package net.sparkzz.util;
 
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ public class InventoryManagementSystem {
     public static boolean containsAtLeast(Store store, ItemStack itemStack) {
         int storeQuantity = countQuantity(store, itemStack.getType());
 
-        return store.hasInfiniteStock() || storeQuantity == -1 || (store.getItems().containsKey(itemStack.getType()) && storeQuantity >= itemStack.getAmount());
+        return store.hasInfiniteStock() || storeQuantity == -1 || (store.containsMaterial(itemStack.getType()) && storeQuantity >= itemStack.getAmount());
     }
 
     private static int countQuantity(Player player, Material material) {
@@ -39,7 +40,7 @@ public class InventoryManagementSystem {
         int quantity = -1;
 
         if (!store.hasInfiniteStock())
-            quantity = store.getItems().get(material).get("quantity").intValue();
+            quantity = store.getAttributes(material).get("quantity").intValue();
 
         return quantity;
     }
@@ -84,5 +85,10 @@ public class InventoryManagementSystem {
         int inInventory = countQuantity(player, material);
 
         return (quantity <= inInventory);
+    }
+
+    public static Store locateCurrentShop(Player player) {
+        // TODO: locate the player within the bounds of a current shop
+        return Shops.shop;
     }
 }

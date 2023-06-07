@@ -9,7 +9,7 @@ website: shops.sparkzz.net
 commands:
   shop:
     description: Interact with current shop
-    usage: /<command> [buy|sell] <item> <quantity>
+    usage: /<command> [add|remove|buy|sell] <item> <quantity>
     permission: shops.command.interact
   shops:
     description: Shops plugin info

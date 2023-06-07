@@ -64,5 +64,6 @@ public class Shops extends JavaPlugin {
         shop = new Store("DEFAULT");
         shop.addItem(Material.matchMaterial("ACACIA_BUTTON"), 10, 64, 1.5D, 0.5D);
         shop.addItem(Material.matchMaterial("OBSIDIAN"), 10, 64, 5D, 2D);
+        shop.setInfiniteFunds(true);
     }
 }

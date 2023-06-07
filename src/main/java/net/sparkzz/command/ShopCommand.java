@@ -18,6 +18,7 @@ import static org.bukkit.ChatColor.RED;
  */
 public class ShopCommand extends CommandManager {
 
+    private final AddSubCommand addCmd = new AddSubCommand();
     private final BuySubCommand buyCmd = new BuySubCommand();
     private final SellSubCommand sellCmd = new SellSubCommand();
 
@@ -29,11 +30,16 @@ public class ShopCommand extends CommandManager {
         }
 
         if (args.length == 1) {
-            return Arrays.asList("buy", "sell");
+            return Arrays.asList("add", "buy", "sell");
         }
 
         if (args.length == 2) {
             Set<Material> shopItems = Shops.shop.getItems().keySet();
+
+            // Add command autocomplete item list
+            if (args[0].equalsIgnoreCase("add"))
+                return Arrays.stream(Material.values())
+                        .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
 
             // Buy command autocomplete item list
             if (args[0].equalsIgnoreCase("buy"))
@@ -47,7 +53,23 @@ public class ShopCommand extends CommandManager {
                         .collect(Collectors.toList());
         }
 
-        if (args.length == 3) {
+        if (args.length == 3 && (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))) {
+            return Arrays.asList("[<quantity>]");
+        }
+
+        if (args.length == 3 && (args[0].equalsIgnoreCase("add"))) {
+            return Arrays.asList("<customer-buy-price>");
+        }
+
+        if (args.length == 4 && (args[0].equalsIgnoreCase("add"))) {
+            return Arrays.asList("<customer-sell-price>");
+        }
+
+        if (args.length == 5 && (args[0].equalsIgnoreCase("add"))) {
+            return Arrays.asList("<max-quantity>");
+        }
+
+        if (args.length == 6 && (args[0].equalsIgnoreCase("add"))) {
             return Arrays.asList("[<quantity>]");
         }
 
@@ -58,6 +80,10 @@ public class ShopCommand extends CommandManager {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
             if (args.length >= 2) {
+                // Add command process
+                if (args[0].equalsIgnoreCase("add"))
+                    return addCmd.process(sender, command, label, args);
+
                 // Buy command process
                 if (args[0].equalsIgnoreCase("buy"))
                     return buyCmd.process(sender, command, label, args);

@@ -32,6 +32,10 @@ public class Store {
         this.owner = owner;
     }
 
+    public boolean containsMaterial(Material material) {
+        return items.containsKey(material);
+    }
+
     public boolean hasInfiniteFunds() {
         return infFunds;
     }
@@ -58,6 +62,10 @@ public class Store {
 
     public Map<Material, Map<String, Number>> getItems() {
         return items;
+    }
+
+    public Map<String, Number> getAttributes(Material material) {
+        return items.get(material);
     }
 
     public String getName() {
