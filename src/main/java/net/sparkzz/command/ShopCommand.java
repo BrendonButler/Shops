@@ -21,6 +21,7 @@ public class ShopCommand extends CommandManager {
     private final AddSubCommand addCmd = new AddSubCommand();
     private final BuySubCommand buyCmd = new BuySubCommand();
     private final SellSubCommand sellCmd = new SellSubCommand();
+    private final RemoveSubCommand removeCmd = new RemoveSubCommand();
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
@@ -30,7 +31,7 @@ public class ShopCommand extends CommandManager {
         }
 
         if (args.length == 1) {
-            return Arrays.asList("add", "buy", "sell");
+            return Arrays.asList("add", "buy", "sell", "remove");
         }
 
         if (args.length == 2) {
@@ -41,8 +42,8 @@ public class ShopCommand extends CommandManager {
                 return Arrays.stream(Material.values())
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
 
-            // Buy command autocomplete item list
-            if (args[0].equalsIgnoreCase("buy"))
+            // Buy/Remove command autocomplete item list
+            if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))
                 return Arrays.stream(shopItems.toArray())
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
 
@@ -83,6 +84,10 @@ public class ShopCommand extends CommandManager {
                 // Add command process
                 if (args[0].equalsIgnoreCase("add"))
                     return addCmd.process(sender, command, label, args);
+
+                // Remove command process
+                if (args[0].equalsIgnoreCase("remove"))
+                    return removeCmd.process(sender, command, label, args);
 
                 // Buy command process
                 if (args[0].equalsIgnoreCase("buy"))
