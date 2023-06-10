@@ -2,29 +2,46 @@ package net.sparkzz.shops;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@ConfigSerializable
 public class Store {
 
-    private static int currentId = 0;
+    public static final ArrayList<Store> STORES = new ArrayList<>();
 
-    private final int ID;
+    @Setting
+    private UUID uuid;
+
     // item : attribute, value (block_dirt : quantity, 550)
-    private final Map<Material, Map<String, Number>> items;
+    @Setting
+    private Map<Material, Map<String, Number>> items;
 
-    private boolean infFunds = false;
-    private boolean infStock = false;
-    private double balance;
-    private String name;
-    private UUID owner;
+    @Setting private boolean infFunds = false;
+    @Setting private boolean infStock = false;
+    @Setting private double balance;
+    @Setting private String name;
+    @Setting private UUID owner;
+
+    /**
+     * This constructor is required for the deserializer
+     *
+     * @deprecated Do not use this constructor!
+     */
+    @Deprecated
+    public Store() {}
 
     public Store(String name) {
-        ID = currentId += 1;
+        uuid = UUID.randomUUID();
         items = new HashMap<>();
         this.name = name;
+
+        STORES.add(this);
     }
 
     public Store(String name, UUID owner) {
@@ -56,8 +73,8 @@ public class Store {
         return (items.containsKey(material) ? items.get(material).get("sell").doubleValue() : -1D);
     }
 
-    public int getID() {
-        return ID;
+    public UUID getUUID() {
+        return uuid;
     }
 
     public Map<Material, Map<String, Number>> getItems() {
@@ -128,6 +145,10 @@ public class Store {
 
         attributes.put("quantity", newQuantity);
         items.put(material, attributes);
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     public void setInfiniteFunds(boolean value) {

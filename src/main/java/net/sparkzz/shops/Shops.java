@@ -3,6 +3,7 @@ package net.sparkzz.shops;
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
 import net.sparkzz.util.PointOfSale;
+import net.sparkzz.util.Warehouse;
 import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -26,7 +27,8 @@ public class Shops extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // TODO: save
+        Warehouse.saveConfig();
+
         LOG.info("Shops has been disabled!");
     }
 
@@ -43,7 +45,9 @@ public class Shops extends JavaPlugin {
 
         CommandManager.registerCommands(this);
 
-        testShop();
+        if (!Warehouse.loadConfig(this))
+            getServer().getPluginManager().disablePlugin(this);
+        // testShop();
 
         LOG.info("Shops has been enabled!");
     }
@@ -65,5 +69,6 @@ public class Shops extends JavaPlugin {
         shop.addItem(Material.matchMaterial("ACACIA_BUTTON"), 10, 64, 1.5D, 0.5D);
         shop.addItem(Material.matchMaterial("OBSIDIAN"), 10, 64, 5D, 2D);
         shop.setInfiniteFunds(true);
+        shop.setBalance(100.23);
     }
 }

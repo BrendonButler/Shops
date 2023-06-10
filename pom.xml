@@ -5,14 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <jupiter.version>5.9.2</jupiter.version>
+        <jackson-databind.version>[2.13.0,3)</jackson-databind.version>
+        <jupiter.version>[5.9.2,6)</jupiter.version>
+        <hocon.version>[4.1.2,5)</hocon.version>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
         <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.shade.version>2.4.3</maven.shade.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spigot-api.version>1.17.1-R0.1-SNAPSHOT</spigot-api.version>
-        <vault.version>1.7</vault.version>
+        <vault.version>[1.7,2)</vault.version>
     </properties>
 
     <name>Shops</name>
@@ -29,6 +32,31 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.version}</version>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>org.spongepowered:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <resources>
@@ -84,6 +112,17 @@
             <artifactId>VaultAPI</artifactId>
             <version>${vault.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.spongepowered/configurate-hocon -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-hocon</artifactId>
+            <version>${hocon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
         </dependency>
     </dependencies>
 </project>
