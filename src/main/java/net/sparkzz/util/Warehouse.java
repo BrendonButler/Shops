@@ -35,9 +35,9 @@ public class Warehouse {
     private static CommentedConfigurationNode config;
     private static ConfigurationLoader<CommentedConfigurationNode> loader;
     private static ObjectMapper<Store> mapper;
-    private static final TypeSerializer<Map<Material, Map<String, Number>>> materialMapSerializer = new MaterialMapSerializer();
-    private static final String configTitle = "data.shops";
     private static final Logger log = Shops.getPlugin(Shops.class).getLogger();
+    private static final String configTitle = "data.shops";
+    private static final TypeSerializer<Map<Material, Map<String, Number>>> materialMapSerializer = new MaterialMapSerializer();
 
     public static CommentedConfigurationNode getConfig() {
         return config;
@@ -64,7 +64,7 @@ public class Warehouse {
         try {
             config = loader.load(options);
         } catch (IOException exception) {
-            log.severe("Error loading config file");;
+            log.severe("Error loading config file");
         }
 
         if (config != null) {
@@ -89,18 +89,8 @@ public class Warehouse {
         try {
             mapper = ObjectMapper.factory().get(TypeToken.get(Store.class));
 
-            for (CommentedConfigurationNode currentNode : config.node("shops").childrenList()) {
-                Store store = mapper.load(currentNode);
-                Store.STORES.add(store);
-
-                log.info("ID: " + store.getUUID());
-                log.info("Name: " + store.getName());
-                log.info("Owner: " + store.getOwner());
-                log.info("Balance: " + store.getBalance());
-                log.info("Infinite Funds: " + store.hasInfiniteFunds());
-                log.info("Infinite Stock: " + store.hasInfiniteStock());
-                log.info("Items: " + store.getItems());
-            }
+            for (CommentedConfigurationNode currentNode : config.node("shops").childrenList())
+                Store.STORES.add(mapper.load(currentNode));
 
             log.info(String.format("%d %s loaded", Store.STORES.size(), (Store.STORES.size() == 1) ? "shop": "shops"));
             // TODO: remove once shops are dynamically loaded
@@ -116,9 +106,8 @@ public class Warehouse {
 
             int i = 0;
 
-            for (Store store : Store.STORES) {
+            for (Store store : Store.STORES)
                 mapper.save(store, shopsNode.node(i++));
-            }
 
             log.info(String.format("%d %s saved", i, (Store.STORES.size() == 1) ? "shop": "shops"));
         } catch (SerializationException e) {
@@ -131,7 +120,7 @@ public class Warehouse {
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
         @Override
-        public Map<Material, Map<String, Number>> deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        public Map<Material, Map<String, Number>> deserialize(Type type, ConfigurationNode node) {
             try {
                 String json = node.getString("items");
                 return mapper.readValue(json, new TypeReference<>() {});
