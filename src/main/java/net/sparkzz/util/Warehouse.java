@@ -39,10 +39,6 @@ public class Warehouse {
     private static final String configTitle = "data.shops";
     private static final TypeSerializer<Map<Material, Map<String, Number>>> materialMapSerializer = new MaterialMapSerializer();
 
-    public static CommentedConfigurationNode getConfig() {
-        return config;
-    }
-
     public static boolean loadConfig(Shops shops) {
         TypeToken<Map<Material, Map<String, Number>>> mapTypeToken = new TypeToken<>() {};
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder().register(mapTypeToken, materialMapSerializer).build();
