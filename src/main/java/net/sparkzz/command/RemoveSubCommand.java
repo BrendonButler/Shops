@@ -21,16 +21,15 @@ public class RemoveSubCommand implements ISubCommand {
     public boolean process(CommandSender sender, Command command, String label, String[] args)
             throws NumberFormatException {
         Material material = Material.matchMaterial(args[1]);
+        Player player = (Player) sender;
+        Store store = InventoryManagementSystem.locateCurrentShop(player);
 
         int quantity = 0;
 
         if (args.length == 3)
-            quantity = Integer.parseInt(args[2]);
+            quantity = (args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity(store, material) : Integer.parseInt(args[2]));
 
         if (material != null) {
-            Player player = (Player) sender;
-            Store store = InventoryManagementSystem.locateCurrentShop(player);
-
             if (!store.containsMaterial(material)) {
                 sender.sendMessage(String.format("%sThis material (%s) does not currently exist in the shop!", RED, material));
                 return true;
@@ -54,7 +53,7 @@ public class RemoveSubCommand implements ISubCommand {
 
             player.getInventory().addItem(new ItemStack(material, moveQuantity));
 
-            sender.sendMessage(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? "" + quantity + GREEN + " of " + GOLD + material : material, GREEN));
+            sender.sendMessage(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN));
             return true;
         }
 

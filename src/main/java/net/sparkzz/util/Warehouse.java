@@ -59,16 +59,17 @@ public class Warehouse {
 
         try {
             config = loader.load(options);
+
+            if (config == null) throw new IOException();
         } catch (IOException exception) {
-            log.severe("Error loading config file");
+            log.severe("Error loading config file, disabling Shops plugin");
+            return false;
         }
 
-        if (config != null) {
-            loadShops();
-            log.info("Config loaded successfully");
-        }
+        loadShops();
+        log.info("Config loaded successfully");
 
-        return config != null;
+        return true;
     }
 
     public static void saveConfig() {
@@ -133,7 +134,7 @@ public class Warehouse {
                 String json = mapper.writeValueAsString(obj);
                 node.set(json);
             } catch (JsonProcessingException e) {
-                log.severe("Failed to serialize complex map");
+                log.severe("Failed to serialize material map");
             }
         }
 

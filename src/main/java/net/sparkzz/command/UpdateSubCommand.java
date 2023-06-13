@@ -42,7 +42,8 @@ public class UpdateSubCommand implements ISubCommand {
         if (args.length < 4)
             return false;
 
-        Double value = Double.parseDouble(args[3]);
+        double value = (args[3].equalsIgnoreCase("true")) ? -1D :
+                    (args[3].equalsIgnoreCase("false") ? 0D : Double.parseDouble(args[3]));
 
         if (material != null) {
             Store store = InventoryManagementSystem.locateCurrentShop(player);
@@ -56,14 +57,22 @@ public class UpdateSubCommand implements ISubCommand {
             inputMapping.put("customer-buy-price", "buy");
             inputMapping.put("customer-sell-price", "sell");
             inputMapping.put("max-quantity", "max_quantity");
+            inputMapping.put("infinite-quantity", "quantity");
 
             if (!inputMapping.containsKey(args[2])) return false;
 
             String mapped = inputMapping.get(args[2]);
 
-            store.getItems().get(material).replace(mapped, (mapped.equals("max_quantity")) ? value.intValue() : value);
+            if (mapped.equals("quantity")) {
+                if (args[3].equalsIgnoreCase("true") && store.getAttributes(material).get("quantity").intValue() > 0) {
+                    player.sendMessage(String.format("%sPlease ensure there is no stock in the shop for this item and try again", RED));
+                    return true;
+                }
+            }
 
-            sender.sendMessage(String.format("%sYou have successfully updated %s%s%s for %s%s%s in the shop to %s%s%s!", GREEN, GOLD, args[2], GREEN, GOLD, material, GREEN, GOLD, value, GREEN));
+            store.getItems().get(material).replace(mapped, (mapped.equals("max_quantity") || mapped.equals("quantity")) ? (int) value : value);
+
+            sender.sendMessage(String.format("%sYou have successfully updated %s%s%s for %s%s%s in the shop to %s%s%s!", GREEN, GOLD, args[2], GREEN, GOLD, material, GREEN, GOLD, args[3], GREEN));
             return true;
         }
 

@@ -1,5 +1,6 @@
 package net.sparkzz.command;
 
+import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Transaction;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -24,7 +25,7 @@ public class SellSubCommand implements ISubCommand {
         int quantity = 1;
 
         if (args.length == 3)
-            quantity = Integer.parseInt(args[2]);
+            quantity = (args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
 
         // quantity less than or equal to 0, or greater than 2304 (max inventory capacity) is invalid
         if (quantity <= 0 || quantity > 2304) {

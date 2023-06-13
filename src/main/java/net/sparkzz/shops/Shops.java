@@ -2,9 +2,7 @@ package net.sparkzz.shops;
 
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
-import net.sparkzz.util.PointOfSale;
 import net.sparkzz.util.Warehouse;
-import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,35 +19,32 @@ public class Shops extends JavaPlugin {
     public static Store shop;
     public static Economy econ;
     public static PluginDescriptionFile desc;
-    public static PointOfSale pos;
 
-    private final Logger LOG = getLogger();
+    private final Logger log = getLogger();
 
     @Override
     public void onDisable() {
         Warehouse.saveConfig();
 
-        LOG.info("Shops has been disabled!");
+        log.info("Shops has been disabled!");
     }
 
     @Override
     public void onEnable() {
         if (!setupEconomy()) {
-            LOG.severe("Disabled due to missing economy dependency (see README)!");
+            log.severe("Disabled due to missing economy dependency (see README)!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
         desc = this.getDescription();
-        pos = new PointOfSale();
 
         CommandManager.registerCommands(this);
 
         if (!Warehouse.loadConfig(this))
             getServer().getPluginManager().disablePlugin(this);
-        // testShop();
 
-        LOG.info("Shops has been enabled!");
+        log.info("Shops has been enabled!");
     }
 
     private boolean setupEconomy() {
@@ -62,13 +57,5 @@ public class Shops extends JavaPlugin {
             econ = provider.getProvider();
 
         return econ != null;
-    }
-
-    private void testShop() {
-        shop = new Store("DEFAULT");
-        shop.addItem(Material.matchMaterial("ACACIA_BUTTON"), 10, 64, 1.5D, 0.5D);
-        shop.addItem(Material.matchMaterial("OBSIDIAN"), 10, 64, 5D, 2D);
-        shop.setInfiniteFunds(true);
-        shop.setBalance(100.23);
     }
 }

@@ -164,6 +164,6 @@ public class Store {
     }
 
     public void setOwner(UUID uuid) {
-        this.owner = owner;
+        this.owner = uuid;
     }
 }

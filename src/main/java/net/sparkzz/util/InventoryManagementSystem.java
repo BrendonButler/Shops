@@ -16,13 +16,25 @@ import java.util.Map;
  */
 public class InventoryManagementSystem {
 
+    public static boolean canInsert(Player player, Material material, int quantity) {
+        int availableSpace = getAvailableSpace(player, material);
+
+        return (quantity <= availableSpace);
+    }
+
+    public static boolean canRemove(Player player, Material material, int quantity) {
+        int inInventory = countQuantity(player, material);
+
+        return (quantity <= inInventory);
+    }
+
     public static boolean containsAtLeast(Store store, ItemStack itemStack) {
         int storeQuantity = countQuantity(store, itemStack.getType());
 
-        return store.hasInfiniteStock() || storeQuantity == -1 || (store.containsMaterial(itemStack.getType()) && storeQuantity >= itemStack.getAmount());
+        return store.hasInfiniteStock() || storeQuantity >= itemStack.getAmount();
     }
 
-    private static int countQuantity(Player player, Material material) {
+    public static int countQuantity(Player player, Material material) {
         ListIterator<ItemStack> iterator = player.getInventory().iterator();
         int quantity = 0;
 
@@ -39,8 +51,11 @@ public class InventoryManagementSystem {
     public static int countQuantity(Store store, Material material) {
         int quantity = -1;
 
-        if (!store.hasInfiniteStock())
+        if (store.containsMaterial(material)) {
             quantity = store.getAttributes(material).get("quantity").intValue();
+
+            quantity = (quantity < 0) ? Integer.MAX_VALUE : quantity;
+        }
 
         return quantity;
     }
@@ -64,27 +79,16 @@ public class InventoryManagementSystem {
     public static int getAvailableSpace(Store store, Material material) {
         int availableSpace = 0;
 
-        if (!store.hasInfiniteStock()) {
+        if (!store.hasInfiniteStock() && store.containsMaterial(material)) {
             Map<Material, Map<String, Number>> items = store.getItems();
             int maxQuantity = items.get(material).get("max_quantity").intValue();
             int curQuantity = items.get(material).get("quantity").intValue();
 
-            availableSpace = maxQuantity - curQuantity;
-        } else availableSpace = -1;
+            availableSpace = (curQuantity < 0) ? Integer.MAX_VALUE : maxQuantity - curQuantity;
+        } else if (store.hasInfiniteStock() && store.containsMaterial(material))
+            availableSpace = Integer.MAX_VALUE;
 
         return availableSpace;
-    }
-
-    public static boolean canInsert(Player player, Material material, int quantity) {
-        int availableSpace = getAvailableSpace(player, material);
-
-        return (quantity <= availableSpace);
-    }
-
-    public static boolean canRemove(Player player, Material material, int quantity) {
-        int inInventory = countQuantity(player, material);
-
-        return (quantity <= inInventory);
     }
 
     public static Store locateCurrentShop(Player player) {

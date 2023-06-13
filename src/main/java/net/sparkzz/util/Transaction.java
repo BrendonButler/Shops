@@ -6,17 +6,17 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.RED;
 
 public class Transaction {
 
+    private final ItemStack itemStack;
+    private final TransactionType type;
+    private final Player player;
+    private final Store store;
+    private final StringBuilder transactionMessage = new StringBuilder();
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
     private double cost;
-    private ItemStack itemStack;
-    private TransactionType type;
-    private Player player;
-    private Store store;
-    private StringBuilder transactionMessage = new StringBuilder();
 
     public Transaction(Player player, ItemStack itemStack, TransactionType type) {
         this.player = player;
@@ -62,8 +62,8 @@ public class Transaction {
         switch (type) {
             case PURCHASE -> {
                 boolean canInsertPlayer = InventoryManagementSystem.canInsert(player, material, itemQuantity);
-                boolean canWithdrawStore = InventoryManagementSystem.containsAtLeast(store, itemStack) && (InventoryManagementSystem.countQuantity(store, material) == -1 || InventoryManagementSystem.countQuantity(store, material) >= itemQuantity);
-                boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").intValue() >= 0;
+                boolean canWithdrawStore = store.containsMaterial(material) && InventoryManagementSystem.containsAtLeast(store, itemStack);
+                boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").doubleValue() >= 0;
 
                 if (!storeIsSelling) transactionMessageBuilder(String.format("%sThe Store is not currently selling any of these at this time!", RED));
                 else if (!canInsertPlayer) transactionMessageBuilder(String.format("%sYou have insufficient inventory space!", RED));
@@ -74,31 +74,17 @@ public class Transaction {
             }
             case SALE -> {
                 boolean canWithdrawPlayer = player.getInventory().containsAtLeast(itemStack, itemQuantity);
-                boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").intValue() >= 0;
-                int quantity = store.getAttributes(material).get("quantity").intValue();
-                int maxQuantity = store.getAttributes(material).get("max_quantity").intValue();
-                boolean storeIsBuyingMore = storeIsBuying && (maxQuantity < 0 || maxQuantity >= quantity + itemQuantity);
+                boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").doubleValue() >= 0;
+                boolean storeIsBuyingMore = storeIsBuying && InventoryManagementSystem.getAvailableSpace(store, material) >= itemQuantity;
 
                 if (!storeIsBuying) transactionMessageBuilder(String.format("%sThe store is not buying any of these at this time!", RED));
-                else if (!storeIsBuyingMore) transactionMessageBuilder(String.format("%sThe store isn't buying any more of these at this time!", RED));
+                else if (!storeIsBuyingMore) transactionMessageBuilder(String.format("%sThe store is not buying any more of these at this time!", RED));
                 else if (!canWithdrawPlayer) transactionMessageBuilder(String.format("%sYou have an insufficient amount!", RED));
 
                 if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;
             }
         }
-    }
-
-    public boolean isFinancesReady() {
-        return financesReady;
-    }
-
-    public boolean isInventoryReady() {
-        return inventoryReady;
-    }
-
-    public boolean isTransactionReady() {
-        return transactionReady;
     }
 
     public boolean validateReady() {
@@ -122,7 +108,7 @@ public class Transaction {
     public void process() {
         switch (type) {
             case PURCHASE -> {
-                if (!store.hasInfiniteStock())
+                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.removeItem(itemStack);
 
                 store.addFunds(cost);
@@ -130,7 +116,7 @@ public class Transaction {
                 Shops.econ.withdrawPlayer(player, cost);
             }
             case SALE -> {
-                if (!store.hasInfiniteStock())
+                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.addItem(itemStack);
                 if (!store.hasInfiniteFunds())
                     store.removeFunds(cost);
@@ -142,6 +128,6 @@ public class Transaction {
     }
 
     public enum TransactionType {
-        PURCHASE, SALE;
+        PURCHASE, SALE
     }
 }
