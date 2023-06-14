@@ -29,8 +29,22 @@ public class UpdateSubCommand implements ISubCommand {
             Store store = InventoryManagementSystem.locateCurrentShop(player);
 
             switch (args[1].toLowerCase()) {
-                case "infinite-funds" -> store.setInfiniteFunds(Boolean.parseBoolean(args[2]));
-                case "infinite-stock" -> store.setInfiniteStock(Boolean.parseBoolean(args[2]));
+                case "infinite-funds" -> {
+                    if (player.hasPermission("shops.update.inf-funds")) {
+                        sender.sendMessage(String.format("%sYou do not have permission to set infinite funds in your Shop!", RED));
+                        return true;
+                    }
+
+                    store.setInfiniteFunds(Boolean.parseBoolean(args[2]));
+                }
+                case "infinite-stock" -> {
+                    if (player.hasPermission("shops.update.inf-stock")) {
+                        sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop!", RED));
+                        return true;
+                    }
+
+                    store.setInfiniteStock(Boolean.parseBoolean(args[2]));
+                }
                 case "shop-name" -> store.setName(args[2]);
             }
 
@@ -64,6 +78,11 @@ public class UpdateSubCommand implements ISubCommand {
             String mapped = inputMapping.get(args[2]);
 
             if (mapped.equals("quantity")) {
+                if (!player.hasPermission("shops.update.inf-stock")) {
+                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop!", RED));
+                    return true;
+                }
+
                 if (args[3].equalsIgnoreCase("true") && store.getAttributes(material).get("quantity").intValue() > 0) {
                     player.sendMessage(String.format("%sPlease ensure there is no stock in the shop for this item and try again", RED));
                     return true;

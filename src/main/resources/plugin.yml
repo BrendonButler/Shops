@@ -1,3 +1,4 @@
+# noinspection YAMLSchemaValidation
 name: @project.name@
 version: @project.version@
 author: MrSparkzz
@@ -6,16 +7,55 @@ api-version: 1.18
 
 depend: [ Vault ]
 website: shops.sparkzz.net
+
 commands:
   shop:
     description: Interact with current shop
     usage: /<command> [add|remove|buy|sell] <item> <quantity>
-    permission: shops.command.interact
   shops:
     description: Shops plugin info
     usage: /<command>
-    permission: shops.command.shops
-#commands:
-  #<command>:
-    #description: appears in /help
-    #usage: command [one|two] <player_name>
+    permission: shops.cmd.shops
+
+permissions:
+  shops.*:
+    description: Allows access to all shops permisisons
+    children:
+      shops.cmd.add: true
+      shops.cmd.remove: true
+      shops.cmd.buy: true
+      shops.cmd.sell: true
+      shops.cmd.update: true
+      shops.cmd.deposit: true
+      shops.cmd.withdraw: true
+      shops.update.*: true
+  shops.cmd.shops:
+    description: Allows a player to use the plugin info command
+    default: true
+  shops.cmd.add:
+    description: Allows a player to add items to their shop
+  shops.cmd.remove:
+    description: Allows a player to remove items from their shop
+  shops.cmd.buy:
+    description: Allows a player to purchase items from shops
+    default: true
+  shops.cmd.sell:
+    description: Allows a player to sell items to shops
+    default: true
+  shops.cmd.update:
+    description: Allows a player to update items in their shop
+  shops.cmd.deposit:
+    description: Allows a player to deposit funds into their shop
+  shops.cmd.withdraw:
+    description: Allows a player to withdraw funds from their shop
+  shops.update.*:
+    description: Allows access to all update commands
+    children:
+      shops.update.inf-funds: true
+      shops.update.inf-stock: true
+  shops.update.inf-funds:
+    description: Allows a player to update the infinite funds flag
+    default: op
+  shops.update.inf-stock:
+    description: Allows a player to update the infinite stock flag
+    default: op

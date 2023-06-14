@@ -132,8 +132,15 @@ public class ShopCommand extends CommandManager {
         try {
             if (args.length < 2) throw new IllegalArgumentException();
 
-            if (subCommands.containsKey(args[0].toLowerCase()))
-                return subCommands.get(args[0].toLowerCase()).process(sender, command, label, args);
+            String subCommand = args[0].toLowerCase();
+
+            if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
+                sender.sendMessage(String.format("%sYou do not have permission to use this command!", RED));
+                return true;
+            }
+
+            if (subCommands.containsKey(subCommand))
+                return subCommands.get(subCommand).process(sender, command, label, args);
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {

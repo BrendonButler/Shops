@@ -35,6 +35,11 @@ public class AddSubCommand implements ISubCommand {
                     return true;
                 }
 
+                if (quantity < 0 && !player.hasPermission("shops.update.inf-stock")) {
+                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop (try using a positive quantity)!", RED));
+                    return true;
+                }
+
                 if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
                     sender.sendMessage(String.format("%sYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!", RED));
                     return true;
@@ -53,6 +58,11 @@ public class AddSubCommand implements ISubCommand {
 
                 if (store.containsMaterial(material)) {
                     sender.sendMessage(String.format("%sThis material already exists in the shop, use `/shop update %s` to update this item", RED, material));
+                    return true;
+                }
+
+                if (quantity < 0 && !player.hasPermission("shops.update.inf-stock")) {
+                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop (try using a positive quantity)!", RED));
                     return true;
                 }
 
