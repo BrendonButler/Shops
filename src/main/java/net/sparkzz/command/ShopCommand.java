@@ -27,9 +27,11 @@ public class ShopCommand extends CommandManager {
     private final Map<String, ISubCommand> subCommands = new HashMap<>() {{
         put("add", new AddSubCommand());
         put("buy", new BuySubCommand());
+        put("deposit", new DepositSubCommand());
         put("sell", new SellSubCommand());
         put("remove", new RemoveSubCommand());
         put("update", new UpdateSubCommand());
+        put("withdraw", new WithdrawSubCommand());
     }};
 
     @Override
@@ -45,6 +47,12 @@ public class ShopCommand extends CommandManager {
 
         if (args.length == 2) {
             Set<Material> shopItems = Shops.shop.getItems().keySet();
+
+            if (args[0].equalsIgnoreCase("deposit"))
+                return Arrays.asList("<amount>");
+
+            if (args[0].equalsIgnoreCase("withdraw"))
+                return Arrays.asList("<amount>", "all");
 
             // Add command autocomplete item list
             if (args[0].equalsIgnoreCase("add"))
