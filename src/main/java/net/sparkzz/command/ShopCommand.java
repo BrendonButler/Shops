@@ -32,6 +32,7 @@ public class ShopCommand extends CommandManager {
         put("delete", new DeleteSubCommand());
         put("deposit", new DepositSubCommand());
         put("sell", new SellSubCommand());
+        put("transfer", new TransferSubCommand());
         put("remove", new RemoveSubCommand());
         put("update", new UpdateSubCommand());
         put("withdraw", new WithdrawSubCommand());
@@ -87,29 +88,31 @@ public class ShopCommand extends CommandManager {
             if (args[0].equalsIgnoreCase("create"))
                 return Arrays.asList("<name>");
 
-            // Only display a list of shops that are owned by the player, and provide a list of "ShopName - UUID"
-            if (args[0].equalsIgnoreCase("delete"))
+            // Only display a list of shops that are owned by the player, and provide a list of "ShopName~UUID"
+            if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("transfer"))
                 return Store.STORES.stream().filter(s -> s.getOwner().equals(((Player) sender).getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
         }
 
-        if (args.length == 3 && (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))) {
-            return Arrays.asList("[<quantity>]", "all");
-        }
+        if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))
+                return Arrays.asList("[<quantity>]", "all");
 
-        if (args.length == 3 && (args[0].equalsIgnoreCase("add"))) {
-            return Arrays.asList("<customer-buy-price>", "[<quantity>]", "all");
-        }
+            if (args[0].equalsIgnoreCase("add"))
+                return Arrays.asList("<customer-buy-price>", "[<quantity>]", "all");
 
-        if (args.length == 3 && (args[0].equalsIgnoreCase("buy"))) {
-            return Arrays.asList("[<quantity>]");
-        }
+            if (args[0].equalsIgnoreCase("buy"))
+                return Arrays.asList("[<quantity>]");
 
-        if (args.length == 3 && (args[0].equalsIgnoreCase("update"))) {
-            return switch (args[1].toLowerCase()) {
-                case "infinite-funds", "infinite-stock" -> Arrays.asList("true", "false");
-                case "shop-name" -> Arrays.asList("<name>");
-                default -> Arrays.asList("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
-            };
+            if (args[0].equalsIgnoreCase("update")) {
+                return switch (args[1].toLowerCase()) {
+                    case "infinite-funds", "infinite-stock" -> Arrays.asList("true", "false");
+                    case "shop-name" -> Arrays.asList("<name>");
+                    default -> Arrays.asList("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
+                };
+            }
+
+            if (args[0].equalsIgnoreCase("transfer"))
+                return Shops.getPlugin(Shops.class).getServer().getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
         }
 
         if (args.length == 4 && (args[0].equalsIgnoreCase("add"))) {

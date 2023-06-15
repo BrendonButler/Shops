@@ -35,6 +35,7 @@ permissions:
       shops.cmd.withdraw: true
       shops.cmd.create: true
       shops.cmd.delete: true
+      shops.cmd.transfer: true
   shops.cmd.shops:
     description: Allows a player to use the plugin info command
     default: true
@@ -58,6 +59,8 @@ permissions:
     description: Allows a player to create shops
   shops.cmd.delete:
     description: Allows a player to delete shops
+  shops.cmd.transfer:
+    description: Allows a player to transfer a shop to another player
   shops.update.*:
     description: Allows access to all update commands
     children:
