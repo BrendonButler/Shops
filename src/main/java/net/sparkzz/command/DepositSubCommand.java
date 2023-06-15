@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import static org.bukkit.ChatColor.*;
 
 /**
- * Buy subcommand used for processing buy transactions
+ * Deposit subcommand used for depositing finances into a shop
  *
  * @author Brendon Butler
  */

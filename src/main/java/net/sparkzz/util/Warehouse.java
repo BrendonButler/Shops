@@ -101,12 +101,15 @@ public class Warehouse {
         try {
             CommentedConfigurationNode shopsNode = config.node("shops");
 
+            // Clear the existing shops before saving the updated list
+            shopsNode.childrenMap().keySet().forEach(shopsNode::removeChild);
+
             int i = 0;
 
             for (Store store : Store.STORES)
                 mapper.save(store, shopsNode.node(i++));
 
-            log.info(String.format("%d %s saved", i, (Store.STORES.size() == 1) ? "shop": "shops"));
+            log.info(String.format("%d %s saved", i, (Store.STORES.size() == 1) ? "shop" : "shops"));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }

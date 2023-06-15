@@ -19,7 +19,12 @@ commands:
 
 permissions:
   shops.*:
-    description: Allows access to all shops permisisons
+    description: Allows access to all shops permissions
+    children:
+      shops.cmd.*: true
+      shops.update.*: true
+  shops.cmd.*:
+    description: Allows access to all shops commands
     children:
       shops.cmd.add: true
       shops.cmd.remove: true
@@ -28,7 +33,8 @@ permissions:
       shops.cmd.update: true
       shops.cmd.deposit: true
       shops.cmd.withdraw: true
-      shops.update.*: true
+      shops.cmd.create: true
+      shops.cmd.delete: true
   shops.cmd.shops:
     description: Allows a player to use the plugin info command
     default: true
@@ -48,6 +54,10 @@ permissions:
     description: Allows a player to deposit funds into their shop
   shops.cmd.withdraw:
     description: Allows a player to withdraw funds from their shop
+  shops.cmd.create:
+    description: Allows a player to create shops
+  shops.cmd.delete:
+    description: Allows a player to delete shops
   shops.update.*:
     description: Allows access to all update commands
     children:

@@ -1,6 +1,7 @@
 package net.sparkzz.command;
 
 import net.sparkzz.shops.Shops;
+import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,6 +28,8 @@ public class ShopCommand extends CommandManager {
     private final Map<String, ISubCommand> subCommands = new HashMap<>() {{
         put("add", new AddSubCommand());
         put("buy", new BuySubCommand());
+        put("create", new CreateSubCommand());
+        put("delete", new DeleteSubCommand());
         put("deposit", new DepositSubCommand());
         put("sell", new SellSubCommand());
         put("remove", new RemoveSubCommand());
@@ -46,8 +49,6 @@ public class ShopCommand extends CommandManager {
             return subCommands.keySet().stream().toList();
 
         if (args.length == 2) {
-            Set<Material> shopItems = Shops.shop.getItems().keySet();
-
             if (args[0].equalsIgnoreCase("deposit"))
                 return Arrays.asList("<amount>");
 
@@ -55,19 +56,23 @@ public class ShopCommand extends CommandManager {
                 return Arrays.asList("<amount>", "all");
 
             // Add command autocomplete item list
-            if (args[0].equalsIgnoreCase("add"))
+            if (args[0].equalsIgnoreCase("add")) {
                 return Arrays.stream(Material.values())
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
+            }
+
+            Set<Material> shopItems = Shops.shop.getItems().keySet();
 
             // Buy/Remove command autocomplete item list
             if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))
                 return Arrays.stream(shopItems.toArray())
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
 
+            // provide a list of items witin the shop, along with some additional items based on permissions
             if (args[0].equalsIgnoreCase("update")) {
                 ArrayList<String> tempList = shopItems.stream().map(m -> m.toString().toLowerCase()).collect(Collectors.toCollection(ArrayList::new));
-                tempList.add("infinite-funds");
-                tempList.add("infinite-stock");
+                if (((Player) sender).hasPermission("shops.update.inf-funds")) tempList.add("infinite-funds");
+                if (((Player) sender).hasPermission("shops.update.inf-stock")) tempList.add("infinite-stock");
                 tempList.add("shop-name");
 
                 return tempList;
@@ -78,6 +83,13 @@ public class ShopCommand extends CommandManager {
                 return Arrays.stream(((Player) sender).getInventory().getContents())
                         .filter(Objects::nonNull).map(i -> i.getType().toString().toLowerCase())
                         .collect(Collectors.toList());
+
+            if (args[0].equalsIgnoreCase("create"))
+                return Arrays.asList("<name>");
+
+            // Only display a list of shops that are owned by the player, and provide a list of "ShopName - UUID"
+            if (args[0].equalsIgnoreCase("delete"))
+                return Store.STORES.stream().filter(s -> s.getOwner().equals(((Player) sender).getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
         }
 
         if (args.length == 3 && (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))) {

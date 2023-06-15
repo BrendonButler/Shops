@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import static org.bukkit.ChatColor.*;
 
 /**
- * Buy subcommand used for processing buy transactions
+ * Remove subcommand used for removing items from a shop
  *
  * @author Brendon Butler
  */

@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.bukkit.ChatColor.*;
 
 /**
- * Buy subcommand used for processing buy transactions
+ * Update subcommand used for updating items in a shop
  *
  * @author Brendon Butler
  */

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import static org.bukkit.ChatColor.*;
 
 /**
- * Buy subcommand used for processing buy transactions
+ * Withdraw subcommand used for withdrawing funds from a shop
  *
  * @author Brendon Butler
  */

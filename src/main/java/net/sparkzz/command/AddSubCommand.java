@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import static org.bukkit.ChatColor.*;
 
 /**
- * Buy subcommand used for processing buy transactions
+ * Add subcommand used for adding items to a shop
  *
  * @author Brendon Butler
  */
