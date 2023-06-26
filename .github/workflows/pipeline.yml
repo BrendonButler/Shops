@@ -19,7 +19,7 @@ jobs:
         os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            distribution: focal
+            distribution: ubuntu
 
     steps:
       - name: Checkout code
