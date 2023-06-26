@@ -1,0 +1,51 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Build and run unit tests
+        run: mvn clean test
+
+      - name: Generate code coverage report
+        run: mvn jacoco:report
+
+      - name: Upload code coverage artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage
+          path: target/site/jacoco
+
+      - name: Run static code analysis
+        run: mvn spotbugs:check
+
+      - name: Run integration tests
+        run: mvn verify
+
+      - name: Check documentation
+        run: mvn validate site
+
+      - name: Run security scans
+        run: mvn org.owasp:dependency-check-maven:check
+
+      - name: Validate pull request
+        run: mvn clean verify -P pull-request-validation
