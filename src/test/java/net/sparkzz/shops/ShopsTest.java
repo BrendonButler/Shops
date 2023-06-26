@@ -11,8 +11,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
 import static org.bukkit.ChatColor.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ShopsTest {
     private static final String passed = "\u001B[32m[Test] Passed ";
@@ -31,7 +30,7 @@ class ShopsTest {
         plugin = MockBukkit.load(Shops.class);
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
-        shopper = server.addPlayer("Shopper #1");
+        shopper = server.addPlayer("Shopper1");
 
         mrSparkzz.setOp(true);
 
@@ -61,7 +60,7 @@ class ShopsTest {
         @DisplayName("Create Command")
         @Order(1)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class CreateCommand {
+        class CreateCommandTest {
 
             @BeforeAll
             static void setUp() {
@@ -95,7 +94,7 @@ class ShopsTest {
         @DisplayName("Delete Command")
         @Order(2)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class DeleteCommand {
+        class DeleteCommandTest {
 
             @BeforeAll
             static void setUp() {
@@ -149,7 +148,7 @@ class ShopsTest {
         @DisplayName("Add Command")
         @Order(3)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class AddCommand {
+        class AddCommandTest {
             static ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
 
             @BeforeAll
@@ -221,7 +220,7 @@ class ShopsTest {
         @DisplayName("Remove Command")
         @Order(4)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class RemoveCommand {
+        class RemoveCommandTest {
             static ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
 
             @BeforeAll
@@ -287,11 +286,15 @@ class ShopsTest {
         @DisplayName("Deposit Command")
         @Order(5)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class DepositCommand {
+        class DepositCommandTest {
+
+            @BeforeAll
+            static void setUp() {
+                printMessage("==[ TEST DEPOSIT COMMAND ]==");
+            }
 
             @BeforeEach
             void setUpDepositCommand() {
-                printMessage("==[ TEST DEPOSIT COMMAND ]==");
                 // TODO: Shops.econ.depositPlayer(mrSparkzz, 150);
                 Shops.shop.addFunds(25);
             }
@@ -323,11 +326,15 @@ class ShopsTest {
         @DisplayName("Withdraw Command")
         @Order(6)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class WithdrawCommand {
+        class WithdrawCommandTest {
+
+            @BeforeAll
+            static void setUp() {
+                printMessage("==[ TEST WITHDRAW COMMAND ]==");
+            }
 
             @BeforeEach
             void setUpWithdrawCommand() {
-                printMessage("==[ TEST WITHDRAW COMMAND ]==");
                 // TODO: Shops.econ.depositPlayer(mrSparkzz, 50);
                 Shops.shop.addFunds(125);
             }
@@ -338,7 +345,7 @@ class ShopsTest {
             void testWithdrawCommand_Permissions() {
                 performCommand(player2, "shop withdraw 100");
                 assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
-                printSuccessMessage("deposit command permission check");
+                printSuccessMessage("withdraw command permission check");
             }
 
             @Test
@@ -359,12 +366,16 @@ class ShopsTest {
         @DisplayName("Buy Command")
         @Order(7)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class BuyCommand {
+        class BuyCommandTest {
             static ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
+
+            @BeforeAll
+            static void setUp() {
+                printMessage("==[ TEST BUY COMMAND ]==");
+            }
 
             @BeforeEach
             void setUpBuyCommand() {
-                printMessage("==[ TEST BUY COMMAND ]==");
                 Shops.shop.getItems().clear();
                 Shops.shop.addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
                 // TODO: Shops.econ.depositPlayer(mrSparkzz, 50);
@@ -397,12 +408,16 @@ class ShopsTest {
         @DisplayName("Sell Command")
         @Order(8)
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class SellCommand {
+        class SellCommandTest {
             static ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
+
+            @BeforeAll
+            static void setUp() {
+                printMessage("==[ TEST SELL COMMAND ]==");
+            }
 
             @BeforeEach
             void setUpSellCommand() {
-                printMessage("==[ TEST SELL COMMAND ]==");
                 Shops.shop.getItems().clear();
                 Shops.shop.addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
                 Shops.shop.addFunds(100);
@@ -416,7 +431,7 @@ class ShopsTest {
             void testSellCommand_Permissions() {
                 performCommand(player2, "shop sell emerald 1");
                 assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
-                printSuccessMessage("buy command permission check");
+                printSuccessMessage("sell command permission check");
             }
 
             @Test
@@ -433,6 +448,132 @@ class ShopsTest {
                         GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, price * quantity, GREEN), mrSparkzz.nextMessage());
                 assertEquals(25, Shops.shop.getBalance());
                 assertEquals(150, Shops.econ.getBalance(mrSparkzz));
+            }
+        }
+
+        @Nested
+        @DisplayName("Transfer Command")
+        @Order(9)
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        class TransferCommandTest {
+
+            @BeforeAll
+            static void setUpTransferCommand() {
+                printMessage("==[ TEST TRANSFER COMMAND ]==");
+            }
+
+            @AfterEach
+            void tearDown() {
+                Shops.shop.setOwner(mrSparkzz.getUniqueId());
+            }
+
+            @Test
+            @DisplayName("Test Transfer - permissions")
+            @Order(1)
+            void testTransferCommand_Permissions() {
+                performCommand(player2, "shop transfer BetterBuy MrSparkzz");
+                assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+                printSuccessMessage("transfer command permission check");
+            }
+
+            @Test
+            @Disabled("Not sure exactly what's going on with this, but it's having trouble loading either the Server or Player (TransferSubCommand:44)")
+            @DisplayName("Test Transfer - main functionality")
+            @Order(2)
+            void testTransferCommand() {
+                performCommand(mrSparkzz, String.format("shop transfer %s %s", Shops.shop.getName(), player2.getName()));
+                assertEquals(String.format("%sYou have successfully transferred %s%s%s to player %s%s%s!", GREEN, GOLD, Shops.shop.getName(), GREEN, GOLD, player2.getName(), GREEN), mrSparkzz.nextMessage());
+                assertEquals(player2.getUniqueId(), Shops.shop.getOwner());
+            }
+        }
+
+        @Nested
+        @DisplayName("Update Command")
+        @Order(10)
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        class UpdateCommandTest {
+
+            private static boolean wasInfStock, wasInfFunds;
+            private static String oldName;
+
+            @BeforeAll
+            static void saveOldValues() {
+                printMessage("==[ TEST UPDATE COMMAND ]==");
+                oldName = Shops.shop.getName();
+                wasInfFunds = Shops.shop.hasInfiniteFunds();
+                wasInfStock = Shops.shop.hasInfiniteStock();
+            }
+
+            @AfterEach
+            void tearDown() {
+                Shops.shop.setName(oldName);
+                Shops.shop.setInfiniteFunds(wasInfFunds);
+                Shops.shop.setInfiniteStock(wasInfStock);
+            }
+
+            @Test
+            @DisplayName("Test Update - permissions")
+            @Order(1)
+            void testUpdateCommand_Permissions() {
+                performCommand(player2, "shop update shop-name TestShop99");
+                assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+                printSuccessMessage("update command permission check");
+            }
+
+            @Test
+            @DisplayName("Test Update - main functionality - infinite-funds true")
+            @Order(2)
+            void testUpdateCommand_InfFunds() {
+                performCommand(mrSparkzz, "shop update infinite-funds true");
+                assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "infinite-funds", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
+                assertTrue(Shops.shop.hasInfiniteFunds());
+            }
+
+            @Test
+            @DisplayName("Test Update - main functionality - inf-stock true")
+            @Order(2)
+            void testUpdateCommand_InfStock() {
+                performCommand(mrSparkzz, "shop update infinite-stock true");
+                assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "infinite-stock", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
+                assertTrue(Shops.shop.hasInfiniteStock());
+            }
+
+            @Test
+            @DisplayName("Test Update - main functionality - shop name")
+            @Order(2)
+            void testUpdateCommand_ShopName() {
+                performCommand(mrSparkzz, "shop update shop-name TestShop99");
+                assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
+                assertEquals("TestShop99", Shops.shop.getName());
+            }
+        }
+
+        @Nested
+        @DisplayName("Info Command")
+        @Order(20)
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        class InfoCommandTest {
+
+            @BeforeAll
+            static void setUp() {
+                printMessage("==[ TEST INFO COMMAND ]==");
+            }
+
+            @Test
+            @DisplayName("Test Info - permissions")
+            @Order(1)
+            void testUpdateCommand_Permissions() {
+                performCommand(player2, "shops");
+                assertEquals("§cI'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is a mistake.", player2.nextMessage());
+                printSuccessMessage("info command permission check");
+            }
+
+            @Test
+            @DisplayName("Test Info")
+            @Order(2)
+            void testUpdateCommand_InfFunds() {
+                performCommand(mrSparkzz, "shops");
+                assertEquals(String.format("§l§3Shops v%s", Shops.desc.getVersion()), mrSparkzz.nextMessage());
             }
         }
     }

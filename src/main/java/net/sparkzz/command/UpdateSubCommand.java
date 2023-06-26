@@ -30,7 +30,7 @@ public class UpdateSubCommand implements ISubCommand {
 
             switch (args[1].toLowerCase()) {
                 case "infinite-funds" -> {
-                    if (player.hasPermission("shops.update.inf-funds")) {
+                    if (!player.hasPermission("shops.update.inf-funds")) {
                         sender.sendMessage(String.format("%sYou do not have permission to set infinite funds in your Shop!", RED));
                         return true;
                     }
@@ -38,7 +38,7 @@ public class UpdateSubCommand implements ISubCommand {
                     store.setInfiniteFunds(Boolean.parseBoolean(args[2]));
                 }
                 case "infinite-stock" -> {
-                    if (player.hasPermission("shops.update.inf-stock")) {
+                    if (!player.hasPermission("shops.update.inf-stock")) {
                         sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop!", RED));
                         return true;
                     }
