@@ -12,7 +12,18 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        include:
+          - os: ubuntu-latest
+            distribution: focal
+          - os: macos-latest
+            distribution: macos-latest
+          - os: windows-latest
+            distribution: windows-latest
 
     steps:
       - name: Checkout code
@@ -24,7 +35,7 @@ jobs:
           java-version: '11'
 
       - name: Build and run unit tests
-        run: mvn clean test
+        run: mvn clean install
 
       - name: Generate code coverage report
         run: mvn jacoco:report
