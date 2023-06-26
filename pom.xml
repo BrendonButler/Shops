@@ -5,16 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <jackson-databind.version>[2.13.0,3)</jackson-databind.version>
-        <jupiter.version>[5.9.2,6)</jupiter.version>
-        <hocon.version>[4.1.2,5)</hocon.version>
+        <jackson-databind.version>2.15.0</jackson-databind.version>
+        <jupiter.version>5.9.2</jupiter.version>
+        <hocon.version>4.1.2</hocon.version>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
         <maven.compiler.version>3.11.0</maven.compiler.version>
         <maven.shade.version>2.4.3</maven.shade.version>
+        <maven.surefire.version>3.0.0</maven.surefire.version>
+        <mockbukkit.version>2.85.2</mockbukkit.version>
+        <minecraft.server.version>1.18</minecraft.server.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spigot-api.version>1.17.1-R0.1-SNAPSHOT</spigot-api.version>
+        <spigot-api.version>${minecraft.server.version}.2-R0.1-SNAPSHOT</spigot-api.version>
         <vault.version>[1.7,2)</vault.version>
     </properties>
 
@@ -38,9 +41,14 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven.shade.version}</version>
                 <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>net.sparkzz.shops.Shops</mainClass>
+                        </transformer>
+                    </transformers>
                     <filters>
                         <filter>
-                            <artifact>org.spongepowered:*</artifact>
+                            <artifact>*:*</artifact>
                             <excludes>
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
@@ -48,6 +56,7 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
                     <execution>
@@ -57,6 +66,17 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependency>net.essentialsx:EssentialsX</dependency>
+                        <dependency>com.github.MilkBowl:Vault</dependency>
+                    </dependenciesToScan>
+                </configuration>
             </plugin>
         </plugins>
         <resources>
@@ -71,7 +91,7 @@
         <!-- This adds the Maven repository to the build -->
         <repository>
             <id>mvnrepository</id>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -89,6 +109,16 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <!-- This adds the EssentialsX repository to the build -->
+        <repository>
+            <id>essentials-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+        <!-- This adds the paper-io repository to the build -->
+        <repository>
+            <id>paper-repo</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -97,7 +127,7 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${spigot-api.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
@@ -106,12 +136,34 @@
             <version>${jupiter.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- This adds MockBukkit support for unit testing -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <version>${mockbukkit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- This adds the Vault API to the build -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>${vault.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
+        </dependency>
+        <!-- This adds the Vault API to the build -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>Vault</artifactId>
+            <version>${vault.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- This adds EssentialsX to the build -->
+        <dependency>
+            <groupId>net.essentialsx</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.20.0</version>
+            <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.spongepowered/configurate-hocon -->
         <dependency>
@@ -119,6 +171,7 @@
             <artifactId>configurate-hocon</artifactId>
             <version>${hocon.version}</version>
         </dependency>
+        <!-- This adds jackson databind for custom data serialization and deserialization -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
