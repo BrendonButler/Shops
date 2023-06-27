@@ -11,7 +11,7 @@ import static org.bukkit.ChatColor.RED;
 
 public class Transaction {
     
-    private static final Economy econ = Shops.getPlugin(Shops.class).getEconomy();
+    private static final Economy econ = Shops.getEconomy();
     private final ItemStack itemStack;
     private final TransactionType type;
     private final Player player;

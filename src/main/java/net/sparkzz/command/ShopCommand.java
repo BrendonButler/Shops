@@ -57,7 +57,7 @@ public class ShopCommand extends CommandManager {
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
             }
 
-            Set<Material> shopItems = Shops.getPlugin(Shops.class).getDefaultShop().getItems().keySet();
+            Set<Material> shopItems = Shops.getDefaultShop().getItems().keySet();
 
             // Buy/Remove command autocomplete item list
             if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))
