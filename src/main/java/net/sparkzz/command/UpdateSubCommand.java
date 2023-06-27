@@ -46,6 +46,9 @@ public class UpdateSubCommand implements ISubCommand {
                     store.setInfiniteStock(Boolean.parseBoolean(args[2]));
                 }
                 case "shop-name" -> store.setName(args[2]);
+                default -> {
+                    return false;
+                }
             }
 
             sender.sendMessage(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, args[1], GREEN, GOLD, args[2], GREEN));

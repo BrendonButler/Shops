@@ -93,6 +93,6 @@ public class InventoryManagementSystem {
 
     public static Store locateCurrentShop(Player player) {
         // TODO: locate the player within the bounds of a current shop
-        return Shops.shop;
+        return Shops.getDefaultShop();
     }
 }

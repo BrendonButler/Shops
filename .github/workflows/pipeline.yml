@@ -1,0 +1,53 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '16'
+          distribution: 'zulu'
+
+      - name: Build and run unit tests
+        run: mvn clean install
+
+      #- name: Generate code coverage report
+      #  run: mvn jacoco:report
+
+      #- name: Add report to PR
+      #  id: jacoco
+      #  uses: madrapps/jacoco-report@v1.3
+      #  with:
+      #    paths: ${{ github.workspace }}/build/reports/jacoco/testCoverage/testCoverage.xml
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    min-coverage-overall: 40
+      #    min-coverage-changed-files: 60
+
+      - name: Run static code analysis
+        run: mvn spotbugs:check
+
+      - name: Run integration tests
+        run: mvn verify
+
+      - name: Check documentation
+        run: mvn validate site
+
+      - name: Run security scans
+        run: mvn org.owasp:dependency-check-maven:check
