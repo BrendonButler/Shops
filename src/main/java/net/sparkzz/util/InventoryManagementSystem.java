@@ -84,7 +84,7 @@ public class InventoryManagementSystem {
             int maxQuantity = items.get(material).get("max_quantity").intValue();
             int curQuantity = items.get(material).get("quantity").intValue();
 
-            availableSpace = (curQuantity < 0) ? Integer.MAX_VALUE : maxQuantity - curQuantity;
+            availableSpace = (maxQuantity < 0) ? Integer.MAX_VALUE : maxQuantity - curQuantity;
         } else if (store.hasInfiniteStock() && store.containsMaterial(material))
             availableSpace = Integer.MAX_VALUE;
 
@@ -93,6 +93,6 @@ public class InventoryManagementSystem {
 
     public static Store locateCurrentShop(Player player) {
         // TODO: locate the player within the bounds of a current shop
-        return Shops.getDefaultShop();
+        return Shops.shop;
     }
 }

@@ -35,12 +35,12 @@ public class DepositSubCommand implements ISubCommand {
             return true;
         }
 
-        if (amount > Shops.getEconomy().getBalance(player)) {
+        if (amount > Shops.econ.getBalance(player)) {
             player.sendMessage(String.format("%sYou have insufficient funds!", RED));
             return true;
         }
 
-        Shops.getEconomy().withdrawPlayer(player, amount);
+        Shops.econ.withdrawPlayer(player, amount);
         store.addFunds(amount);
         sender.sendMessage(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, amount, GREEN));
         return true;

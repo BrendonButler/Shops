@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static net.sparkzz.shops.Store.STORES;
-
 /**
  * Helper class to manage saving and loading of Shops
  *
@@ -89,11 +87,11 @@ public class Warehouse {
             mapper = ObjectMapper.factory().get(TypeToken.get(Store.class));
 
             for (CommentedConfigurationNode currentNode : config.node("shops").childrenList())
-                STORES.add(mapper.load(currentNode));
+                Store.STORES.add(mapper.load(currentNode));
 
-            log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop": "shops"));
+            log.info(String.format("%d %s loaded", Store.STORES.size(), (Store.STORES.size() == 1) ? "shop": "shops"));
             // TODO: remove once shops are dynamically loaded
-            Shops.setDefaultShop(STORES.get(0));
+            Shops.shop = Store.STORES.get(0);
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
@@ -108,10 +106,10 @@ public class Warehouse {
 
             int i = 0;
 
-            for (Store store : STORES)
+            for (Store store : Store.STORES)
                 mapper.save(store, shopsNode.node(i++));
 
-            log.info(String.format("%d %s saved", i, (STORES.size() == 1) ? "shop" : "shops"));
+            log.info(String.format("%d %s saved", i, (Store.STORES.size() == 1) ? "shop" : "shops"));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }

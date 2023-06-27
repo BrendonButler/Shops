@@ -21,7 +21,7 @@ public class InfoCommand extends CommandManager {
             return true;
         }
 
-        sender.sendMessage(String.format("§l§3Shops v%s", Shops.getPlugin(Shops.class).getDescription().getVersion()));
+        sender.sendMessage(String.format("§l§3Shops v%s", Shops.getDesc().getVersion()));
         return true;
     }
 

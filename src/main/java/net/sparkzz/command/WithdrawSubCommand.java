@@ -36,7 +36,7 @@ public class WithdrawSubCommand implements ISubCommand {
         }
 
         store.removeFunds(amount);
-        Shops.getEconomy().depositPlayer(player, amount);
+        Shops.econ.depositPlayer(player, amount);
         sender.sendMessage(String.format("%sYou have successfully withdrawn %s%s%s from the shop!", GREEN, GOLD, amount, GREEN));
         return true;
     }
