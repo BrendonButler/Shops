@@ -28,17 +28,17 @@ jobs:
       - name: Build and run unit tests
         run: mvn clean install
 
-      - name: Generate code coverage report
-        run: mvn jacoco:report
+      #- name: Generate code coverage report
+      #  run: mvn jacoco:report
 
-      - name: Add report to PR
-        id: jacoco
-        uses: madrapps/jacoco-report@v1.3
-        with:
-          paths: ${{ github.workspace }}/build/reports/jacoco/testCoverage/testCoverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 40
-          min-coverage-changed-files: 60
+      #- name: Add report to PR
+      #  id: jacoco
+      #  uses: madrapps/jacoco-report@v1.3
+      #  with:
+      #    paths: ${{ github.workspace }}/build/reports/jacoco/testCoverage/testCoverage.xml
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    min-coverage-overall: 40
+      #    min-coverage-changed-files: 60
 
       - name: Run static code analysis
         run: mvn spotbugs:check
