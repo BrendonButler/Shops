@@ -74,4 +74,21 @@ public class Shops extends JavaPlugin {
 
         return econ != null;
     }
+
+    public static PluginDescriptionFile getDesc() {
+        return desc;
+    }
+
+    public static Store getDefaultShop() {
+        return shop;
+    }
+
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+
+    public static void setDefaultShop(Store store) {
+        shop = store;
+    }
 }

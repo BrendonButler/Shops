@@ -35,7 +35,7 @@ class ShopsTest {
         mrSparkzz.setOp(true);
 
         // Set up store instances
-        Shops.shop = new Store("BetterBuy", mrSparkzz.getUniqueId());
+        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
         new Store("DollHairStore", player2.getUniqueId());
     }
 
@@ -83,7 +83,7 @@ class ShopsTest {
                 // TODO: create MockPermissions to add specific permissions to a player mock
                 performCommand(mrSparkzz, "shop create TestShop");
                 assertEquals(String.format("%sYou have successfully created %s%s%s!", GREEN, GOLD, "TestShop", GREEN), mrSparkzz.nextMessage());
-                printSuccessMessage("creation of TestShop");
+                printSuccessMessage("create command test - creation of TestShop");
             }
         }
 
@@ -116,7 +116,7 @@ class ShopsTest {
             void testDeleteShop() {
                 performCommand(mrSparkzz, "shop delete DollHairStore");
                 assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "DollHairStore", GREEN), mrSparkzz.nextMessage());
-                printSuccessMessage("deletion of DollHairStore");
+                printSuccessMessage("delete command test - deletion of DollHairStore");
             }
 
             @Test
@@ -128,7 +128,7 @@ class ShopsTest {
 
                 performCommand(mrSparkzz, "shop delete TestDuplicate");
                 assertEquals(String.format("%sMultiple shops matched, please specify the shop's UUID!", RED), mrSparkzz.nextMessage());
-                printSuccessMessage("duplicate shop identification on deletion");
+                printSuccessMessage("delete command test - duplicate shop identification on deletion");
             }
 
             @Test
@@ -137,7 +137,7 @@ class ShopsTest {
             void testDeleteShop_NotFound() {
                 performCommand(mrSparkzz, "shop delete TestShop2");
                 assertEquals(String.format("%sCould not find a store with the name and/or UUID of: %s%s%s!", RED, GOLD, "TestShop2", RED), mrSparkzz.nextMessage());
-                printSuccessMessage("no shop identification on deletion");
+                printSuccessMessage("delete command test - no shop identification on deletion");
             }
         }
 
@@ -154,9 +154,9 @@ class ShopsTest {
             @BeforeAll
             static void setUpAddCommand() {
                 printMessage("==[ TEST ADD COMMAND ]==");
-                Shops.shop.getItems().clear();
-                Shops.shop.addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
-                Shops.shop.addFunds(100);
+                Shops.getDefaultShop().getItems().clear();
+                Shops.getDefaultShop().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
+                Shops.getDefaultShop().addFunds(100);
             }
 
             @BeforeEach
@@ -189,7 +189,8 @@ class ShopsTest {
                 performCommand(mrSparkzz, "shop add emerald 1");
                 assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
                 assertEquals(63, mrSparkzz.getInventory().getItem(0).getAmount());
-                assertEquals(11, Shops.shop.getItems().get(material).get("quantity").intValue());
+                assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+                printSuccessMessage("add command test - add 1");
             }
 
             @Test
@@ -208,7 +209,6 @@ class ShopsTest {
                 mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 64));
                 performCommand(mrSparkzz, "shop add emerald 1");
                 assertEquals(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, Material.EMERALD), mrSparkzz.nextMessage());
-
                 printSuccessMessage("add command - material doesn't exist");
             }
         }
@@ -226,8 +226,8 @@ class ShopsTest {
             @BeforeAll
             static void setUpRemoveCommand() {
                 printMessage("==[ TEST REMOVE COMMAND ]==");
-                Shops.shop.getItems().clear();
-                Shops.shop.addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+                Shops.getDefaultShop().getItems().clear();
+                Shops.getDefaultShop().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
             }
 
             @Test
@@ -250,8 +250,8 @@ class ShopsTest {
                 performCommand(mrSparkzz, "shop remove emerald 1");
                 assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
                 assertEquals(63, mrSparkzz.getInventory().getItem(0).getAmount());
-                assertEquals(11, Shops.shop.getItems().get(material).get("quantity").intValue());
-                printSuccessMessage("remove 1 of type from shop");
+                assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+                printSuccessMessage("remove command test - remove 1 of type from shop");
             }
 
             @Test
@@ -263,8 +263,8 @@ class ShopsTest {
 
                 performCommand(mrSparkzz, "shop remove emerald");
                 assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
-                assertNull(Shops.shop.getItems().get(material));
-                printSuccessMessage("remove all of type from shop");
+                assertNull(Shops.getDefaultShop().getItems().get(material));
+                printSuccessMessage("remove command test - remove all of type from shop");
             }
 
             @Test
@@ -274,8 +274,7 @@ class ShopsTest {
             void testRemoveCommand_NoMaterial() {
                 performCommand(mrSparkzz, "shop remove emerald 1");
                 assertEquals(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, Material.EMERALD), mrSparkzz.nextMessage());
-
-                printSuccessMessage("remove command - material doesn't exist");
+                printSuccessMessage("remove command test - material doesn't exist");
             }
         }
 
@@ -295,8 +294,8 @@ class ShopsTest {
 
             @BeforeEach
             void setUpDepositCommand() {
-                // TODO: Shops.econ.depositPlayer(mrSparkzz, 150);
-                Shops.shop.addFunds(25);
+                // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 150);
+                Shops.getDefaultShop().addFunds(25);
             }
 
             @Test
@@ -317,8 +316,9 @@ class ShopsTest {
 
                 performCommand(mrSparkzz, "shop deposit " + amount);
                 assertEquals(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
-                assertEquals(125, Shops.shop.getBalance());
-                assertEquals(50, Shops.econ.getBalance(mrSparkzz));
+                assertEquals(125, Shops.getDefaultShop().getBalance());
+                assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
+                printSuccessMessage("deposit command test");
             }
         }
 
@@ -335,8 +335,8 @@ class ShopsTest {
 
             @BeforeEach
             void setUpWithdrawCommand() {
-                // TODO: Shops.econ.depositPlayer(mrSparkzz, 50);
-                Shops.shop.addFunds(125);
+                // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+                Shops.getDefaultShop().addFunds(125);
             }
 
             @Test
@@ -357,8 +357,9 @@ class ShopsTest {
 
                 performCommand(mrSparkzz, "shop withdraw " + amount);
                 assertEquals(String.format("%sYou have successfully withdrawn %s%s%s from the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
-                assertEquals(25, Shops.shop.getBalance());
-                assertEquals(150, Shops.econ.getBalance(mrSparkzz));
+                assertEquals(25, Shops.getDefaultShop().getBalance());
+                assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
+                printSuccessMessage("withdraw command test");
             }
         }
 
@@ -376,9 +377,9 @@ class ShopsTest {
 
             @BeforeEach
             void setUpBuyCommand() {
-                Shops.shop.getItems().clear();
-                Shops.shop.addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
-                // TODO: Shops.econ.depositPlayer(mrSparkzz, 50);
+                Shops.getDefaultShop().getItems().clear();
+                Shops.getDefaultShop().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
+                // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
             }
 
             @Test
@@ -399,8 +400,9 @@ class ShopsTest {
 
                 performCommand(mrSparkzz, "shop buy " + quantity);
                 assertEquals(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, quantity, GREEN), mrSparkzz.nextMessage());
-                assertEquals(25, Shops.shop.getBalance());
-                assertEquals(150, Shops.econ.getBalance(mrSparkzz));
+                assertEquals(25, Shops.getDefaultShop().getBalance());
+                assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
+                printSuccessMessage("buy command test");
             }
         }
 
@@ -418,11 +420,11 @@ class ShopsTest {
 
             @BeforeEach
             void setUpSellCommand() {
-                Shops.shop.getItems().clear();
-                Shops.shop.addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-                Shops.shop.addFunds(100);
+                Shops.getDefaultShop().getItems().clear();
+                Shops.getDefaultShop().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+                Shops.getDefaultShop().addFunds(100);
                 mrSparkzz.getInventory().addItem(emeralds);
-                // TODO: Shops.econ.depositPlayer(mrSparkzz, 50);
+                // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
             }
 
             @Test
@@ -441,13 +443,14 @@ class ShopsTest {
             void testSellCommand() {
                 Material material = emeralds.getType();
                 int quantity = 1;
-                double price = Shops.shop.getSellPrice(material);
+                double price = Shops.getDefaultShop().getSellPrice(material);
 
                 performCommand(mrSparkzz, "shop sell emerald " + quantity);
                 assertEquals(String.format("%sSuccess! You have sold %s%s%s of %s%s%s for %s$%.2f%s.",
                         GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, price * quantity, GREEN), mrSparkzz.nextMessage());
-                assertEquals(25, Shops.shop.getBalance());
-                assertEquals(150, Shops.econ.getBalance(mrSparkzz));
+                assertEquals(25, Shops.getDefaultShop().getBalance());
+                assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
+                printSuccessMessage("sell command test");
             }
         }
 
@@ -464,7 +467,7 @@ class ShopsTest {
 
             @AfterEach
             void tearDown() {
-                Shops.shop.setOwner(mrSparkzz.getUniqueId());
+                Shops.getDefaultShop().setOwner(mrSparkzz.getUniqueId());
             }
 
             @Test
@@ -481,9 +484,10 @@ class ShopsTest {
             @DisplayName("Test Transfer - main functionality")
             @Order(2)
             void testTransferCommand() {
-                performCommand(mrSparkzz, String.format("shop transfer %s %s", Shops.shop.getName(), player2.getName()));
-                assertEquals(String.format("%sYou have successfully transferred %s%s%s to player %s%s%s!", GREEN, GOLD, Shops.shop.getName(), GREEN, GOLD, player2.getName(), GREEN), mrSparkzz.nextMessage());
-                assertEquals(player2.getUniqueId(), Shops.shop.getOwner());
+                performCommand(mrSparkzz, String.format("shop transfer %s %s", Shops.getDefaultShop().getName(), player2.getName()));
+                assertEquals(String.format("%sYou have successfully transferred %s%s%s to player %s%s%s!", GREEN, GOLD, Shops.getDefaultShop().getName(), GREEN, GOLD, player2.getName(), GREEN), mrSparkzz.nextMessage());
+                assertEquals(player2.getUniqueId(), Shops.getDefaultShop().getOwner());
+                printSuccessMessage("transfer command test");
             }
         }
 
@@ -499,16 +503,16 @@ class ShopsTest {
             @BeforeAll
             static void saveOldValues() {
                 printMessage("==[ TEST UPDATE COMMAND ]==");
-                oldName = Shops.shop.getName();
-                wasInfFunds = Shops.shop.hasInfiniteFunds();
-                wasInfStock = Shops.shop.hasInfiniteStock();
+                oldName = Shops.getDefaultShop().getName();
+                wasInfFunds = Shops.getDefaultShop().hasInfiniteFunds();
+                wasInfStock = Shops.getDefaultShop().hasInfiniteStock();
             }
 
             @AfterEach
             void tearDown() {
-                Shops.shop.setName(oldName);
-                Shops.shop.setInfiniteFunds(wasInfFunds);
-                Shops.shop.setInfiniteStock(wasInfStock);
+                Shops.getDefaultShop().setName(oldName);
+                Shops.getDefaultShop().setInfiniteFunds(wasInfFunds);
+                Shops.getDefaultShop().setInfiniteStock(wasInfStock);
             }
 
             @Test
@@ -526,7 +530,8 @@ class ShopsTest {
             void testUpdateCommand_InfFunds() {
                 performCommand(mrSparkzz, "shop update infinite-funds true");
                 assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "infinite-funds", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
-                assertTrue(Shops.shop.hasInfiniteFunds());
+                assertTrue(Shops.getDefaultShop().hasInfiniteFunds());
+                printSuccessMessage("update command test - update infinite funds");
             }
 
             @Test
@@ -535,7 +540,8 @@ class ShopsTest {
             void testUpdateCommand_InfStock() {
                 performCommand(mrSparkzz, "shop update infinite-stock true");
                 assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "infinite-stock", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
-                assertTrue(Shops.shop.hasInfiniteStock());
+                assertTrue(Shops.getDefaultShop().hasInfiniteStock());
+                printSuccessMessage("update command test - update infinite stock");
             }
 
             @Test
@@ -544,7 +550,8 @@ class ShopsTest {
             void testUpdateCommand_ShopName() {
                 performCommand(mrSparkzz, "shop update shop-name TestShop99");
                 assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
-                assertEquals("TestShop99", Shops.shop.getName());
+                assertEquals("TestShop99", Shops.getDefaultShop().getName());
+                printSuccessMessage("update command test - update shop name");
             }
         }
 
@@ -571,9 +578,10 @@ class ShopsTest {
             @Test
             @DisplayName("Test Info")
             @Order(2)
-            void testUpdateCommand_InfFunds() {
+            void testInfoCommand() {
                 performCommand(mrSparkzz, "shops");
-                assertEquals(String.format("§l§3Shops v%s", Shops.desc.getVersion()), mrSparkzz.nextMessage());
+                assertEquals(String.format("§l§3Shops v%s", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
+                printSuccessMessage("info command test");
             }
         }
     }
