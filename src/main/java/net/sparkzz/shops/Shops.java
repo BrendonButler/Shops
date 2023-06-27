@@ -3,7 +3,6 @@ package net.sparkzz.shops;
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
 import net.sparkzz.util.Warehouse;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,9 +15,8 @@ import java.util.logging.Logger;
  */
 public class Shops extends JavaPlugin {
 
-    public static Store shop;
-    public static Economy econ;
-    public static PluginDescriptionFile desc;
+    private static Store shop;
+    private static Economy econ;
 
     private final Logger log = getLogger();
 
@@ -36,8 +34,6 @@ public class Shops extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
-        desc = this.getDescription();
 
         CommandManager.registerCommands(this);
 
@@ -57,5 +53,17 @@ public class Shops extends JavaPlugin {
             econ = provider.getProvider();
 
         return econ != null;
+    }
+
+    public static Store getDefaultShop() {
+        return shop;
+    }
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+
+    public static void setDefaultShop(Store store) {
+        shop = store;
     }
 }

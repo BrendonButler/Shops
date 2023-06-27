@@ -1,5 +1,6 @@
 package net.sparkzz.util;
 
+import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
@@ -9,7 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import static org.bukkit.ChatColor.RED;
 
 public class Transaction {
-
+    
+    private static final Economy econ = Shops.getPlugin(Shops.class).getEconomy();
     private final ItemStack itemStack;
     private final TransactionType type;
     private final Player player;
@@ -41,7 +43,7 @@ public class Transaction {
     private void validateFinances() {
         switch (type) {
             case PURCHASE -> {
-                if (Shops.econ.getBalance(player) >= cost)
+                if (econ.getBalance(player) >= cost)
                     financesReady = true;
 
                 if (!financesReady) transactionMessageBuilder(String.format("%sYou have insufficient funds!", RED));
@@ -113,7 +115,7 @@ public class Transaction {
 
                 store.addFunds(cost);
                 player.getInventory().addItem(itemStack);
-                Shops.econ.withdrawPlayer(player, cost);
+                econ.withdrawPlayer(player, cost);
             }
             case SALE -> {
                 if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
@@ -122,7 +124,7 @@ public class Transaction {
                     store.removeFunds(cost);
 
                 player.getInventory().removeItem(itemStack);
-                Shops.econ.depositPlayer(player, cost);
+                econ.depositPlayer(player, cost);
             }
         }
     }

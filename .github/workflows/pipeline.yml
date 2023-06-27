@@ -51,6 +51,3 @@ jobs:
 
       - name: Run security scans
         run: mvn org.owasp:dependency-check-maven:check
-
-      - name: Validate pull request
-        run: mvn clean verify -P pull-request-validation

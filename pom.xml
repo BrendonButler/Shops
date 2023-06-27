@@ -5,19 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <jackson-databind.version>[2.13.0,3)</jackson-databind.version>
+        <jackson-databind.version>2.14.2</jackson-databind.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>[5.9.2,6)</jupiter.version>
         <hocon.version>[4.1.2,5)</hocon.version>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
         <maven.compiler.version>3.11.0</maven.compiler.version>
         <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
+        <maven.reports.version>3.4.5</maven.reports.version>
         <maven.shade.version>2.4.3</maven.shade.version>
+        <maven.site.version>4.0.0-M8</maven.site.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spigot-api.version>1.17.1-R0.1-SNAPSHOT</spigot-api.version>
-        <spotbugs.version>4.7.3</spotbugs.version>
+        <spotbugs.version>4.7.3.5</spotbugs.version>
         <vault.version>[1.7,2)</vault.version>
     </properties>
 
@@ -25,6 +28,9 @@
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
     <version>ALPHA</version>
+    <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
+    <url>https://shops.sparkzz.net/</url>
+
     <build>
         <plugins>
             <plugin>
@@ -92,6 +98,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -153,12 +172,16 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs -->
         <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs</artifactId>
-            <version>${spotbugs.version}</version>
-            <type>pom</type>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${jetbrains.annotations.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>${maven.reports.version}</version>
         </dependency>
     </dependencies>
 </project>
