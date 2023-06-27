@@ -34,6 +34,34 @@
     <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
     <url>https://shops.sparkzz.net/</url>
 
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE VERSION 2.0</name>
+            <url>https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>This General Public License applies to most of the Free Software Foundation's software and to any other program whose authors commit to using it.</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>BrendonButler</id>
+            <name>Brendon Butler</name>
+            <email>contact@sparkzz.net</email>
+            <url>${url}</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>America/New_York</timezone>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/MrSparkzz/Shops/issues</url>
+    </issueManagement>
+
     <build>
         <plugins>
             <plugin>
