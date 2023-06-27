@@ -29,6 +29,7 @@ jobs:
         run: mvn clean install
 
       - name: Generate code coverage report
+        run: mvn jacoco:report
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
         with:
