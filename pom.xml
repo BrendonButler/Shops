@@ -12,10 +12,12 @@
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
         <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
         <maven.shade.version>2.4.3</maven.shade.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spigot-api.version>1.17.1-R0.1-SNAPSHOT</spigot-api.version>
+        <spotbugs.version>4.7.3</spotbugs.version>
         <vault.version>[1.7,2)</vault.version>
     </properties>
 
@@ -78,6 +80,18 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${maven.dependency-check.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -88,7 +102,6 @@
     </build>
 
     <repositories>
-        <!-- This adds the Maven repository to the build -->
         <repository>
             <id>mvnrepository</id>
             <url>http://repo1.maven.org/maven2</url>
@@ -99,12 +112,10 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <!-- This adds the Spigot Maven repository to the build -->
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <!-- This adds the JitPack repository to the build -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -112,7 +123,6 @@
     </repositories>
 
     <dependencies>
-        <!--This adds the Spigot API artifact to the build -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -126,7 +136,6 @@
             <version>${jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- This adds the Vault API to the build -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
@@ -143,6 +152,13 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs -->
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs</artifactId>
+            <version>${spotbugs.version}</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 </project>
