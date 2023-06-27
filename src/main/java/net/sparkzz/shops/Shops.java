@@ -6,7 +6,9 @@ import net.sparkzz.util.Warehouse;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 /**
@@ -21,10 +23,24 @@ public class Shops extends JavaPlugin {
     public static PluginDescriptionFile desc;
 
     private final Logger log = getLogger();
+    private boolean isTest = false;
+
+    public Shops() {
+        super();
+    }
+
+    protected Shops(
+            JavaPluginLoader loader,
+            PluginDescriptionFile description,
+            File dataFolder,
+            File file) {
+        super(loader, description, dataFolder, file);
+        isTest = true;
+    }
 
     @Override
     public void onDisable() {
-        Warehouse.saveConfig();
+        if (!isTest) Warehouse.saveConfig();
 
         log.info("Shops has been disabled!");
     }
@@ -41,7 +57,7 @@ public class Shops extends JavaPlugin {
 
         CommandManager.registerCommands(this);
 
-        if (!Warehouse.loadConfig(this))
+        if (!isTest && !Warehouse.loadConfig(this))
             getServer().getPluginManager().disablePlugin(this);
 
         log.info("Shops has been enabled!");
@@ -50,12 +66,29 @@ public class Shops extends JavaPlugin {
     private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> provider = null;
 
-        if (getServer().getPluginManager().getPlugin("Vault") != null)
+        if (isTest || getServer().getPluginManager().getPlugin("Vault") != null)
             provider = getServer().getServicesManager().getRegistration(Economy.class);
 
         if (provider != null)
             econ = provider.getProvider();
 
         return econ != null;
+    }
+
+    public static PluginDescriptionFile getDesc() {
+        return desc;
+    }
+
+    public static Store getDefaultShop() {
+        return shop;
+    }
+
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+
+    public static void setDefaultShop(Store store) {
+        shop = store;
     }
 }

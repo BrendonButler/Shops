@@ -6,14 +6,9 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bukkit.ChatColor.RED;
@@ -40,7 +35,7 @@ public class ShopCommand extends CommandManager {
 
     @Override
     @SuppressWarnings("all")
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(String.format("%sOnly players can use this command!", RED));
             return new ArrayList<>();
@@ -62,7 +57,7 @@ public class ShopCommand extends CommandManager {
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
             }
 
-            Set<Material> shopItems = Shops.shop.getItems().keySet();
+            Set<Material> shopItems = Shops.getDefaultShop().getItems().keySet();
 
             // Buy/Remove command autocomplete item list
             if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))
@@ -138,7 +133,7 @@ public class ShopCommand extends CommandManager {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(String.format("%sOnly players can use this command!", RED));
             return true;
