@@ -30,6 +30,8 @@ jobs:
 
       - name: Generate code coverage report
         run: mvn jacoco:report
+
+      - name: Add report to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
         with:
