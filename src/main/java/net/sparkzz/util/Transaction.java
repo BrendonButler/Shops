@@ -16,7 +16,7 @@ public class Transaction {
     private final TransactionType type;
     private final Player player;
     private final Store store;
-    private final StringBuilder transactionMessage = new StringBuilder();
+    private final Notifier.MultilineBuilder transactionMessage;
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
     private double cost;
 
@@ -24,6 +24,7 @@ public class Transaction {
         this.player = player;
         this.itemStack = itemStack;
         this.type = type;
+        this.transactionMessage = new Notifier.MultilineBuilder();
 
         store = InventoryManagementSystem.locateCurrentShop(player);
 
@@ -33,26 +34,19 @@ public class Transaction {
         }
     }
 
-    private void transactionMessageBuilder(String message) {
-        if (!transactionMessage.isEmpty())
-            transactionMessage.append(System.getProperty("line.separator"));
-
-        transactionMessage.append(message);
-    }
-
     private void validateFinances() {
         switch (type) {
             case PURCHASE -> {
                 if (econ.getBalance(player) >= cost)
                     financesReady = true;
 
-                if (!financesReady) transactionMessageBuilder(String.format("%sYou have insufficient funds!", RED));
+                if (!financesReady) transactionMessage.appendf("%sYou have insufficient funds!", RED);
             }
             case SALE -> {
                 if (store.hasInfiniteFunds() || store.getBalance() >= cost)
                     financesReady = true;
 
-                if (!financesReady) transactionMessageBuilder(String.format("%sStore has insufficient funds!", RED));
+                if (!financesReady) transactionMessage.appendf("%sStore has insufficient funds!", RED);
             }
         }
     }
@@ -67,9 +61,9 @@ public class Transaction {
                 boolean canWithdrawStore = store.containsMaterial(material) && InventoryManagementSystem.containsAtLeast(store, itemStack);
                 boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").doubleValue() >= 0;
 
-                if (!storeIsSelling) transactionMessageBuilder(String.format("%sThe Store is not currently selling any of these at this time!", RED));
-                else if (!canInsertPlayer) transactionMessageBuilder(String.format("%sYou have insufficient inventory space!", RED));
-                else if (!canWithdrawStore) transactionMessageBuilder(String.format("%sThe Store has insufficient stock!", RED));
+                if (!storeIsSelling) transactionMessage.appendf("%sThe Store is not currently selling any of these at this time!", RED);
+                else if (!canInsertPlayer) transactionMessage.appendf("%sYou have insufficient inventory space!", RED);
+                else if (!canWithdrawStore) transactionMessage.appendf("%sThe Store has insufficient stock!", RED);
 
                 if (storeIsSelling && canInsertPlayer && canWithdrawStore)
                     inventoryReady = true;
@@ -79,9 +73,9 @@ public class Transaction {
                 boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").doubleValue() >= 0;
                 boolean storeIsBuyingMore = storeIsBuying && InventoryManagementSystem.getAvailableSpace(store, material) >= itemQuantity;
 
-                if (!storeIsBuying) transactionMessageBuilder(String.format("%sThe store is not buying any of these at this time!", RED));
-                else if (!storeIsBuyingMore) transactionMessageBuilder(String.format("%sThe store is not buying any more of these at this time!", RED));
-                else if (!canWithdrawPlayer) transactionMessageBuilder(String.format("%sYou have an insufficient amount!", RED));
+                if (!storeIsBuying) transactionMessage.appendf("%sThe store is not buying any of these at this time!", RED);
+                else if (!storeIsBuyingMore) transactionMessage.appendf("%sThe store is not buying any more of these at this time!", RED);
+                else if (!canWithdrawPlayer) transactionMessage.appendf("%sYou have an insufficient amount!", RED);
 
                 if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;
@@ -103,8 +97,8 @@ public class Transaction {
         return cost;
     }
 
-    public String getTransactionMessage() {
-        return transactionMessage.toString();
+    public Notifier.MultilineBuilder getMessage() {
+        return transactionMessage;
     }
 
     public void process() {

@@ -42,7 +42,7 @@ public class SellSubCommand implements ISubCommand {
             }
 
             if (!transaction.validateReady()) {
-                sender.sendMessage(transaction.getTransactionMessage());
+                transaction.getMessage().processIndividual(sender);
                 return true;
             }
 
