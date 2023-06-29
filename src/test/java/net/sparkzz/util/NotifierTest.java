@@ -18,21 +18,53 @@ class NotifierTest {
 
     private static final Logger log = Logger.getLogger("Notifier");
 
+    private static PlayerMock player;
+    private static String message1;
+
+    @BeforeAll
+    static void setUp() {
+        printMessage("==[ TEST Notifier UTILITY ]==");
+        ServerMock mock = MockBukkit.getOrCreateMock();
+
+        player = mock.addPlayer();
+        message1 = "This is a test message!";
+    }
+
+    @Test
+    @DisplayName("Test Update message")
+    void testUpdate() {
+        Notifier.CipherKey key = Notifier.CipherKey.NO_PERMS_CMD;
+        Notifier.updateMessage(key, message1);
+        String updatedMessage = Notifier.compose(key);
+        Notifier.resetMessage(key);
+
+        assertEquals(message1, updatedMessage);
+        printSuccessMessage("processing message to player");
+    }
+
+    @Test
+    @DisplayName("Test Processing message from CipherKey to player")
+    void testProcess() {
+        Notifier.CipherKey key = Notifier.CipherKey.NO_PERMS_CMD;
+        String result = Notifier.compose(key);
+
+        Notifier.process(player, key);
+        assertEquals(result, player.nextMessage());
+        printSuccessMessage("processing message to player");
+    }
+
     @Nested
     @DisplayName("MultilineBuilder Tests")
     class MultilineBuilderTest {
 
+        private static String message2;
+
         private Notifier.MultilineBuilder builder;
-        private static PlayerMock player;
-        private static String message1, message2;
 
         @BeforeAll
         static void setUp() {
-            printMessage("==[ TEST MultilineBuiler UTILITY ]==");
-            ServerMock mock = MockBukkit.getOrCreateMock();
+            printMessage("==[ TEST MultilineBuilder UTILITY ]==");
 
-            player = mock.addPlayer();
-            message1 = "This is a test message!";
             message2 = "This should be on a new line!";
         }
 
@@ -51,6 +83,15 @@ class NotifierTest {
 
             assertEquals(result, String.format("%s%s%s", message1, System.getProperty("line.separator"), message2));
             printSuccessMessage("appending processed message");
+        }
+
+        @Test
+        @DisplayName("Test MultilineBuilder constructor")
+        void testConstructor() {
+            Notifier.MultilineBuilder builder = new Notifier.MultilineBuilder(message1);
+
+            assertEquals(message1, builder.build());
+            printSuccessMessage("MultilineBuilder constructor with default message");
         }
 
         @Test

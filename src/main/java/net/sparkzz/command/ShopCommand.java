@@ -2,13 +2,21 @@ package net.sparkzz.command;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Notifier;
+import net.sparkzz.util.Notifier.CipherKey;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.bukkit.ChatColor.RED;
@@ -135,7 +143,7 @@ public class ShopCommand extends CommandManager {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(String.format("%sOnly players can use this command!", RED));
+            Notifier.process(sender, CipherKey.ONLY_PLAYERS_CMD);
             return true;
         }
 
@@ -145,7 +153,7 @@ public class ShopCommand extends CommandManager {
             String subCommand = args[0].toLowerCase();
 
             if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
-                sender.sendMessage(String.format("%sYou do not have permission to use this command!", RED));
+                Notifier.process(sender, CipherKey.NO_PERMS_CMD);
                 return true;
             }
 
@@ -154,7 +162,7 @@ public class ShopCommand extends CommandManager {
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
-            sender.sendMessage(String.format("%sInvalid number of arguments!", RED));
+            Notifier.process(sender, CipherKey.INVALID_ARG_CNT);
         }
 
         return false;

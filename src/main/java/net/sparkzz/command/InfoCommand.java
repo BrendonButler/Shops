@@ -1,6 +1,7 @@
 package net.sparkzz.command;
 
 import net.sparkzz.shops.Shops;
+import net.sparkzz.util.Notifier;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ public class InfoCommand extends CommandManager {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!sender.hasPermission("shops.cmd.shops")) {
-            sender.sendMessage("§cYou don't have permission to use this command!");
+            Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CMD);
             return true;
         }
 
