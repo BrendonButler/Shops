@@ -58,9 +58,19 @@ public class Notifier {
     }
 
     public enum CipherKey {
+        INSUFFICIENT_AMOUNT_PLAYER("§cYou have an insufficient amount!"),
+        INSUFFICIENT_FUNDS_PLAYER("§cYou have insufficient funds!"),
+        INSUFFICIENT_FUNDS_STORE("§cThe Store has insufficient funds!"),
+        INSUFFICIENT_INV_PLAYER("§cYou have insufficient inventory space!"),
+        INSUFFICIENT_STOCK("§cThe Store has insufficient stock!"),
         INVALID_ARG_CNT("§cInvalid number of arguments!"),
         NO_PERMS_CMD("§cYou do not have permission to use this command!"),
-        ONLY_PLAYERS_CMD("§cOnly players can use this command!");
+        NOT_BUYING("§cThe Store is not buying any of these at this time!"),
+        NOT_BUYING_ANYMORE("§cThe Store is not buying any more of these at this time!"),
+        NOT_SELLING("§cThe Store is not selling any of these at this time!"),
+        ONLY_PLAYERS_CMD("§cOnly players can use this command!"),
+        // TODO: remove once messages contain formatting by default
+        TEST_FORMAT("§a%s");
 
         public final String value;
 
@@ -93,6 +103,16 @@ public class Notifier {
         }
 
         /**
+         * Appends a message from the key
+         *
+         * @param key the key for determining the message value
+         * @return the current instance
+         */
+        public MultilineBuilder append(CipherKey key) {
+            return append(key.value);
+        }
+
+        /**
          * Appends a message to a new line of the builder
          *
          * @param message the message to be appended
@@ -107,6 +127,18 @@ public class Notifier {
         }
 
         /**
+         * Appends a message with formatting from a key
+         *
+         * @param key the key for determining the message value
+         * @param args the arguments to be formatted in the message
+         * @return the current instance
+         */
+        public MultilineBuilder appendf(CipherKey key, @Nullable Object... args) {
+            String tempMessage = format(key.value, args);
+            return append(tempMessage);
+        }
+
+        /**
          * Appends a message with formatting
          *
          * @param message the message to be appended
@@ -117,6 +149,7 @@ public class Notifier {
             String tempMessage = format(message, args);
             return append(tempMessage);
         }
+
 
         /**
          * @return the finalMessage as a completed string

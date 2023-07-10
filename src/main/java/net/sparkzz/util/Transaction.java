@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import static org.bukkit.ChatColor.RED;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 
 public class Transaction {
     
@@ -40,13 +40,13 @@ public class Transaction {
                 if (econ.getBalance(player) >= cost)
                     financesReady = true;
 
-                if (!financesReady) transactionMessage.appendf("%sYou have insufficient funds!", RED);
+                if (!financesReady) transactionMessage.append(INSUFFICIENT_FUNDS_PLAYER);
             }
             case SALE -> {
                 if (store.hasInfiniteFunds() || store.getBalance() >= cost)
                     financesReady = true;
 
-                if (!financesReady) transactionMessage.appendf("%sStore has insufficient funds!", RED);
+                if (!financesReady) transactionMessage.append(INSUFFICIENT_FUNDS_STORE);
             }
         }
     }
@@ -61,9 +61,9 @@ public class Transaction {
                 boolean canWithdrawStore = store.containsMaterial(material) && InventoryManagementSystem.containsAtLeast(store, itemStack);
                 boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").doubleValue() >= 0;
 
-                if (!storeIsSelling) transactionMessage.appendf("%sThe Store is not currently selling any of these at this time!", RED);
-                else if (!canInsertPlayer) transactionMessage.appendf("%sYou have insufficient inventory space!", RED);
-                else if (!canWithdrawStore) transactionMessage.appendf("%sThe Store has insufficient stock!", RED);
+                if (!storeIsSelling) transactionMessage.append(NOT_SELLING);
+                else if (!canInsertPlayer) transactionMessage.append(INSUFFICIENT_INV_PLAYER);
+                else if (!canWithdrawStore) transactionMessage.append(INSUFFICIENT_STOCK);
 
                 if (storeIsSelling && canInsertPlayer && canWithdrawStore)
                     inventoryReady = true;
@@ -73,9 +73,9 @@ public class Transaction {
                 boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").doubleValue() >= 0;
                 boolean storeIsBuyingMore = storeIsBuying && InventoryManagementSystem.getAvailableSpace(store, material) >= itemQuantity;
 
-                if (!storeIsBuying) transactionMessage.appendf("%sThe store is not buying any of these at this time!", RED);
-                else if (!storeIsBuyingMore) transactionMessage.appendf("%sThe store is not buying any more of these at this time!", RED);
-                else if (!canWithdrawPlayer) transactionMessage.appendf("%sYou have an insufficient amount!", RED);
+                if (!storeIsBuying) transactionMessage.append(NOT_BUYING);
+                else if (!storeIsBuyingMore) transactionMessage.append(NOT_BUYING_ANYMORE);
+                else if (!canWithdrawPlayer) transactionMessage.append(INSUFFICIENT_AMOUNT_PLAYER);
 
                 if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;

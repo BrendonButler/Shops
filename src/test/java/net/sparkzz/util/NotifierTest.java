@@ -53,6 +53,20 @@ class NotifierTest {
         printSuccessMessage("processing message to player");
     }
 
+    @Test
+    @DisplayName("Test Composing message to a String from default with non-empty custom messages")
+    void testCompose() {
+        Notifier.CipherKey key = Notifier.CipherKey.NO_PERMS_CMD;
+
+        String altString = "Test";
+        Notifier.updateMessage(Notifier.CipherKey.ONLY_PLAYERS_CMD, altString);
+
+        String result = Notifier.compose(key);
+
+        assertEquals(result, Notifier.CipherKey.NO_PERMS_CMD.value);
+        printSuccessMessage("composing message to a String using default with non-empty custom messages");
+    }
+
     @Nested
     @DisplayName("MultilineBuilder Tests")
     class MultilineBuilderTest {
@@ -86,6 +100,18 @@ class NotifierTest {
         }
 
         @Test
+        @DisplayName("Test Append from key")
+        void testAppend_FromKey() {
+            builder.append(Notifier.CipherKey.INSUFFICIENT_FUNDS_PLAYER);
+            builder.append(Notifier.CipherKey.INSUFFICIENT_AMOUNT_PLAYER);
+
+            String result = builder.build();
+
+            assertEquals(result, String.format("%s%s%s", Notifier.CipherKey.INSUFFICIENT_FUNDS_PLAYER.value, System.getProperty("line.separator"), Notifier.CipherKey.INSUFFICIENT_AMOUNT_PLAYER.value));
+            printSuccessMessage("appending processed message from key");
+        }
+
+        @Test
         @DisplayName("Test MultilineBuilder constructor")
         void testConstructor() {
             Notifier.MultilineBuilder builder = new Notifier.MultilineBuilder(message1);
@@ -95,7 +121,7 @@ class NotifierTest {
         }
 
         @Test
-        @DisplayName("Test Formatted Append")
+        @DisplayName("Test formatted Append")
         void testAppendf() {
             builder.appendf("%s %s", message1, message2);
 
@@ -103,6 +129,18 @@ class NotifierTest {
 
             assertEquals(result, String.format("%s %s", message1, message2));
             printSuccessMessage("appending processed formatted message");
+        }
+
+        @Test
+        @DisplayName("Test formatted Append from key")
+        void testAppendf_FromKey() {
+            builder.appendf(Notifier.CipherKey.TEST_FORMAT, message1);
+
+            String result = builder.build();
+            String expected = String.format("§a%s", message1);
+
+            assertEquals(expected, result);
+            printSuccessMessage("appending processed formatted message from key");
         }
 
         @Test
