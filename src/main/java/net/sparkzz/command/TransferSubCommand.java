@@ -20,7 +20,7 @@ import static org.bukkit.ChatColor.*;
  *
  * @author Brendon Butler
  */
-public class TransferSubCommand implements ISubCommand {
+public class TransferSubCommand extends ISubCommand {
 
     private List<Store> stores = new ArrayList<>();
 

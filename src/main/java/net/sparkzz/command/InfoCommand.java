@@ -18,7 +18,7 @@ public class InfoCommand extends CommandManager {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!sender.hasPermission("shops.cmd.shops")) {
-            Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CMD);
+            Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CMD, null);
             return true;
         }
 

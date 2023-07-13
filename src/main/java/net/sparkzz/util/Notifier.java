@@ -6,8 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.String.format;
+import java.util.Optional;
 
 /**
  * Helper class to build and transmit messages
@@ -24,8 +23,29 @@ public class Notifier {
      * @param cipherKey the key for determining the message value
      * @return the custom message if it exists or the default message
      */
-    public static String compose(CipherKey cipherKey) {
-        return (!messages.isEmpty() && messages.containsKey(cipherKey)) ? messages.get(cipherKey) : cipherKey.value;
+    public static String compose(CipherKey cipherKey, Map<String, Optional<Object>> attributes) {
+        return format((!messages.isEmpty() && messages.containsKey(cipherKey)) ? messages.get(cipherKey) : cipherKey.value, attributes);
+    }
+
+    /**
+     * Formats an input string containing attributes within curly braces
+     *
+     * @param input the input string to have attributes attached
+     * @param attributes the attributes to be attached to the input string
+     * @return the modified input string
+     */
+    public static String format(String input, @Nullable Map<String, Optional<Object>> attributes) {
+        if (attributes != null && !attributes.isEmpty() && input.contains("{")) {
+            for (Map.Entry<String, Optional<Object>> entry : attributes.entrySet()) {
+                if (!input.contains("{")) break;
+
+                String placeholder = "\\{" + entry.getKey() + "}";
+                Object value = entry.getValue().orElse(placeholder);
+                input = input.replaceAll(placeholder, value.toString());
+            }
+        }
+
+        return input;
     }
 
     /**
@@ -43,9 +63,10 @@ public class Notifier {
      *
      * @param target the target user to send a message to
      * @param cipherKey the key for determining the message value
+     * @param attributes attributes that can be added to the message
      */
-    public static void process(CommandSender target, CipherKey cipherKey) {
-        target.sendMessage(compose(cipherKey));
+    public static void process(CommandSender target, CipherKey cipherKey, Map<String, Optional<Object>> attributes) {
+        target.sendMessage(compose(cipherKey, attributes));
     }
 
     /**
@@ -58,13 +79,21 @@ public class Notifier {
     }
 
     public enum CipherKey {
+        ADDED_TO_STORE("§aYou have successfully added §6{material}§a to the shop!"),
+        ADDED_TO_STORE_QUANTITY("§aYou have successfully added §6{quantity} §aof §6{material}§a to the shop!"),
+        ADDED_MATERIAL_TO_STORE("§aYou have successfully added §6{material}§a to the shop with a buy price of §6{buy-price}§a, a sell price of §6{sell-price}§a, and a max quantity of §6{max-quantity}§a!"),
+        ADDED_MATERIAL_TO_STORE_QUANTITY("§aYou have successfully added §6{quantity}§a of §6{material}§a to the shop with a buy price of §6{buy-price}§a, a sell price of §6{sell-price}§a, and a max quantity of §6{max-quantity}§a!"),
         INSUFFICIENT_AMOUNT_PLAYER("§cYou have an insufficient amount!"),
         INSUFFICIENT_FUNDS_PLAYER("§cYou have insufficient funds!"),
         INSUFFICIENT_FUNDS_STORE("§cThe Store has insufficient funds!"),
         INSUFFICIENT_INV_PLAYER("§cYou have insufficient inventory space!"),
-        INSUFFICIENT_STOCK("§cThe Store has insufficient stock!"),
+        INSUFFICIENT_STOCK_STORE("§cThe Store has insufficient stock!"),
+        INSUFFICIENT_STOCK_PLAYER("§cYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!"),
         INVALID_ARG_CNT("§cInvalid number of arguments!"),
+        MATERIAL_EXISTS_STORE("§cThis material already exists in the shop, use `/shop update {material}` to update this item"),
+        MATERIAL_MISSING_STORE("§cThis material doesn't currently exist in the shop, use `/shop add {material}` to add this item"),
         NO_PERMS_CMD("§cYou do not have permission to use this command!"),
+        NO_PERMS_INF_STOCK("§cYou do not have permission to set infinite stock in your Shop (try using a positive quantity)!"),
         NOT_BUYING("§cThe Store is not buying any of these at this time!"),
         NOT_BUYING_ANYMORE("§cThe Store is not buying any more of these at this time!"),
         NOT_SELLING("§cThe Store is not selling any of these at this time!"),
@@ -134,7 +163,7 @@ public class Notifier {
          * @return the current instance
          */
         public MultilineBuilder appendf(CipherKey key, @Nullable Object... args) {
-            String tempMessage = format(key.value, args);
+            String tempMessage = String.format(key.value, args);
             return append(tempMessage);
         }
 
@@ -146,7 +175,7 @@ public class Notifier {
          * @return the current instance
          */
         public MultilineBuilder appendf(@NotNull String message, @Nullable Object... args) {
-            String tempMessage = format(message, args);
+            String tempMessage = String.format(message, args);
             return append(tempMessage);
         }
 

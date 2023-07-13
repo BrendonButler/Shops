@@ -1,5 +1,6 @@
 package net.sparkzz.command;
 
+import net.sparkzz.util.Notifiable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -8,7 +9,7 @@ import org.bukkit.command.CommandSender;
  *
  * @author Brendon Butler
  */
-public interface ISubCommand {
+public abstract class ISubCommand extends Notifiable {
 
-    boolean process(CommandSender sender, Command command, String label, String[] args);
+    public abstract boolean process(CommandSender sender, Command command, String label, String[] args);
 }

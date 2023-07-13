@@ -142,8 +142,12 @@ public class ShopCommand extends CommandManager {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        resetAttributes();
+        setAttribute("sender", sender);
+        setArgsAsAttributes(args);
+
         if (!(sender instanceof Player)) {
-            Notifier.process(sender, CipherKey.ONLY_PLAYERS_CMD);
+            Notifier.process(sender, CipherKey.ONLY_PLAYERS_CMD, getAttributes());
             return true;
         }
 
@@ -153,7 +157,7 @@ public class ShopCommand extends CommandManager {
             String subCommand = args[0].toLowerCase();
 
             if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
-                Notifier.process(sender, CipherKey.NO_PERMS_CMD);
+                Notifier.process(sender, CipherKey.NO_PERMS_CMD, getAttributes());
                 return true;
             }
 
@@ -162,7 +166,7 @@ public class ShopCommand extends CommandManager {
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
-            Notifier.process(sender, CipherKey.INVALID_ARG_CNT);
+            Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
         }
 
         return false;

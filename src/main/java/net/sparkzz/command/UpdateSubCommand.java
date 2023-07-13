@@ -17,7 +17,7 @@ import static org.bukkit.ChatColor.*;
  *
  * @author Brendon Butler
  */
-public class UpdateSubCommand implements ISubCommand {
+public class UpdateSubCommand extends ISubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)

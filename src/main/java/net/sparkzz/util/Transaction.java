@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import static net.sparkzz.util.Notifier.CipherKey.*;
 
 public class Transaction {
-    
+
     private static final Economy econ = Shops.getEconomy();
     private final ItemStack itemStack;
     private final TransactionType type;
@@ -63,7 +63,7 @@ public class Transaction {
 
                 if (!storeIsSelling) transactionMessage.append(NOT_SELLING);
                 else if (!canInsertPlayer) transactionMessage.append(INSUFFICIENT_INV_PLAYER);
-                else if (!canWithdrawStore) transactionMessage.append(INSUFFICIENT_STOCK);
+                else if (!canWithdrawStore) transactionMessage.append(INSUFFICIENT_STOCK_STORE);
 
                 if (storeIsSelling && canInsertPlayer && canWithdrawStore)
                     inventoryReady = true;

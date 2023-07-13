@@ -35,7 +35,7 @@ class NotifierTest {
     void testUpdate() {
         Notifier.CipherKey key = Notifier.CipherKey.NO_PERMS_CMD;
         Notifier.updateMessage(key, message1);
-        String updatedMessage = Notifier.compose(key);
+        String updatedMessage = Notifier.compose(key, null);
         Notifier.resetMessage(key);
 
         assertEquals(message1, updatedMessage);
@@ -46,9 +46,9 @@ class NotifierTest {
     @DisplayName("Test Processing message from CipherKey to player")
     void testProcess() {
         Notifier.CipherKey key = Notifier.CipherKey.NO_PERMS_CMD;
-        String result = Notifier.compose(key);
+        String result = Notifier.compose(key, null);
 
-        Notifier.process(player, key);
+        Notifier.process(player, key, null);
         assertEquals(result, player.nextMessage());
         printSuccessMessage("processing message to player");
     }
@@ -61,7 +61,7 @@ class NotifierTest {
         String altString = "Test";
         Notifier.updateMessage(Notifier.CipherKey.ONLY_PLAYERS_CMD, altString);
 
-        String result = Notifier.compose(key);
+        String result = Notifier.compose(key, null);
 
         assertEquals(result, Notifier.CipherKey.NO_PERMS_CMD.value);
         printSuccessMessage("composing message to a String using default with non-empty custom messages");

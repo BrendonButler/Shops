@@ -1,5 +1,6 @@
 package net.sparkzz.command;
 
+import net.sparkzz.util.Notifiable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -14,7 +15,7 @@ import java.util.Optional;
  *
  * @author Brendon Butler
  */
-public abstract class CommandManager implements TabExecutor {
+public abstract class CommandManager extends Notifiable implements TabExecutor {
 
     public static void registerCommands(JavaPlugin plugin) {
         // Set command executor(s)

@@ -16,7 +16,7 @@ import static org.bukkit.ChatColor.*;
  *
  * @author Brendon Butler
  */
-public class DeleteSubCommand implements ISubCommand {
+public class DeleteSubCommand extends ISubCommand {
 
     private List<Store> stores = new ArrayList<>();
 

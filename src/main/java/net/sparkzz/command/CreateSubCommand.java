@@ -13,7 +13,7 @@ import static org.bukkit.ChatColor.GREEN;
  *
  * @author Brendon Butler
  */
-public class CreateSubCommand implements ISubCommand {
+public class CreateSubCommand extends ISubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
