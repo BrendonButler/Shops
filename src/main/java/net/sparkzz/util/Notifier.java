@@ -6,7 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Helper class to build and transmit messages
@@ -23,7 +24,7 @@ public class Notifier {
      * @param cipherKey the key for determining the message value
      * @return the custom message if it exists or the default message
      */
-    public static String compose(CipherKey cipherKey, Map<String, Optional<Object>> attributes) {
+    public static String compose(CipherKey cipherKey, Map<String, Object> attributes) {
         return format((!messages.isEmpty() && messages.containsKey(cipherKey)) ? messages.get(cipherKey) : cipherKey.value, attributes);
     }
 
@@ -34,15 +35,20 @@ public class Notifier {
      * @param attributes the attributes to be attached to the input string
      * @return the modified input string
      */
-    public static String format(String input, @Nullable Map<String, Optional<Object>> attributes) {
-        if (attributes != null && !attributes.isEmpty() && input.contains("{")) {
-            for (Map.Entry<String, Optional<Object>> entry : attributes.entrySet()) {
-                if (!input.contains("{")) break;
+    public static String format(String input, @Nullable Map<String, Object> attributes) {
+        if (attributes != null && !attributes.isEmpty()) {
+            Pattern pattern = Pattern.compile("\\{([^}]+)}");
+            Matcher matcher = pattern.matcher(input);
+            StringBuilder builder = new StringBuilder();
 
-                String placeholder = "\\{" + entry.getKey() + "}";
-                Object value = entry.getValue().orElse(placeholder);
-                input = input.replaceAll(placeholder, value.toString());
+            while (matcher.find()) {
+                String placeholder = matcher.group(1);
+                Object replacement = attributes.get(placeholder);
+                matcher.appendReplacement(builder, (replacement == null ? "{" + placeholder + "}" : replacement.toString()));
             }
+
+            matcher.appendTail(builder);
+            input = builder.toString();
         }
 
         return input;
@@ -65,7 +71,7 @@ public class Notifier {
      * @param cipherKey the key for determining the message value
      * @param attributes attributes that can be added to the message
      */
-    public static void process(CommandSender target, CipherKey cipherKey, Map<String, Optional<Object>> attributes) {
+    public static void process(CommandSender target, CipherKey cipherKey, Map<String, Object> attributes) {
         target.sendMessage(compose(cipherKey, attributes));
     }
 
@@ -90,6 +96,7 @@ public class Notifier {
         INSUFFICIENT_STOCK_STORE("§cThe Store has insufficient stock!"),
         INSUFFICIENT_STOCK_PLAYER("§cYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!"),
         INVALID_ARG_CNT("§cInvalid number of arguments!"),
+        INVALID_MATERIAL("§cInvalid material ({material})!"),
         MATERIAL_EXISTS_STORE("§cThis material already exists in the shop, use `/shop update {material}` to update this item"),
         MATERIAL_MISSING_STORE("§cThis material doesn't currently exist in the shop, use `/shop add {material}` to add this item"),
         NO_PERMS_CMD("§cYou do not have permission to use this command!"),

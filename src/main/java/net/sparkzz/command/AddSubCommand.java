@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static net.sparkzz.util.Notifier.CipherKey.*;
-import static org.bukkit.ChatColor.RED;
 
 /**
  * Add subcommand used for adding items to a shop
@@ -84,7 +83,7 @@ public class AddSubCommand extends ISubCommand {
             return true;
         }
 
-        sender.sendMessage(String.format("%sInvalid material (%s)!", RED, args[1]));
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }
 }

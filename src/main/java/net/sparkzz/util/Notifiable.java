@@ -1,12 +1,14 @@
 package net.sparkzz.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public abstract class Notifiable {
 
-    private final Map<String, Optional<Object>> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
 
     protected void resetAttributes() {
         attributes.clear();
@@ -17,7 +19,7 @@ public abstract class Notifiable {
             attributes.put("args" + i, Optional.of(args[i]));
     }
 
-    public Map<String, Optional<Object>> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return attributes;
     }
 
@@ -25,8 +27,8 @@ public abstract class Notifiable {
         return Optional.ofNullable(attributes.get(key));
     }
 
-    public Object setAttribute(String key, Object value) {
-        attributes.put(key, Optional.of(value));
+    public Object setAttribute(String key, @Nullable Object value) {
+        attributes.put(key, value);
         return value;
     }
 }
