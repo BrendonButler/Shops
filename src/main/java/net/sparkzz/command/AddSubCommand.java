@@ -78,6 +78,7 @@ public class AddSubCommand extends SubCommand {
                 message = Notifier.compose((quantity > 0 ? ADDED_MATERIAL_TO_STORE_QUANTITY : ADDED_MATERIAL_TO_STORE), getAttributes());
             }
 
+            if (quantity <= 0 && message.isBlank()) throw new IllegalArgumentException();
             player.getInventory().removeItem(new ItemStack(material, quantity));
             sender.sendMessage(message);
             return true;

@@ -76,6 +76,35 @@ public class Notifier {
     }
 
     /**
+     * Sends the CommandSender a usage message based off invalid command usage
+     *
+     * @param target the target user to send a message to
+     * @param args the arguments for determining the subcommand
+     * @return true if handled, false if default
+     */
+    public static boolean usageSubCommand(CommandSender target, String[] args) {
+        String message = "/shop ";
+
+        message += switch (args[0]) {
+            case "add" -> (args.length < 3 ? "add <material> [<quantity>|all]" : "add <material> <customer-buy-price> <customer-sell-price> <max-quantity> [<quantity>|all]");
+            case "remove" -> "remove <material> [<quantity>|all]";
+            case "update" -> "update [<material>|<shop-name>|<infinite-funds>|<infinite-stock>]";
+            case "buy" -> "buy <material> [<quantity>]";
+            case "sell" -> "sell <material> [<quantity>|all]";
+            case "create" -> "create <name>";
+            case "delete" -> "delete [<name>|<uuid>|<name>~<uuid>]";
+            case "transfer" -> "transfer [<name>|<uuid>|<name>~<uuid>] <player>";
+            case "deposit" -> "deposit <amount>";
+            case "withdraw" -> "withdraw <amount>";
+            default -> "default";
+        };
+
+        if (message.contains("default")) return false;
+        target.sendMessage(message);
+        return true;
+    }
+
+    /**
      * Resets the custom message to the default by deleting it from the messages Map
      *
      * @param cipherKey the key for determining the message value
@@ -209,7 +238,6 @@ public class Notifier {
             String tempMessage = String.format(message, args);
             return append(tempMessage);
         }
-
 
         /**
          * @return the finalMessage as a completed string

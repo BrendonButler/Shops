@@ -169,6 +169,10 @@ public class ShopCommand extends CommandManager {
             Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
         }
 
+        // send the CommandSender a usage message based on the subcommand instead of the default
+        if (command.getName().equalsIgnoreCase("shop") && args.length > 0)
+            return Notifier.usageSubCommand(sender, args);
+
         return false;
     }
 }

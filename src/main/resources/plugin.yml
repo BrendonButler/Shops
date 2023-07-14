@@ -11,7 +11,7 @@ website: shops.sparkzz.net
 commands:
   shop:
     description: Interact with current shop
-    usage: /<command> [add|remove|buy|sell] <item> <quantity>
+    usage: /<command> [buy|sell] <item> <quantity>
   shops:
     description: Shops plugin info
     usage: /<command>

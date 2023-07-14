@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.Map.entry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Notifier Tests")
 class NotifierTest {
@@ -84,6 +84,50 @@ class NotifierTest {
         Notifier.process(player, key, null);
         assertEquals(result, player.nextMessage());
         printSuccessMessage("processing message to player");
+    }
+
+    @Test
+    @DisplayName("Test Process SubCommand usage messages to sender")
+    void testUsageSubCommand() {
+        boolean addReturnValue = Notifier.usageSubCommand(player, new String[]{"add"});
+        boolean addReturnValueMoreArgs = Notifier.usageSubCommand(player, new String[]{"add", "1", "1", "1"});
+        boolean removeReturnValue = Notifier.usageSubCommand(player, new String[]{"remove"});
+        boolean updateReturnValue = Notifier.usageSubCommand(player, new String[]{"update"});
+        boolean buyReturnValue = Notifier.usageSubCommand(player, new String[]{"buy"});
+        boolean sellReturnValue = Notifier.usageSubCommand(player, new String[]{"sell"});
+        boolean createReturnValue = Notifier.usageSubCommand(player, new String[]{"create"});
+        boolean deleteReturnValue = Notifier.usageSubCommand(player, new String[]{"delete"});
+        boolean transferReturnValue = Notifier.usageSubCommand(player, new String[]{"transfer"});
+        boolean depositReturnValue = Notifier.usageSubCommand(player, new String[]{"deposit"});
+        boolean withdrawReturnValue = Notifier.usageSubCommand(player, new String[]{"withdraw"});
+        boolean defaultReturnValue = Notifier.usageSubCommand(player, new String[]{""});
+
+        assertTrue(addReturnValue);
+        assertTrue(addReturnValueMoreArgs);
+        assertTrue(removeReturnValue);
+        assertTrue(updateReturnValue);
+        assertTrue(buyReturnValue);
+        assertTrue(sellReturnValue);
+        assertTrue(createReturnValue);
+        assertTrue(deleteReturnValue);
+        assertTrue(transferReturnValue);
+        assertTrue(depositReturnValue);
+        assertTrue(withdrawReturnValue);
+        assertFalse(defaultReturnValue);
+
+        assertEquals("/shop add <material> [<quantity>|all]", player.nextMessage());
+        assertEquals("/shop add <material> <customer-buy-price> <customer-sell-price> <max-quantity> [<quantity>|all]", player.nextMessage());
+        assertEquals("/shop remove <material> [<quantity>|all]", player.nextMessage());
+        assertEquals("/shop update [<material>|<shop-name>|<infinite-funds>|<infinite-stock>]", player.nextMessage());
+        assertEquals("/shop buy <material> [<quantity>]", player.nextMessage());
+        assertEquals("/shop sell <material> [<quantity>|all]", player.nextMessage());
+        assertEquals("/shop create <name>", player.nextMessage());
+        assertEquals("/shop delete [<name>|<uuid>|<name>~<uuid>]", player.nextMessage());
+        assertEquals("/shop transfer [<name>|<uuid>|<name>~<uuid>] <player>", player.nextMessage());
+        assertEquals("/shop deposit <amount>", player.nextMessage());
+        assertEquals("/shop withdraw <amount>", player.nextMessage());
+
+        printSuccessMessage("processing subcommand usage messages to player");
     }
 
     @Test
