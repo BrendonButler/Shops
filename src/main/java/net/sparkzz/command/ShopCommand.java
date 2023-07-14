@@ -28,7 +28,7 @@ import static org.bukkit.ChatColor.RED;
  */
 public class ShopCommand extends CommandManager {
 
-    private final Map<String, ISubCommand> subCommands = new HashMap<>() {{
+    private final Map<String, SubCommand> subCommands = new HashMap<>() {{
         put("add", new AddSubCommand());
         put("buy", new BuySubCommand());
         put("create", new CreateSubCommand());

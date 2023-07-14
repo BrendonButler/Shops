@@ -16,7 +16,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class AddSubCommand extends ISubCommand {
+public class AddSubCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
@@ -49,7 +49,7 @@ public class AddSubCommand extends ISubCommand {
                 }
 
                 store.addItem(material, quantity);
-                message = Notifier.compose((quantity > 0 ? ADDED_TO_STORE_QUANTITY : ADDED_TO_STORE), getAttributes());
+                message = Notifier.compose((quantity > 0 ? ADD_SUCCESS_QUANTITY : ADD_SUCCESS), getAttributes());
             }
 
             if (args.length == 6) {

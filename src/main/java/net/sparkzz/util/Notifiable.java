@@ -16,7 +16,7 @@ public abstract class Notifiable {
 
     protected void setArgsAsAttributes(String[] args) {
         for (int i = 0; i < args.length; i++)
-            attributes.put("args" + i, Optional.of(args[i]));
+            attributes.put("arg" + i, args[i]);
     }
 
     public Map<String, Object> getAttributes() {

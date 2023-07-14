@@ -101,6 +101,10 @@ public class Transaction {
         return transactionMessage;
     }
 
+    public TransactionType getType() {
+        return type;
+    }
+
     public void process() {
         switch (type) {
             case PURCHASE -> {

@@ -2,6 +2,7 @@ package net.sparkzz.command;
 
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,28 +11,30 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 
 /**
  * Update subcommand used for updating items in a shop
  *
  * @author Brendon Butler
  */
-public class UpdateSubCommand extends ISubCommand {
+public class UpdateSubCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
             throws NumberFormatException {
+        resetAttributes();
+        setArgsAsAttributes(args);
+        Player player = (Player) setAttribute("sender", sender);
+        Store store = InventoryManagementSystem.locateCurrentShop(player);
+        setAttribute("store", store.getName());
         Material material = Material.matchMaterial(args[1]);
-        Player player = (Player) sender;
 
         if (args.length == 3) {
-            Store store = InventoryManagementSystem.locateCurrentShop(player);
-
             switch (args[1].toLowerCase()) {
                 case "infinite-funds" -> {
                     if (!player.hasPermission("shops.update.inf-funds")) {
-                        sender.sendMessage(String.format("%sYou do not have permission to set infinite funds in your Shop!", RED));
+                        Notifier.process(sender, NO_PERMS_INF_FUNDS, getAttributes());
                         return true;
                     }
 
@@ -39,7 +42,7 @@ public class UpdateSubCommand extends ISubCommand {
                 }
                 case "infinite-stock" -> {
                     if (!player.hasPermission("shops.update.inf-stock")) {
-                        sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop!", RED));
+                        Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                         return true;
                     }
 
@@ -51,8 +54,7 @@ public class UpdateSubCommand extends ISubCommand {
                 }
             }
 
-            sender.sendMessage(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the shop!", GREEN, GOLD, args[1], GREEN, GOLD, args[2], GREEN));
-
+            Notifier.process(sender, STORE_UPDATE_SUCCESS, getAttributes());
             return true;
         }
 
@@ -63,11 +65,10 @@ public class UpdateSubCommand extends ISubCommand {
                     (args[3].equalsIgnoreCase("false") ? 0D : Double.parseDouble(args[3]));
 
         if (material != null) {
-            Store store = InventoryManagementSystem.locateCurrentShop(player);
             Map<String, String> inputMapping = new HashMap<>();
 
             if (!store.containsMaterial(material)) {
-                sender.sendMessage(String.format("%sThis material (%s) does not currently exist in the shop!", RED, material));
+                Notifier.process(sender, MATERIAL_MISSING_STORE, getAttributes());
                 return true;
             }
 
@@ -82,23 +83,22 @@ public class UpdateSubCommand extends ISubCommand {
 
             if (mapped.equals("quantity")) {
                 if (!player.hasPermission("shops.update.inf-stock")) {
-                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop!", RED));
+                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                     return true;
                 }
 
                 if (args[3].equalsIgnoreCase("true") && store.getAttributes(material).get("quantity").intValue() > 0) {
-                    player.sendMessage(String.format("%sPlease ensure there is no stock in the shop for this item and try again", RED));
+                    Notifier.process(sender, STORE_UPDATE_NO_STOCK, getAttributes());
                     return true;
                 }
             }
 
             store.getItems().get(material).replace(mapped, (mapped.equals("max_quantity") || mapped.equals("quantity")) ? (int) value : value);
-
-            sender.sendMessage(String.format("%sYou have successfully updated %s%s%s for %s%s%s in the shop to %s%s%s!", GREEN, GOLD, args[2], GREEN, GOLD, material, GREEN, GOLD, args[3], GREEN));
+            Notifier.process(sender, STORE_UPDATE_SUCCESS_2, getAttributes());
             return true;
         }
 
-        sender.sendMessage(String.format("%sInvalid material (%s)!", RED, args[1]));
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }
 }

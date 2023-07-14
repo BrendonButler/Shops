@@ -9,8 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Notifier Tests")
@@ -28,6 +31,36 @@ class NotifierTest {
 
         player = mock.addPlayer();
         message1 = "This is a test message!";
+    }
+
+    @Test
+    @DisplayName("Test Format empty attributes")
+    void testFormat_EmptyAttributes() {
+        String expected = "Test {placeholder} with empty attributes";
+        String result = Notifier.format(expected, new HashMap<>());
+
+        assertEquals(expected, result);
+        printSuccessMessage("formatted message with empty attributes");
+    }
+
+    @Test
+    @DisplayName("Test Format null attributes")
+    void testFormat_NullAttributes() {
+        String expected = "Test {placeholder} with null attributes";
+        String result = Notifier.format(expected, null);
+
+        assertEquals(expected, result);
+        printSuccessMessage("formatted message with null attributes");
+    }
+
+    @Test
+    @DisplayName("Test Format with no replacement attribute")
+    void testFormat_WithNoReplacementAttribute() {
+        String expected = "Test {placeholder} with no replacement attribute";
+        String result = Notifier.format(expected, Map.ofEntries(entry("test", "test")));
+
+        assertEquals(expected, result);
+        printSuccessMessage("formatted message with no replacement attribute");
     }
 
     @Test
