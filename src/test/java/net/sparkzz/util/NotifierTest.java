@@ -3,6 +3,8 @@ package net.sparkzz.util;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import net.sparkzz.shops.Store;
+import org.bukkit.Material;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -239,6 +241,46 @@ class NotifierTest {
             assertEquals(message1, player.nextMessage());
             assertEquals(message2, player.nextMessage());
             printSuccessMessage("processing individual messages to Player");
+        }
+    }
+
+    @Nested
+    @DisplayName("Paginator Tests")
+    class PaginatorTest {
+
+        private static Store store;
+
+        @BeforeAll
+        static void setUp() {
+            printMessage("==[ TEST Paginator UTILITY ]==");
+
+            store = new Store("TestStore");
+            store.addItem(Material.EMERALD, 3, 64, 24.5, 12);
+            store.addItem(Material.ACACIA_LOG, 2018, -1, 2, 1);
+            store.addItem(Material.ITEM_FRAME, 1, 24, 13, 10);
+            store.addItem(Material.OBSIDIAN, 100, 4, 2, 1);
+            store.addItem(Material.ACACIA_SIGN, 0, -1, 0, 0);
+            store.addItem(Material.IRON_AXE, 4, 10, 10, 5);
+            store.addItem(Material.COPPER_BLOCK, 10000, -1, 2, 1);
+            store.addItem(Material.CHARCOAL, 10, 128, .5, .1);
+            store.addItem(Material.BEEF, 1000, 2048, 4, 1.5);
+            store.addItem(Material.BUCKET, 2, 12, 10, 2.5);
+            store.addItem(Material.SPRUCE_LOG, 40, 64, 4, 2);
+            store.addItem(Material.STICK, 12800, -1, 0.25, 0.1);
+        }
+
+        @Test
+        @DisplayName("Test Building Browse Page")
+        void testBuildBrowsePage() {
+            String result = Notifier.Paginator.buildBrowsePage(store, 2);
+            String expected = "§7==[ §3TestStore§7 ]==\n" +
+                              "§nITEM        | BUY PRICE | SELL PRICE\n" +
+                              "§2BEEF        §r: §64.00      §r| §61.50\n" +
+                              "§2ITEM_FRAME  §r: §613.00     §r| §610.00\n" +
+                              "Page 2 of 2";
+
+            assertEquals(expected, result);
+            printSuccessMessage("processing page of pagination");
         }
     }
 

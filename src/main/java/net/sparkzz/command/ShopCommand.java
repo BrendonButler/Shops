@@ -30,6 +30,7 @@ public class ShopCommand extends CommandManager {
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
         put("add", new AddSubCommand());
+        put("browse", new BrowseSubCommand());
         put("buy", new BuySubCommand());
         put("create", new CreateSubCommand());
         put("delete", new DeleteSubCommand());
@@ -53,6 +54,9 @@ public class ShopCommand extends CommandManager {
             return subCommands.keySet().stream().toList();
 
         if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("browse"))
+                return Arrays.asList("<page-number>");
+
             if (args[0].equalsIgnoreCase("deposit"))
                 return Arrays.asList("<amount>");
 

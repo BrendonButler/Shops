@@ -1,13 +1,22 @@
 package net.sparkzz.util;
 
+import net.sparkzz.shops.Store;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.bukkit.ChatColor.*;
 
 /**
  * Helper class to build and transmit messages
@@ -130,6 +139,7 @@ public class Notifier {
         INSUFFICIENT_STOCK_STORE("§cThe store has insufficient stock!"),
         INSUFFICIENT_STOCK_PLAYER("§cYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!"),
         INVALID_ARG_CNT("§cInvalid number of arguments!"),
+        INVALID_PAGE_NUM("§cInvalid page number!"),
         INVALID_QUANTITY("§cInvalid quantity ({quantity})!"),
         INVALID_MATERIAL("§cInvalid material ({material})!"),
         MATERIAL_EXISTS_STORE("§cThis material already exists in the shop, use `/shop update {material}` to update this item"),
@@ -153,6 +163,7 @@ public class Notifier {
         STORE_DELETE_SUCCESS("§aYou have successfully deleted §6{store}§a!"),
         STORE_MULTI_MATCH("§cMultiple shops matched, please specify the shop's UUID!"),
         STORE_NO_STORE_FOUND("§cCould not find a store with the name and/or UUID of: §6{store}§c!"),
+        STORE_NOT_FOUND("§cCould not find a store!"),
         STORE_TRANSFER_SUCCESS("§aYou have successfully transferred §6{store}§a to player §6{target}§a!"),
         STORE_UPDATE_SUCCESS("§aYou have successfully updated §6{arg1}§a to §6{arg2}§a in the shop!"),
         STORE_UPDATE_SUCCESS_2("§aYou have successfully updated §6{arg2}§a to §6{arg3}§a in the shop!"),
@@ -265,6 +276,84 @@ public class Notifier {
 
             for (String message : messages)
                 target.sendMessage(message);
+        }
+    }
+
+    public static class Paginator {
+        private static final int pageSize = 10;
+
+        private static int calcMaterialColWidth(Set<Material> materials, int headerWidth) {
+            int materialColWidth = headerWidth;
+
+            for (Material material : materials) {
+                int materialWidth = material.toString().length();
+                if (materialWidth > materialColWidth) {
+                    materialColWidth = materialWidth;
+                }
+            }
+
+            return materialColWidth;
+        }
+
+        private static int calcPriceColWidth(Set<String> values, int headerWidth) {
+            int priceColWidth = headerWidth;
+
+            for (String value : values) {
+                int priceWidth = value.length();
+                if (priceWidth > priceColWidth) {
+                    priceColWidth = priceWidth;
+                }
+            }
+
+            return priceColWidth;
+        }
+
+        private static Set<Material> getValuesForPage(List<Material> materials, int pageNumber) {
+            int startIndex = (pageNumber - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, materials.size());
+
+            if (startIndex >= endIndex || startIndex < 0) {
+                return Collections.emptySet();
+            }
+
+            return new TreeSet<>(materials.subList(startIndex, endIndex));
+        }
+
+        /**
+         * Builds the browse command page based on the input page number and store materials
+         *
+         * @param store the store containing the items available for sale by player and the shop
+         * @param pageNumber the input page number to determine what page to view
+         * @return the page built containing the items in the shop with the buy and sell price
+         */
+        public static String buildBrowsePage(Store store, int pageNumber) {
+            List<Material> materials = store.getItems().keySet().stream().sorted().toList();
+            Set<Material> valuesForPage = getValuesForPage(materials, pageNumber);
+
+            if (valuesForPage.isEmpty()) return null;
+
+            int lastPage = (int) Math.ceil(materials.size() / (double) pageSize);
+            int materialColWidth = calcMaterialColWidth(valuesForPage, 9);
+            int buyColWidth = calcPriceColWidth(valuesForPage.stream().map(m -> String.valueOf(store.getAttributes(m).get("buy").doubleValue())).collect(Collectors.toSet()), 9);
+
+            MultilineBuilder builder = new MultilineBuilder();
+            builder.appendf("%s==[ %s%s%s ]==", GRAY, DARK_AQUA, store.getName(), GRAY)
+                    .appendf("%s%s| %s | %s", UNDERLINE, ("ITEM" + " ".repeat(materialColWidth - 2)), ("BUY PRICE" + " ".repeat(buyColWidth - 9)), "SELL PRICE");
+
+            for (Material material : valuesForPage) {
+                double buyPrice = store.getAttributes(material).get("buy").doubleValue();
+                double sellPrice = store.getAttributes(material).get("sell").doubleValue();
+                int materialPadding = materialColWidth - material.toString().length();
+                int buyPadding = buyColWidth - String.format("%.2f", buyPrice).length();
+
+                builder.appendf("%s%s%s: %s%s%s| %s%s",
+                        DARK_GREEN, (material + " ".repeat(materialPadding + 2)), RESET,
+                        GOLD, (String.format("%.2f", buyPrice) + " ".repeat(buyPadding + 1)), RESET,
+                        GOLD, String.format("%.2f", sellPrice));
+            }
+
+            builder.appendf("Page %d of %d", pageNumber, lastPage);
+            return builder.build();
         }
     }
 }
