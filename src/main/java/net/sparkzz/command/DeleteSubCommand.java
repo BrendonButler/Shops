@@ -1,37 +1,37 @@
 package net.sparkzz.command;
 
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Notifier;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 
 /**
  * Delete subcommand used for deleting a shop
  *
  * @author Brendon Butler
  */
-public class DeleteSubCommand implements ISubCommand {
-
-    private List<Store> stores = new ArrayList<>();
+public class DeleteSubCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
             throws NumberFormatException {
+        resetAttributes();
+        setArgsAsAttributes(args);
         Optional<Store> foundStore = identifyStore(args[1]);
+        setAttribute("sender", sender);
+        setAttribute("store", (foundStore.isPresent() ? foundStore.get() : args[1]));
 
         if (stores.size() > 1) {
-            sender.sendMessage(String.format("%sMultiple shops matched, please specify the shop's UUID!", RED));
+            Notifier.process(sender, STORE_MULTI_MATCH, getAttributes());
             return true;
         }
 
         if (foundStore.isEmpty()) {
-            sender.sendMessage(String.format("%sCould not find a store with the name and/or UUID of: %s%s%s!", RED, GOLD, args[1], RED));
+            Notifier.process(sender, STORE_NO_STORE_FOUND, getAttributes());
             return true;
         }
 
@@ -40,32 +40,12 @@ public class DeleteSubCommand implements ISubCommand {
 
         Store store = foundStore.get();
 
-        String name = store.getName();
+        setAttribute("store", store.getName());
         boolean success = Store.STORES.remove(store);
 
         if (success)
-            sender.sendMessage(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, name, GREEN));
-        else sender.sendMessage(String.format("%sSomething went wrong when attempting to delete the shop!", RED));
+            Notifier.process(sender, STORE_DELETE_SUCCESS, getAttributes());
+        else Notifier.process(sender, STORE_DELETE_FAIL, getAttributes());
         return true;
-    }
-
-    private Optional<Store> identifyStore(String nameOrUUID) {
-        Optional<Store> store = Optional.empty();
-
-        if (nameOrUUID.contains("~")) {
-            String[] input = nameOrUUID.split("~");
-
-            stores = Store.STORES.stream().filter(s -> s.getName().equalsIgnoreCase(input[0]) && s.getUUID().toString().equalsIgnoreCase(input[1])).collect(Collectors.toCollection(ArrayList::new));
-
-            if (stores.size() == 1)
-                store = Optional.of(stores.get(0));
-        } else {
-            stores = Store.STORES.stream().filter(s -> s.getName().equalsIgnoreCase(nameOrUUID) || s.getUUID().toString().equalsIgnoreCase(nameOrUUID)).collect(Collectors.toCollection(ArrayList::new));
-
-            if (stores.size() == 1)
-                store = Optional.of(stores.get(0));
-        }
-
-        return store;
     }
 }

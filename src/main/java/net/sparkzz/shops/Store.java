@@ -166,4 +166,9 @@ public class Store {
     public void setOwner(UUID uuid) {
         this.owner = uuid;
     }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

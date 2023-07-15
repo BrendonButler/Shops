@@ -2,85 +2,89 @@ package net.sparkzz.command;
 
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 
 /**
  * Add subcommand used for adding items to a shop
  *
  * @author Brendon Butler
  */
-public class AddSubCommand implements ISubCommand {
+public class AddSubCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
             throws NumberFormatException {
-        Material material = Material.matchMaterial(args[1]);
-        Player player = (Player) sender;
-        Store store = InventoryManagementSystem.locateCurrentShop(player);
-        int quantity = 0;
+        resetAttributes();
+        setArgsAsAttributes(args);
+        Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
+        Player player = (Player) setAttribute("sender", sender);
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentShop(player));
+        int quantity = (Integer) setAttribute("quantity", 0);
         String message = "";
 
         if (material != null) {
             if (args.length == 3) {
-                quantity = (args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
+                quantity = (int) setAttribute("quantity", args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
 
                 if (!store.containsMaterial(material)) {
-                    sender.sendMessage(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, material));
+                    Notifier.process(sender, MATERIAL_MISSING_STORE, getAttributes());
                     return true;
                 }
 
                 if (quantity < 0 && !player.hasPermission("shops.update.inf-stock")) {
-                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop (try using a positive quantity)!", RED));
+                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                     return true;
                 }
 
                 if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
-                    sender.sendMessage(String.format("%sYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!", RED));
+                    Notifier.process(sender, INSUFFICIENT_STOCK_PLAYER, getAttributes());
                     return true;
                 }
 
                 store.addItem(material, quantity);
-                message = String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN);
+                message = Notifier.compose((quantity > 0 ? ADD_SUCCESS_QUANTITY : ADD_SUCCESS), getAttributes());
             }
 
             if (args.length == 6) {
-                quantity = (args[5].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[5]));
+                quantity = (int) setAttribute("quantity", args[5].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[5]));
 
-                double buyPrice = Double.parseDouble(args[2]);
-                double sellPrice = Double.parseDouble(args[3]);
-                int maxQuantity = Integer.parseInt(args[4]);
+                double buyPrice = (double) setAttribute("buy-price", Double.parseDouble(args[2]));
+                double sellPrice = (double) setAttribute("sell-price", Double.parseDouble(args[3]));
+                int maxQuantity = (int) setAttribute("max-quantity", Integer.parseInt(args[4]));
 
                 if (store.containsMaterial(material)) {
-                    sender.sendMessage(String.format("%sThis material already exists in the shop, use `/shop update %s` to update this item", RED, material));
+                    Notifier.process(sender, MATERIAL_EXISTS_STORE, getAttributes());
                     return true;
                 }
 
                 if (quantity < 0 && !player.hasPermission("shops.update.inf-stock")) {
-                    sender.sendMessage(String.format("%sYou do not have permission to set infinite stock in your Shop (try using a positive quantity)!", RED));
+                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                     return true;
                 }
 
                 if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
-                    sender.sendMessage(String.format("%sYou don't have enough of this item to stock the store, try leaving out the quantity and adding it later!", RED));
+                    Notifier.process(sender, INSUFFICIENT_STOCK_PLAYER, getAttributes());
                     return true;
                 }
 
                 store.addItem(material, quantity, maxQuantity, buyPrice, sellPrice);
-                message = String.format("%sYou have successfully added %s%s%s to the shop with a buy price of %s%.2f%s, a sell price of %s%.2f%s, and a max quantity of %s%d%s!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN, GOLD, buyPrice, GREEN, GOLD, sellPrice, GREEN, GOLD, maxQuantity, GREEN);
+                message = Notifier.compose((quantity > 0 ? ADDED_MATERIAL_TO_STORE_QUANTITY : ADDED_MATERIAL_TO_STORE), getAttributes());
             }
 
+            if (quantity <= 0 && message.isBlank()) throw new IllegalArgumentException();
             player.getInventory().removeItem(new ItemStack(material, quantity));
             sender.sendMessage(message);
             return true;
         }
 
-        sender.sendMessage(String.format("%sInvalid material (%s)!", RED, args[1]));
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }
 }

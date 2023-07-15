@@ -11,7 +11,7 @@ website: shops.sparkzz.net
 commands:
   shop:
     description: Interact with current shop
-    usage: /<command> [add|remove|buy|sell] <item> <quantity>
+    usage: /<command> [buy|sell|browse]
   shops:
     description: Shops plugin info
     usage: /<command>
@@ -36,6 +36,7 @@ permissions:
       shops.cmd.create: true
       shops.cmd.delete: true
       shops.cmd.transfer: true
+      shops.cmd.browse: true
   shops.cmd.shops:
     description: Allows a player to use the plugin info command
     default: true
@@ -61,6 +62,8 @@ permissions:
     description: Allows a player to delete shops
   shops.cmd.transfer:
     description: Allows a player to transfer a shop to another player
+  shops.cmd.browse:
+    description: Allows a player to browse shop items
   shops.update.*:
     description: Allows access to all update commands
     children:

@@ -14,7 +14,6 @@ import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ShopsTest {
-    private static final String passed = "\u001B[32m[Test] Passed ";
     private static ServerMock server;
     private static Shops plugin;
     private static PlayerMock mrSparkzz, player2, shopper;
@@ -22,7 +21,7 @@ class ShopsTest {
     @BeforeAll
     static void setUp() {
         // Start the mock server
-        server = MockBukkit.mock();
+        server = MockBukkit.getOrCreateMock();
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
 
@@ -591,7 +590,7 @@ class ShopsTest {
     }
 
     private static void printSuccessMessage(String message) {
-        plugin.getLogger().info(passed + message + "\u001B[0m");
+        plugin.getLogger().info("\u001B[32m[Test] Passed " + message + "\u001B[0m");
     }
 
     private static void printMessage(String message) {
