@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.Notifier;
 import org.bukkit.command.Command;
@@ -14,7 +15,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class DeleteSubCommand extends SubCommand {
+public class DeleteCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)

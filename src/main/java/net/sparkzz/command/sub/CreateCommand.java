@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.Notifier;
 import org.bukkit.command.Command;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Player;
  *
  * @author Brendon Butler
  */
-public class CreateSubCommand extends SubCommand {
+public class CreateCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)

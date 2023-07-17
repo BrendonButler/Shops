@@ -1,5 +1,6 @@
 package net.sparkzz.command;
 
+import net.sparkzz.command.sub.*;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.Notifier;
@@ -29,17 +30,17 @@ import static org.bukkit.ChatColor.RED;
 public class ShopCommand extends CommandManager {
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
-        put("add", new AddSubCommand());
-        put("browse", new BrowseSubCommand());
-        put("buy", new BuySubCommand());
-        put("create", new CreateSubCommand());
-        put("delete", new DeleteSubCommand());
-        put("deposit", new DepositSubCommand());
-        put("sell", new SellSubCommand());
-        put("transfer", new TransferSubCommand());
-        put("remove", new RemoveSubCommand());
-        put("update", new UpdateSubCommand());
-        put("withdraw", new WithdrawSubCommand());
+        put("add", new AddCommand());
+        put("browse", new BrowseCommand());
+        put("buy", new BuyCommand());
+        put("create", new CreateCommand());
+        put("delete", new DeleteCommand());
+        put("deposit", new DepositCommand());
+        put("sell", new SellCommand());
+        put("transfer", new TransferCommand());
+        put("remove", new RemoveCommand());
+        put("update", new UpdateCommand());
+        put("withdraw", new WithdrawCommand());
     }};
 
     @Override

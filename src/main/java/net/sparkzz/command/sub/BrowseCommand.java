@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
@@ -15,7 +16,7 @@ import static net.sparkzz.util.Notifier.CipherKey.STORE_NOT_FOUND;
  *
  * @author Brendon Butler
  */
-public class BrowseSubCommand extends SubCommand {
+public class BrowseCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)

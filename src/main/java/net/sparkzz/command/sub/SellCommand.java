@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Transaction;
@@ -16,7 +17,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class SellSubCommand extends SubCommand {
+public class SellCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
