@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
@@ -16,7 +17,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class RemoveSubCommand extends SubCommand {
+public class RemoveCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
@@ -61,6 +62,7 @@ public class RemoveSubCommand extends SubCommand {
             return true;
         }
 
+        setAttribute("material", args[1]);
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }

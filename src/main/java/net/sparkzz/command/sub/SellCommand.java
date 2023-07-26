@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Transaction;
@@ -16,7 +17,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class SellSubCommand extends SubCommand {
+public class SellCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
@@ -39,9 +40,10 @@ public class SellSubCommand extends SubCommand {
 
         if (material != null) {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), Transaction.TransactionType.SALE);
+            setAttribute("cost", transaction.getTotalCost());
 
             if (args.length == 2 && transaction.getTotalCost() != -1) {
-                Notifier.process(sender, SELL_PRICE, getAttributes());
+                Notifier.process(sender, PRICE, getAttributes());
                 return true;
             }
 
@@ -55,6 +57,8 @@ public class SellSubCommand extends SubCommand {
             return true;
         }
 
-        return true;
+        setAttribute("material", args[1]);
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
+        return false;
     }
 }

@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Transaction;
@@ -16,7 +17,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class BuySubCommand extends SubCommand {
+public class BuyCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
@@ -42,7 +43,7 @@ public class BuySubCommand extends SubCommand {
             setAttribute("cost", transaction.getTotalCost());
 
             if (args.length == 2 && transaction.getTotalCost() != -1) {
-                Notifier.process(sender, BUY_PRICE, getAttributes());
+                Notifier.process(sender, PRICE, getAttributes());
                 return true;
             }
 
@@ -56,6 +57,8 @@ public class BuySubCommand extends SubCommand {
             return true;
         }
 
+        setAttribute("material", args[1]);
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }
 }

@@ -3,6 +3,7 @@ package net.sparkzz.shops;
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
 import net.sparkzz.util.Warehouse;
+import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,8 +23,10 @@ public class Shops extends JavaPlugin {
     public static Economy econ;
     public static PluginDescriptionFile desc;
 
+    private static boolean isTest = false;
+    private static Server server;
+
     private final Logger log = getLogger();
-    private boolean isTest = false;
 
     public Shops() {
         super();
@@ -75,20 +78,31 @@ public class Shops extends JavaPlugin {
         return econ != null;
     }
 
+    public static boolean isTest() {
+        return isTest;
+    }
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+
     public static PluginDescriptionFile getDesc() {
         return desc;
+    }
+
+    public static Server getMockServer() {
+        return server;
     }
 
     public static Store getDefaultShop() {
         return shop;
     }
 
-
-    public static Economy getEconomy() {
-        return econ;
-    }
-
     public static void setDefaultShop(Store store) {
         shop = store;
+    }
+
+    public static void setMockServer(Server mockServer) {
+        server = mockServer;
     }
 }

@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
@@ -15,7 +16,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class DepositSubCommand extends SubCommand {
+public class DepositCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)

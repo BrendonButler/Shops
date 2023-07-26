@@ -1,5 +1,6 @@
 package net.sparkzz.command;
 
+import net.sparkzz.command.sub.*;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.Notifier;
@@ -29,17 +30,17 @@ import static org.bukkit.ChatColor.RED;
 public class ShopCommand extends CommandManager {
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
-        put("add", new AddSubCommand());
-        put("browse", new BrowseSubCommand());
-        put("buy", new BuySubCommand());
-        put("create", new CreateSubCommand());
-        put("delete", new DeleteSubCommand());
-        put("deposit", new DepositSubCommand());
-        put("sell", new SellSubCommand());
-        put("transfer", new TransferSubCommand());
-        put("remove", new RemoveSubCommand());
-        put("update", new UpdateSubCommand());
-        put("withdraw", new WithdrawSubCommand());
+        put("add", new AddCommand());
+        put("browse", new BrowseCommand());
+        put("buy", new BuyCommand());
+        put("create", new CreateCommand());
+        put("delete", new DeleteCommand());
+        put("deposit", new DepositCommand());
+        put("sell", new SellCommand());
+        put("transfer", new TransferCommand());
+        put("remove", new RemoveCommand());
+        put("update", new UpdateCommand());
+        put("withdraw", new WithdrawCommand());
     }};
 
     @Override
@@ -156,7 +157,7 @@ public class ShopCommand extends CommandManager {
         }
 
         try {
-            if (args.length < 2) throw new IllegalArgumentException();
+            if (args.length == 0 || (args.length < 2 && !(args[0].equalsIgnoreCase("browse") || args[0].equalsIgnoreCase("update")))) throw new IllegalArgumentException();
 
             String subCommand = args[0].toLowerCase();
 
@@ -168,7 +169,7 @@ public class ShopCommand extends CommandManager {
             if (subCommands.containsKey(subCommand))
                 return subCommands.get(subCommand).process(sender, command, label, args);
         } catch (NumberFormatException exception) {
-            sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
+            sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
             Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
         }

@@ -1,5 +1,6 @@
-package net.sparkzz.command;
+package net.sparkzz.command.sub;
 
+import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.util.Notifier;
@@ -18,7 +19,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class TransferSubCommand extends SubCommand {
+public class TransferCommand extends SubCommand {
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args)
@@ -41,7 +42,8 @@ public class TransferSubCommand extends SubCommand {
 
         boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-        Server server = Shops.getPlugin(Shops.class).getServer();
+        // TODO: remove mock references once Server mocking is updated to fix issues with getServer()
+        Server server = (!Shops.isTest()) ? Shops.getPlugin(Shops.class).getServer() : Shops.getMockServer();
         OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
 
         if (targetPlayer == null) {
@@ -51,7 +53,7 @@ public class TransferSubCommand extends SubCommand {
 
         Store store = foundStore.get();
 
-        setAttribute("target-player", targetPlayer.getName());
+        setAttribute("target", targetPlayer.getName());
         store.setOwner(targetPlayer.getUniqueId());
         Notifier.process(sender, STORE_TRANSFER_SUCCESS, getAttributes());
         return true;
