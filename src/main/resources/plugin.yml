@@ -64,6 +64,7 @@ permissions:
     description: Allows a player to transfer a shop to another player
   shops.cmd.browse:
     description: Allows a player to browse shop items
+    default: true
   shops.update.*:
     description: Allows access to all update commands
     children:
