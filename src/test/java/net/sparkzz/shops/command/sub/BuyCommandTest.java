@@ -23,6 +23,7 @@ import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.RED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Buy Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BuyCommandTest {

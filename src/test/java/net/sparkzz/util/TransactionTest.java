@@ -24,6 +24,7 @@ import static net.sparkzz.shops.TestHelper.printSuccessMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Transaction Test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionTest {

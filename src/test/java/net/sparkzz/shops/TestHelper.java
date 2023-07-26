@@ -5,8 +5,8 @@ import org.bukkit.command.CommandSender;
 
 public class TestHelper {
 
-    public static boolean performCommand(CommandSender sender, String message) {
-        return MockBukkit.getOrCreateMock().dispatchCommand(sender, message);
+    public static void performCommand(CommandSender sender, String message) {
+        MockBukkit.getOrCreateMock().dispatchCommand(sender, message);
     }
 
     public static void printSuccessMessage(String message) {

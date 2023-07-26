@@ -13,6 +13,7 @@ import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Withdraw Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WithdrawCommandTest {

@@ -272,11 +272,12 @@ class NotifierTest {
         @DisplayName("Test Building Browse Page")
         void testBuildBrowsePage() {
             String result = Notifier.Paginator.buildBrowsePage(store, 2);
-            String expected = "§7==[ §3TestStore§7 ]==\n" +
-                              "§nITEM        | BUY PRICE | SELL PRICE\n" +
-                              "§2BEEF        §r: §64.00      §r| §61.50\n" +
-                              "§2ITEM_FRAME  §r: §613.00     §r| §610.00\n" +
-                              "Page 2 of 2";
+            String expected = """
+                    §7==[ §3TestStore§7 ]==
+                    §nITEM        | BUY PRICE | SELL PRICE
+                    §2BEEF        §r: §64.00      §r| §61.50
+                    §2ITEM_FRAME  §r: §613.00     §r| §610.00
+                    Page 2 of 2""";
 
             assertEquals(expected, result);
             printSuccessMessage("processing page of pagination");

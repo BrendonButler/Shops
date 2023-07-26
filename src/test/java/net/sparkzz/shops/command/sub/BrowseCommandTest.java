@@ -21,12 +21,12 @@ import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.RED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Browse Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BrowseCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
-    private static Store store;
 
     @BeforeAll
     static void setUp() {
@@ -50,6 +50,7 @@ public class BrowseCommandTest {
 
     @BeforeEach
     void setUpShopItems() {
+        Store store;
         Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
 
         store.addItem(Material.EMERALD, 3, 64, 24.5, 12);
@@ -80,19 +81,20 @@ public class BrowseCommandTest {
     @Order(2)
     void testBrowseShop() {
         performCommand(mrSparkzz, "shop browse");
-        assertEquals("§7==[ §3BetterBuy§7 ]==\n" +
-                     "§nITEM          | BUY PRICE | SELL PRICE\n" +
-                     "§2COPPER_BLOCK  §r: §62.00      §r| §61.00\n" +
-                     "§2SPRUCE_LOG    §r: §64.00      §r| §62.00\n" +
-                     "§2ACACIA_LOG    §r: §62.00      §r| §61.00\n" +
-                     "§2OBSIDIAN      §r: §62.00      §r| §61.00\n" +
-                     "§2CHARCOAL      §r: §60.50      §r| §60.10\n" +
-                     "§2EMERALD       §r: §624.50     §r| §612.00\n" +
-                     "§2IRON_AXE      §r: §610.00     §r| §65.00\n" +
-                     "§2STICK         §r: §60.25      §r| §60.10\n" +
-                     "§2ACACIA_SIGN   §r: §60.00      §r| §60.00\n" +
-                     "§2BUCKET        §r: §610.00     §r| §62.50\n" +
-                     "Page 1 of 2", mrSparkzz.nextMessage());
+        assertEquals("""
+                §7==[ §3BetterBuy§7 ]==
+                §nITEM          | BUY PRICE | SELL PRICE
+                §2COPPER_BLOCK  §r: §62.00      §r| §61.00
+                §2SPRUCE_LOG    §r: §64.00      §r| §62.00
+                §2ACACIA_LOG    §r: §62.00      §r| §61.00
+                §2OBSIDIAN      §r: §62.00      §r| §61.00
+                §2CHARCOAL      §r: §60.50      §r| §60.10
+                §2EMERALD       §r: §624.50     §r| §612.00
+                §2IRON_AXE      §r: §610.00     §r| §65.00
+                §2STICK         §r: §60.25      §r| §60.10
+                §2ACACIA_SIGN   §r: §60.00      §r| §60.00
+                §2BUCKET        §r: §610.00     §r| §62.50
+                Page 1 of 2""", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - browse page 1");
     }
 
@@ -111,11 +113,12 @@ public class BrowseCommandTest {
     @Order(4)
     void testBrowseShop_SecondPage() {
         performCommand(mrSparkzz, "shop browse 2");
-        assertEquals("§7==[ §3BetterBuy§7 ]==\n" +
-                     "§nITEM        | BUY PRICE | SELL PRICE\n" +
-                     "§2BEEF        §r: §64.00      §r| §61.50\n" +
-                     "§2ITEM_FRAME  §r: §613.00     §r| §610.00\n" +
-                     "Page 2 of 2", mrSparkzz.nextMessage());
+        assertEquals("""
+                §7==[ §3BetterBuy§7 ]==
+                §nITEM        | BUY PRICE | SELL PRICE
+                §2BEEF        §r: §64.00      §r| §61.50
+                §2ITEM_FRAME  §r: §613.00     §r| §610.00
+                Page 2 of 2""", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - browse page 2");
     }
 

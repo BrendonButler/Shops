@@ -3,6 +3,7 @@ package net.sparkzz.shops.command;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.command.ConsoleCommandSenderMock;
+import be.seeseemelk.mockbukkit.entity.EntityMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Shop Command")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class ShopCommandTest {
@@ -62,8 +64,7 @@ class ShopCommandTest {
 
         @BeforeEach
         void setUpShops() {
-            Store store;
-            Shops.setDefaultShop(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+            Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
             new Store("DiscountPlus", mrSparkzz.getUniqueId());
         }
 
@@ -326,7 +327,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 3 args - transfer tab complete")
         @Order(22)
         void testShopTabComplete_Transfer3Args() {
-            List<String> expectedOptions = server.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
+            List<String> expectedOptions = server.getOnlinePlayers().stream().map(EntityMock::getName).collect(Collectors.toList());
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop transfer shop-name ");
 
             assertEquals(expectedOptions, actualOptions);

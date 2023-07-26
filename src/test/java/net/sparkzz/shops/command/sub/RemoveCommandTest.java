@@ -18,11 +18,14 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.Objects;
+
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Remove Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RemoveCommandTest {
@@ -69,11 +72,10 @@ public class RemoveCommandTest {
     @Order(2)
     void testRemoveCommand_RemoveOne() {
         Material material = emeralds.getType();
-        int quantity = 0;
 
         performCommand(mrSparkzz, "shop remove emerald 1");
-        assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
-        assertEquals(63, mrSparkzz.getInventory().getItem(0).getAmount());
+        assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
+        assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
         assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("remove command test - remove 1 of type from shop");
     }
@@ -83,10 +85,9 @@ public class RemoveCommandTest {
     @Order(3)
     void testRemoveCommand_RemoveAll() {
         Material material = emeralds.getType();
-        int quantity = 0;
 
         performCommand(mrSparkzz, "shop remove emerald");
-        assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
+        assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
         assertNull(Shops.getDefaultShop().getItems().get(material));
         printSuccessMessage("remove command test - remove all of type from shop");
     }

@@ -279,8 +279,8 @@ public class Notifier {
     public static class Paginator {
         private static final int pageSize = 10;
 
-        private static int calcMaterialColWidth(Set<Material> materials, int headerWidth) {
-            int materialColWidth = headerWidth;
+        private static int calcMaterialColWidth(Set<Material> materials) {
+            int materialColWidth = 9;
 
             for (Material material : materials) {
                 int materialWidth = material.toString().length();
@@ -292,8 +292,8 @@ public class Notifier {
             return materialColWidth;
         }
 
-        private static int calcPriceColWidth(Set<String> values, int headerWidth) {
-            int priceColWidth = headerWidth;
+        private static int calcPriceColWidth(Set<String> values) {
+            int priceColWidth = 9;
 
             for (String value : values) {
                 int priceWidth = value.length();
@@ -330,8 +330,8 @@ public class Notifier {
             if (valuesForPage.isEmpty()) return null;
 
             int lastPage = (int) Math.ceil(materials.size() / (double) pageSize);
-            int materialColWidth = calcMaterialColWidth(valuesForPage, 9);
-            int buyColWidth = calcPriceColWidth(valuesForPage.stream().map(m -> String.valueOf(store.getAttributes(m).get("buy").doubleValue())).collect(Collectors.toSet()), 9);
+            int materialColWidth = calcMaterialColWidth(valuesForPage);
+            int buyColWidth = calcPriceColWidth(valuesForPage.stream().map(m -> String.valueOf(store.getAttributes(m).get("buy").doubleValue())).collect(Collectors.toSet()));
 
             MultilineBuilder builder = new MultilineBuilder();
             builder.appendf("%s==[ %s%s%s ]==", GRAY, DARK_AQUA, store.getName(), GRAY)

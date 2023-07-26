@@ -28,15 +28,12 @@ public abstract class SubCommand extends Notifiable {
             String[] input = nameOrUUID.split("~");
 
             stores = Store.STORES.stream().filter(s -> s.getName().equalsIgnoreCase(input[0]) && s.getUUID().toString().equalsIgnoreCase(input[1])).collect(Collectors.toCollection(ArrayList::new));
-
-            if (stores.size() == 1)
-                store = Optional.of(stores.get(0));
         } else {
             stores = Store.STORES.stream().filter(s -> s.getName().equalsIgnoreCase(nameOrUUID) || s.getUUID().toString().equalsIgnoreCase(nameOrUUID)).collect(Collectors.toCollection(ArrayList::new));
-
-            if (stores.size() == 1)
-                store = Optional.of(stores.get(0));
         }
+
+        if (stores.size() == 1)
+            store = Optional.of(stores.get(0));
 
         return store;
     }

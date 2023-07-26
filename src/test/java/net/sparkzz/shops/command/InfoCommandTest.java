@@ -18,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Info Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class InfoCommandTest {

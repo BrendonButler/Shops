@@ -11,10 +11,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.util.Objects;
+
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Add Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AddCommandTest {
@@ -75,7 +79,7 @@ class AddCommandTest {
 
         performCommand(mrSparkzz, "shop add emerald 1");
         assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
-        assertEquals(63, mrSparkzz.getInventory().getItem(0).getAmount());
+        assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
         assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add 1");
     }
@@ -85,7 +89,14 @@ class AddCommandTest {
     @DisplayName("Test Add - main functionality - add all")
     @Order(3)
     void testAddCommand_AddAll() {
+        Material material = emeralds.getType();
+        int quantity = emeralds.getAmount();
 
+        performCommand(mrSparkzz, "shop add emerald all");
+        assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
+        assertFalse(mrSparkzz.getInventory().contains(material));
+        assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+        printSuccessMessage("add command test - add all");
     }
 
     @Test
