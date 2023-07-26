@@ -2,11 +2,14 @@ coverage:
   status:
     project:
       default:
-        target: 60% # Set the default target to 60%
+        target: 70% # Set the default target to 60%
         threshold: 40% # Set the threshold for the "yellow" range to 40%
         base: auto
         paths:
           - "src/main/java"
-  range: "40...60" # Set the range to "40...60" for the "yellow" range
+  range: 40..70 # Set the range to "40..70" for the "yellow" range
   round: down
   precision: 2
+parsers:
+  jacoco:
+    partials_as_hits: true #false by default
