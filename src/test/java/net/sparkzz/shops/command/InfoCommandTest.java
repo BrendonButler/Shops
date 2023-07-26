@@ -19,7 +19,6 @@ import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Info Command")
-@Order(20)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class InfoCommandTest {
 
@@ -50,7 +49,7 @@ class InfoCommandTest {
     @Test
     @DisplayName("Test Info - permissions")
     @Order(1)
-    void testUpdateCommand_Permissions() {
+    void testInfoCommand_Permissions() {
         performCommand(player2, "shops");
         assertEquals("§cI'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is a mistake.", player2.nextMessage());
         printSuccessMessage("info command permission check");

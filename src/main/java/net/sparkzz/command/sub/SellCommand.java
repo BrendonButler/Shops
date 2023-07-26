@@ -40,9 +40,10 @@ public class SellCommand extends SubCommand {
 
         if (material != null) {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), Transaction.TransactionType.SALE);
+            setAttribute("cost", transaction.getTotalCost());
 
             if (args.length == 2 && transaction.getTotalCost() != -1) {
-                Notifier.process(sender, SELL_PRICE, getAttributes());
+                Notifier.process(sender, PRICE, getAttributes());
                 return true;
             }
 
@@ -56,6 +57,8 @@ public class SellCommand extends SubCommand {
             return true;
         }
 
-        return true;
+        setAttribute("material", args[1]);
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
+        return false;
     }
 }

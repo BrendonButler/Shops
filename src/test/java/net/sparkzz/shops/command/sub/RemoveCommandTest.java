@@ -86,7 +86,7 @@ public class RemoveCommandTest {
         int quantity = 0;
 
         performCommand(mrSparkzz, "shop remove emerald");
-        assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
+        assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
         assertNull(Shops.getDefaultShop().getItems().get(material));
         printSuccessMessage("remove command test - remove all of type from shop");
     }
@@ -99,5 +99,14 @@ public class RemoveCommandTest {
         performCommand(mrSparkzz, "shop remove emerald 1");
         assertEquals(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, Material.EMERALD), mrSparkzz.nextMessage());
         printSuccessMessage("remove command test - material doesn't exist");
+    }
+
+    @Test
+    @DisplayName("Test Remove - invalid material")
+    @Order(5)
+    void testRemoveCommand_InvalidMaterial() {
+        performCommand(mrSparkzz, "shop remove emeral 1");
+        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        printSuccessMessage("remove command test - invalid material");
     }
 }

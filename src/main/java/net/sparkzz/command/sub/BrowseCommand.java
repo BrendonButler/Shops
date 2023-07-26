@@ -26,7 +26,7 @@ public class BrowseCommand extends SubCommand {
         Player player = (Player) setAttribute("sender", sender);
         Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentShop(player));
 
-        int pageNumber = Integer.parseInt(args[1]);
+        int pageNumber = (args.length > 1) ? Integer.parseInt(args[1]) : 1;
 
         if (store != null) {
             String page = Notifier.Paginator.buildBrowsePage(store, pageNumber);

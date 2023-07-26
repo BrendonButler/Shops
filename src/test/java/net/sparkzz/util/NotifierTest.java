@@ -213,12 +213,11 @@ class NotifierTest {
         @Test
         @DisplayName("Test formatted Append from key")
         void testAppendf_FromKey() {
-            builder.appendf(Notifier.CipherKey.TEST_FORMAT, message1);
+            builder.appendf(Notifier.CipherKey.NO_PERMS_CMD, message1);
 
             String result = builder.build();
-            String expected = String.format("§a%s", message1);
 
-            assertEquals(expected, result);
+            assertEquals("§cYou do not have permission to use this command!", result);
             printSuccessMessage("appending processed formatted message from key");
         }
 

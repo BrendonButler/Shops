@@ -33,6 +33,7 @@ class AddCommandTest {
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
+        mrSparkzz.setOp(true);
         Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
         Shops.getDefaultShop().getItems().clear();
         Shops.getDefaultShop().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
@@ -94,7 +95,16 @@ class AddCommandTest {
     void testAddCommand_NoMaterial() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 64));
         performCommand(mrSparkzz, "shop add emerald 1");
-        assertEquals(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, Material.EMERALD), mrSparkzz.nextMessage());
+        assertEquals("§cThis material doesn't currently exist in the shop, use `/shop add emerald` to add this item", mrSparkzz.nextMessage());
         printSuccessMessage("add command - material doesn't exist");
+    }
+
+    @Test
+    @DisplayName("Test Add - invalid material")
+    @Order(5)
+    void testRemoveCommand_InvalidMaterial() {
+        performCommand(mrSparkzz, "shop add emeral 1");
+        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        printSuccessMessage("remove command test - invalid material");
     }
 }

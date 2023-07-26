@@ -157,7 +157,7 @@ public class ShopCommand extends CommandManager {
         }
 
         try {
-            if (args.length < 2) throw new IllegalArgumentException();
+            if (args.length == 0 || (args.length < 2 && !(args[0].equalsIgnoreCase("browse") || args[0].equalsIgnoreCase("update")))) throw new IllegalArgumentException();
 
             String subCommand = args[0].toLowerCase();
 
@@ -169,7 +169,7 @@ public class ShopCommand extends CommandManager {
             if (subCommands.containsKey(subCommand))
                 return subCommands.get(subCommand).process(sender, command, label, args);
         } catch (NumberFormatException exception) {
-            sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
+            sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
             Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
         }

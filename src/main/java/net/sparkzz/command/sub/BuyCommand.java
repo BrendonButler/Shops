@@ -43,7 +43,7 @@ public class BuyCommand extends SubCommand {
             setAttribute("cost", transaction.getTotalCost());
 
             if (args.length == 2 && transaction.getTotalCost() != -1) {
-                Notifier.process(sender, BUY_PRICE, getAttributes());
+                Notifier.process(sender, PRICE, getAttributes());
                 return true;
             }
 
@@ -57,6 +57,8 @@ public class BuyCommand extends SubCommand {
             return true;
         }
 
+        setAttribute("material", args[1]);
+        Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }
 }

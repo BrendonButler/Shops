@@ -85,6 +85,7 @@ public class AddCommand extends SubCommand {
             return true;
         }
 
+        setAttribute("material", args[1]);
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
     }

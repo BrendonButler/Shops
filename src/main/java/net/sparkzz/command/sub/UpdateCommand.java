@@ -29,7 +29,7 @@ public class UpdateCommand extends SubCommand {
         Player player = (Player) setAttribute("sender", sender);
         Store store = InventoryManagementSystem.locateCurrentShop(player);
         setAttribute("store", store.getName());
-        Material material = Material.matchMaterial(args[1]);
+        if (args.length >= 2) setAttribute("material", args[1]);
 
         if (args.length == 3) {
             switch (args[1].toLowerCase()) {
@@ -61,6 +61,8 @@ public class UpdateCommand extends SubCommand {
 
         if (args.length < 4)
             return false;
+
+        Material material = Material.matchMaterial(args[1]);
 
         double value = (args[3].equalsIgnoreCase("true")) ? -1D :
                     (args[3].equalsIgnoreCase("false") ? 0D : Double.parseDouble(args[3]));

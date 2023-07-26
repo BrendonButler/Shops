@@ -9,15 +9,7 @@ import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
@@ -29,6 +21,7 @@ class SellCommandTest {
     private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
 
     private static PlayerMock mrSparkzz, player2;
+    private static Store store;
 
     @BeforeAll
     static void setUp() {
@@ -42,7 +35,7 @@ class SellCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
@@ -53,11 +46,15 @@ class SellCommandTest {
 
     @BeforeEach
     void setUpSellCommand() {
-        Shops.getDefaultShop().getItems().clear();
         Shops.getDefaultShop().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-        Shops.getDefaultShop().addFunds(100);
+        Shops.getDefaultShop().setBalance(100);
         mrSparkzz.getInventory().addItem(emeralds);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+    }
+
+    @AfterEach
+    void tearDownShop() {
+        Shops.getDefaultShop().getItems().clear();
     }
 
     @Test
@@ -84,5 +81,50 @@ class SellCommandTest {
         assertEquals(25, Shops.getDefaultShop().getBalance());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test");
+    }
+
+    @Test
+    @DisplayName("Test Sell - main functionality - below minimum amount")
+    @Order(3)
+    void testSellCommand_BelowMinimum() {
+        performCommand(mrSparkzz, "shop sell emerald -1");
+        assertEquals("§cInvalid quantity (-1)!", mrSparkzz.nextMessage());
+        assertEquals(100, store.getBalance());
+        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        printSuccessMessage("sell command test - below minimum amount");
+    }
+
+    @Test
+    @DisplayName("Test Sell - main functionality - above maximum amount")
+    @Order(4)
+    void testSellCommand_AboveMaximum() {
+        performCommand(mrSparkzz, "shop sell emerald 2305");
+        assertEquals("§cInvalid quantity (2305)!", mrSparkzz.nextMessage());
+        assertEquals(100, store.getBalance());
+        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        printSuccessMessage("sell command test - above maximum amount");
+    }
+
+    @Test
+    @DisplayName("Test Sell - main functionality - invalid material")
+    @Order(5)
+    void testSellCommand_InvalidMaterial() {
+        performCommand(mrSparkzz, "shop sell emeral 1");
+        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
+        assertEquals(100, store.getBalance());
+        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        printSuccessMessage("sell command test - above maximum amount");
+    }
+
+    @Test
+    @DisplayName("Test Sell - main functionality - query price")
+    @Order(6)
+    void testSellCommand_QueryPrice() {
+        performCommand(mrSparkzz, "shop sell emerald");
+        assertEquals("§9Price: §a1.5", mrSparkzz.nextMessage());
+        assertEquals(100, store.getBalance());
+        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        printSuccessMessage("sell command test - query price");
     }
 }

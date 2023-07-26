@@ -42,7 +42,8 @@ public class TransferCommand extends SubCommand {
 
         boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-        Server server = Shops.getPlugin(Shops.class).getServer();
+        // TODO: remove mock references once Server mocking is updated to fix issues with getServer()
+        Server server = (!Shops.isTest()) ? Shops.getPlugin(Shops.class).getServer() : Shops.getMockServer();
         OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
 
         if (targetPlayer == null) {
@@ -52,7 +53,7 @@ public class TransferCommand extends SubCommand {
 
         Store store = foundStore.get();
 
-        setAttribute("target-player", targetPlayer.getName());
+        setAttribute("target", targetPlayer.getName());
         store.setOwner(targetPlayer.getUniqueId());
         Notifier.process(sender, STORE_TRANSFER_SUCCESS, getAttributes());
         return true;
