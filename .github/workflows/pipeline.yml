@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  build:
-
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -34,12 +34,36 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Extract coverage percentage
-        id: extract-coverage
-        run: echo "::set-output name=coverage::${{ steps.codecov.outputs.coverage }}"
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
 
       - name: Run integration tests
         run: mvn verify
+
+  documentation:
+    name: Documentation and Reports
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
 
       - name: Check documentation and publish reports
         run: mvn validate site
