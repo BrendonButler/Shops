@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-release:
+  publish-release:
     name: Create Release
     runs-on: ubuntu-latest
 
@@ -33,8 +33,27 @@ jobs:
           name: shops-${{ steps.previoustag.outputs.tag }}
           path: target/shops-${{ steps.previoustag.outputs.tag }}.jar
 
+
+  create-release:
+    name: Create GitHub Release
+    needs: publish-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get Previous tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+
+      - name: Download the shaded jar artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: shops-${{ steps.previoustag.outputs.tag }}
+
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: shops-${{ steps.previoustag.outputs.tag }}
           skipIfReleaseExists: true
-          tag: ${{ steps.previoustag.outputs.tag }}
+          artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
+          tag: Shops ${{ steps.previoustag.outputs.tag }}
