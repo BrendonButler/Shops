@@ -30,10 +30,11 @@ jobs:
       - name: Upload shaded jar as a release artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shops-${{ steps.previoustag.outputs.tag }}.jar
+          name: shops-${{ steps.previoustag.outputs.tag }}
           path: target/shops-${{ steps.previoustag.outputs.tag }}.jar
 
       - uses: ncipollo/release-action@v1
         with:
           artifacts: shops-${{ steps.previoustag.outputs.tag }}.jar
           skipIfReleaseExists: true
+          tag: ${{ steps.previoustag.outputs.tag }}
