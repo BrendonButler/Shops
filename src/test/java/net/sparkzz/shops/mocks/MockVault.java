@@ -16,9 +16,6 @@ import java.util.logging.Logger;
 
 public class MockVault extends JavaPlugin implements VaultProvider {
 
-    private static Logger log;
-    private ServicesManager servicesManager;
-
     protected MockVault(
             JavaPluginLoader loader,
             PluginDescriptionFile description,
@@ -29,8 +26,8 @@ public class MockVault extends JavaPlugin implements VaultProvider {
 
     @Override
     public void onEnable() {
-        log = this.getLogger();
-        this.servicesManager = this.getServer().getServicesManager();
+        Logger log = this.getLogger();
+        ServicesManager servicesManager = this.getServer().getServicesManager();
         Economy econ;
 
         try {
@@ -39,6 +36,6 @@ public class MockVault extends JavaPlugin implements VaultProvider {
             throw new RuntimeException(e);
         }
 
-        this.servicesManager.register(Economy.class, econ, this, ServicePriority.Low);
+        servicesManager.register(Economy.class, econ, this, ServicePriority.Low);
     }
 }

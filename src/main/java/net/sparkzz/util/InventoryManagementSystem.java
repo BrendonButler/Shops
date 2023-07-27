@@ -16,24 +16,54 @@ import java.util.Map;
  */
 public class InventoryManagementSystem {
 
+    /**
+     * Checks whether the provided material and quantity can be added to the player's inventory
+     *
+     * @param player the player to have their inventory checked
+     * @param material the material to be checked if it can be added to the player's inventory
+     * @param quantity the quantity of the material to be checked if it can be added to the store
+     * @return whether the provided quantity of material can be added to the player's inventory
+     */
     public static boolean canInsert(Player player, Material material, int quantity) {
         int availableSpace = getAvailableSpace(player, material);
 
         return (quantity <= availableSpace);
     }
 
+    /**
+     * Checks whether the provided material and quantity can be removed from the player's inventory
+     *
+     * @param player the player to have their inventory checked
+     * @param material the material to be checked if it can be removed from the player's inventory
+     * @param quantity the quantity of the material to be checked if it can be removed from the store
+     * @return whether the provided quantity of material can be removed from the player's inventory
+     */
     public static boolean canRemove(Player player, Material material, int quantity) {
         int inInventory = countQuantity(player, material);
 
         return (quantity <= inInventory);
     }
 
+    /**
+     * Checks if the store contains at least the quantity of materials in the item stack
+     *
+     * @param store the store to have its inventory queried
+     * @param itemStack the item stack to be used in the query
+     * @return whether the store contains at least the quantity of materials in the item stack
+     */
     public static boolean containsAtLeast(Store store, ItemStack itemStack) {
         int storeQuantity = countQuantity(store, itemStack.getType());
 
         return store.hasInfiniteStock() || storeQuantity >= itemStack.getAmount();
     }
 
+    /**
+     * Counts the quantity of the provided material in the player's inventory
+     *
+     * @param player the player to have their inventory queried
+     * @param material the material to be queried in the player's inventory
+     * @return the quantity of the provided material in the player's inventory
+     */
     public static int countQuantity(Player player, Material material) {
         ListIterator<ItemStack> iterator = player.getInventory().iterator();
         int quantity = 0;
@@ -48,6 +78,13 @@ public class InventoryManagementSystem {
         return quantity;
     }
 
+    /**
+     * Counts the quantity of the provided material in the store
+     *
+     * @param store the store to have its inventory queried
+     * @param material the material to be queried in the store
+     * @return the quantity of the provided material in the player's inventory
+     */
     public static int countQuantity(Store store, Material material) {
         int quantity = -1;
 
@@ -60,6 +97,14 @@ public class InventoryManagementSystem {
         return quantity;
     }
 
+    /**
+     * Gets the available space in the player's inventory based on the material's max stack size, it will even check
+     * partial stacks of the input material
+     *
+     * @param player the player to have their inventory queried
+     * @param material the material to be used to query the player's inventory
+     * @return the available space based on the material's stack size and inventory space
+     */
     private static int getAvailableSpace(Player player, Material material) {
         ListIterator<ItemStack> iterator = player.getInventory().iterator();
         int availableSpace = 0;
@@ -76,6 +121,13 @@ public class InventoryManagementSystem {
         return availableSpace;
     }
 
+    /**
+     * Gets the available space in the store
+     *
+     * @param store the store to have its inventory queried
+     * @param material the material to be used to query the store
+     * @return the available space based on the max quantity and current quantity of the provided material
+     */
     public static int getAvailableSpace(Store store, Material material) {
         int availableSpace = 0;
 
@@ -91,7 +143,13 @@ public class InventoryManagementSystem {
         return availableSpace;
     }
 
-    public static Store locateCurrentShop(Player player) {
+    /**
+     * Gets the current store based on the player's location
+     *
+     * @param player the player to have its location checked for the current store
+     * @return the store the player is currently located in
+     */
+    public static Store locateCurrentStore(Player player) {
         // TODO: locate the player within the bounds of a current shop
         return Shops.getDefaultShop();
     }

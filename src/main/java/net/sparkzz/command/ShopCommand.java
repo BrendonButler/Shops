@@ -1,14 +1,23 @@
 package net.sparkzz.command;
 
+import net.sparkzz.command.sub.*;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Notifier;
+import net.sparkzz.util.Notifier.CipherKey;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.bukkit.ChatColor.RED;
@@ -20,19 +29,29 @@ import static org.bukkit.ChatColor.RED;
  */
 public class ShopCommand extends CommandManager {
 
-    private final Map<String, ISubCommand> subCommands = new HashMap<>() {{
-        put("add", new AddSubCommand());
-        put("buy", new BuySubCommand());
-        put("create", new CreateSubCommand());
-        put("delete", new DeleteSubCommand());
-        put("deposit", new DepositSubCommand());
-        put("sell", new SellSubCommand());
-        put("transfer", new TransferSubCommand());
-        put("remove", new RemoveSubCommand());
-        put("update", new UpdateSubCommand());
-        put("withdraw", new WithdrawSubCommand());
+    private final Map<String, SubCommand> subCommands = new HashMap<>() {{
+        put("add", new AddCommand());
+        put("browse", new BrowseCommand());
+        put("buy", new BuyCommand());
+        put("create", new CreateCommand());
+        put("delete", new DeleteCommand());
+        put("deposit", new DepositCommand());
+        put("sell", new SellCommand());
+        put("transfer", new TransferCommand());
+        put("remove", new RemoveCommand());
+        put("update", new UpdateCommand());
+        put("withdraw", new WithdrawCommand());
     }};
 
+    /**
+     * TabCompleter for generating suggestions when a player starts typing the /shop command
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return a list of options for the /shop command arguments
+     */
     @Override
     @SuppressWarnings("all")
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -45,6 +64,9 @@ public class ShopCommand extends CommandManager {
             return subCommands.keySet().stream().toList();
 
         if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("browse"))
+                return Arrays.asList("<page-number>");
+
             if (args[0].equalsIgnoreCase("deposit"))
                 return Arrays.asList("<amount>");
 
@@ -132,30 +154,47 @@ public class ShopCommand extends CommandManager {
         return new ArrayList<>();
     }
 
+    /**
+     * The base command for all shop user subcommands
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return whether the command was successful
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        resetAttributes();
+        setAttribute("sender", sender);
+        setArgsAsAttributes(args);
+
         if (!(sender instanceof Player)) {
-            sender.sendMessage(String.format("%sOnly players can use this command!", RED));
+            Notifier.process(sender, CipherKey.ONLY_PLAYERS_CMD, getAttributes());
             return true;
         }
 
         try {
-            if (args.length < 2) throw new IllegalArgumentException();
+            if (args.length == 0 || (args.length < 2 && !(args[0].equalsIgnoreCase("browse") || args[0].equalsIgnoreCase("update")))) throw new IllegalArgumentException();
 
             String subCommand = args[0].toLowerCase();
 
             if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
-                sender.sendMessage(String.format("%sYou do not have permission to use this command!", RED));
+                Notifier.process(sender, CipherKey.NO_PERMS_CMD, getAttributes());
                 return true;
             }
 
             if (subCommands.containsKey(subCommand))
                 return subCommands.get(subCommand).process(sender, command, label, args);
         } catch (NumberFormatException exception) {
-            sender.sendMessage(String.format("%sInvalid numerical value (%s)", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
+            sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
-            sender.sendMessage(String.format("%sInvalid number of arguments!", RED));
+            Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
         }
+
+        // send the CommandSender a usage message based on the subcommand instead of the default
+        if (command.getName().equalsIgnoreCase("shop") && args.length > 0)
+            return Notifier.usageSubCommand(sender, args);
 
         return false;
     }

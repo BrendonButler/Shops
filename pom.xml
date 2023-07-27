@@ -5,26 +5,37 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <jackson-databind.version>2.15.0</jackson-databind.version>
-        <jacoco.version>0.8.7</jacoco.version>
+        <!-- Plugin Versions -->
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.shade.version>3.5.0</maven.shade.version>
+        <maven.surefire.version>3.0.0</maven.surefire.version>
+        <jacoco.version>0.8.10</jacoco.version>
+        <spotbugs.version>4.7.3.5</spotbugs.version>
+
+        <!-- Dependency Versions -->
+        <essentialsx.version>2.20.0</essentialsx.version>
+        <guava.version>32.1.1-jre</guava.version>
+        <hocon.version>4.1.2</hocon.version>
+        <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>5.9.2</jupiter.version>
-        <hocon.version>4.1.2</hocon.version>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-        <maven.compiler.version>3.11.0</maven.compiler.version>
-        <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
-        <maven.reports.version>3.4.5</maven.reports.version>
-        <maven.shade.version>2.4.3</maven.shade.version>
-        <maven.surefire.version>3.0.0</maven.surefire.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
+        <vault-api.version>1.7.1</vault-api.version>
+        <vault.version>1.7.3</vault.version>
+
+        <!-- Spigot Dependencies -->
         <mockbukkit.version>2.85.2</mockbukkit.version>
         <minecraft.server.version>1.18</minecraft.server.version>
-        <maven.site.version>4.0.0-M8</maven.site.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spigot-api.version>${minecraft.server.version}.2-R0.1-SNAPSHOT</spigot-api.version>
-        <spotbugs.version>4.7.3.5</spotbugs.version>
-        <vault.version>[1.7,2)</vault.version>
+
+        <!-- Other Properties -->
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
+        <maven.javadoc.version>3.5.0</maven.javadoc.version>
+        <maven.reports.version>3.4.5</maven.reports.version>
+        <maven.site.version>4.0.0-M8</maven.site.version>
+        <project.build.encoding>UTF-8</project.build.encoding>
     </properties>
 
     <name>Shops</name>
@@ -48,7 +59,7 @@
             <id>BrendonButler</id>
             <name>Brendon Butler</name>
             <email>contact@sparkzz.net</email>
-            <url>${url}</url>
+            <url>https://github.com/BrendonButler</url>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
@@ -64,6 +75,7 @@
 
     <build>
         <plugins>
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -73,6 +85,8 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+
+            <!-- Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -87,12 +101,29 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
+                                <exclude>*.html</exclude>
+                                <exclude>module-info.class</exclude>
+                                <exclude>META-INF/versions/9/module-info.class</exclude>
                                 <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.MF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
+                                <exclude>META-INF/DEPENDENCIES</exclude>
+                                <exclude>META-INF/LICENSE</exclude>
+                                <exclude>META-INF/LICENSE.txt</exclude>
+                                <exclude>META-INF/NOTICE</exclude>
+                                <exclude>META-INF/NOTICE.txt</exclude>
+                                <exclude>META-INF/sisu/javax.inject.Named</exclude>
+                                <exclude>META-INF/plexus/components.xml</exclude>
                             </excludes>
                         </filter>
                     </filters>
+                    <artifactSet>
+                        <includes>
+                            <include>**</include>
+                        </includes>
+                    </artifactSet>
+                    <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
@@ -104,6 +135,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Surefire Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -115,6 +148,8 @@
                     </dependenciesToScan>
                 </configuration>
             </plugin>
+
+            <!-- Jacoco Plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -125,41 +160,20 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${maven.dependency-check.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.version}</version>
-                <configuration>
-                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
-                </configuration>
-            </plugin>
+
+            <!-- Site Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>${maven.site.version}</version>
+                <configuration>
+                    <outputEncoding>${project.build.encoding}</outputEncoding>
+                </configuration>
             </plugin>
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -197,71 +211,232 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spigot Minecraft API -->
+            <dependency>
+                <groupId>org.spigotmc</groupId>
+                <artifactId>spigot-api</artifactId>
+                <version>${spigot-api.version}</version>
+            </dependency>
+
+            <!-- JUnit Jupiter API -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <!-- MockBukkit Test Mocking Tool -->
+            <dependency>
+                <groupId>com.github.seeseemelk</groupId>
+                <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+                <version>${mockbukkit.version}</version>
+            </dependency>
+
+            <!-- Vault API (Economy/Permissions/etc. plugin management) -->
+            <dependency>
+                <groupId>com.github.MilkBowl</groupId>
+                <artifactId>VaultAPI</artifactId>
+                <version>${vault-api.version}</version>
+            </dependency>
+
+            <!-- Vault Plugin -->
+            <dependency>
+                <groupId>com.github.MilkBowl</groupId>
+                <artifactId>Vault</artifactId>
+                <version>${vault.version}</version>
+            </dependency>
+
+            <!-- EssentialsX Plugin -->
+            <dependency>
+                <groupId>net.essentialsx</groupId>
+                <artifactId>EssentialsX</artifactId>
+                <version>${essentialsx.version}</version>
+            </dependency>
+
+            <!-- SpongePowered Configurate HOCON (configuration management) -->
+            <dependency>
+                <groupId>org.spongepowered</groupId>
+                <artifactId>configurate-hocon</artifactId>
+                <version>${hocon.version}</version>
+            </dependency>
+
+            <!-- Jackson Databind (expanded serialization and deserialization) -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
+
+            <!-- SnakeYAML (override vulnerable transitive dependency) -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+
+            <!-- Guava (override vulnerable transitive dependency -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- JetBrains Annotations -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${jetbrains.annotations.version}</version>
+            </dependency>
+
+            <!-- Maven Project Info Reports Plugin -->
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.reports.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!-- Spigot Minecraft API -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${spigot-api.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+
+        <!-- SnakeYAML (override vulnerable transitive dependency) -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- This adds MockBukkit support for unit testing -->
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
-            <version>${mockbukkit.version}</version>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- This adds the Vault API to the build -->
+        <!-- Guava (override vulnerable transitive dependency -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MockBukkit Test Mocking Tool -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>${vault.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
-        <!-- This adds the Vault API to the build -->
+
+        <!-- Vault plugin -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>Vault</artifactId>
-            <version>${vault.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
-        <!-- This adds EssentialsX to the build -->
+
+        <!-- EssentialsX plugin -->
         <dependency>
             <groupId>net.essentialsx</groupId>
             <artifactId>EssentialsX</artifactId>
-            <version>2.20.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.spongepowered/configurate-hocon -->
+
+        <!-- SpongePowered Configurate HOCON (configuration management) -->
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-hocon</artifactId>
             <version>${hocon.version}</version>
         </dependency>
-        <!-- This adds jackson databind for custom data serialization and deserialization -->
+
+        <!-- Jackson Databind (expanded serialization and deserialization) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
         </dependency>
+
+        <!-- JetBrains Annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>${jetbrains.annotations.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- Maven Project Info Reports Plugin -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-project-info-reports-plugin</artifactId>
-            <version>${maven.reports.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <reporting>
+        <plugins>
+            <!-- Generates a Javadoc report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <excludePackageNames>net.sparkzz.command.sub</excludePackageNames>
+                    <doclint>all,-missing</doclint>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a Jacoco coverage report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a Dependency Analysis report -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${maven.dependency-check.version}</version>
+                <configuration>
+                    <name>Dependency Analysis</name>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a SpotBugs Java bug report -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
