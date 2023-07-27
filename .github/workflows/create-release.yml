@@ -24,9 +24,6 @@ jobs:
         id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
 
-      - name: Set tag in env
-        run: echo "PREVIOUS_TAG=${{ steps.previous-tag.outputs.tag }}" >> $GITHUB_ENV
-
       - name: Build and package the shaded jar
         run: mvn clean package shade:shade
 
@@ -58,4 +55,4 @@ jobs:
         with:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
-          tag: Shops ${{ needs.publish-release.outputs.previous-tag }}
+          tag: ${{ needs.publish-release.outputs.previous-tag }}
