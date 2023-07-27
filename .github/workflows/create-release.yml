@@ -1,11 +1,14 @@
 name: Create Release
 
 on:
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
-  create-release:
-    name: Create Release
+  publish-release:
+    name: Publish Release
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +24,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Get Previous tag
-        id: previoustag
+        id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
 
       - name: Build and package the shaded jar
@@ -30,5 +33,31 @@ jobs:
       - name: Upload shaded jar as a release artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shaded-jar-artifact
-          path: target/shops-${{ steps.get-latest-tag.outputs.tag }}.jar
+          name: shops-${{ steps.previous-tag.outputs.tag }}
+          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
+
+    outputs:
+      previous-tag: ${{ steps.previous-tag.outputs.tag }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: publish-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download the shaded jar artifact
+        id: download-shaded-jar
+        uses: actions/download-artifact@v3
+        with:
+          path: ~/
+
+      - uses: ncipollo/release-action@v1
+        with:
+          skipIfReleaseExists: true
+          artifacts: ~/shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
+          tag: ${{ needs.publish-release.outputs.previous-tag }}
