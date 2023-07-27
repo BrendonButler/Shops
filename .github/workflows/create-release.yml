@@ -55,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: shops-${{ needs.publish-release.outputs.previous-tag }}
-          path: ~/download/shops-${{ needs.publish-release.outputs.previous-tag }}
+          path: ~/download/
 
       - uses: ncipollo/release-action@v1
         with:
