@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish-release:
-    name: Create Release
+    name: Publish Release
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: shops-${{ steps.previous-tag.outputs.tag }}
-          path: shops-${{ steps.previous-tag.outputs.tag }}.jar
+          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
 
     outputs:
       previous-tag: ${{ steps.previous-tag.outputs.tag }}
@@ -55,9 +55,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: shops-${{ needs.publish-release.outputs.previous-tag }}
+          path: ~/download/shops-${{ needs.publish-release.outputs.previous-tag }}
 
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
-          artifacts: shops-${{ needs.publish-release.outputs.previous-tag }}.jar
+          artifacts: ~/download/shops-${{ needs.publish-release.outputs.previous-tag }}
           tag: ${{ needs.publish-release.outputs.previous-tag }}
