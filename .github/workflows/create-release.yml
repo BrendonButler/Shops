@@ -54,11 +54,11 @@ jobs:
         id: download-shaded-jar
         uses: actions/download-artifact@v3
         with:
-          name: shops-${{ needs.publish-release.outputs.previous-tag }}
+          name: shops-${{ needs.publish-release.outputs.previous-tag }}.jar
           path: ~/download/
 
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
-          artifacts: ~/download/shops-${{ needs.publish-release.outputs.previous-tag }}
+          artifacts: ~/download/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
           tag: ${{ needs.publish-release.outputs.previous-tag }}
