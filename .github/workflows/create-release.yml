@@ -56,10 +56,13 @@ jobs:
         with:
           name: shops-${{ needs.publish-release.outputs.previous-tag }}
 
+      - name: Output path
+        run: |
+          echo "${{ steps.download-shaded-jar.outputs.artifact_paths }}"
+          echo "${{ needs.publish-release.outputs.previous-tag }}"
+
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
           tag: ${{ needs.publish-release.outputs.previous-tag }}
-        run: |
-          echo "${{ steps.download-shaded-jar.outputs.artifact_paths }}"
