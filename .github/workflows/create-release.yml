@@ -31,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: shaded-jar-artifact
-          path: target/shops-${{ steps.get-latest-tag.outputs.tag }}.jar
+          path: target/shops-${{ steps.previoustag.outputs.tag }}.jar
