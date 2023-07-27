@@ -24,15 +24,17 @@ jobs:
         id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
 
+      - name: Set tag in env
+        run: echo "PREVIOUS_TAG=${{ steps.previous-tag.outputs.tag }}" >> $GITHUB_ENV
+
       - name: Build and package the shaded jar
         run: mvn clean package shade:shade
 
       - name: Upload shaded jar as a release artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shops-${{ steps.previous-tag.outputs.tag }}
-          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
-
+          name: shops-$PREVIOUS_TAG
+          path: target/shops-$PREVIOUS_TAG.jar
 
   create-release:
     name: Create GitHub Release
@@ -43,18 +45,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get Previous tag
-        id: previous-tag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-
       - name: Download the shaded jar artifact
         id: download-shaded-jar
         uses: actions/download-artifact@v3
         with:
-          name: shops-${{ steps.previous-tag.outputs.tag }}
+          name: shops-$PREVIOUS_TAG
 
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
-          tag: Shops ${{ steps.previous-tag.outputs.tag }}
+          tag: Shops $PREVIOUS_TAG
