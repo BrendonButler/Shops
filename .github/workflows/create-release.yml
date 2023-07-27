@@ -33,8 +33,11 @@ jobs:
       - name: Upload shaded jar as a release artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shops-$PREVIOUS_TAG
-          path: target/shops-$PREVIOUS_TAG.jar
+          name: shops-${{ steps.previous-tag.outputs.tag }}
+          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
+
+    outputs:
+      previous-tag: ${{ steps.previous-tag.outputs.tag }}
 
   create-release:
     name: Create GitHub Release
@@ -49,10 +52,10 @@ jobs:
         id: download-shaded-jar
         uses: actions/download-artifact@v3
         with:
-          name: shops-$PREVIOUS_TAG
+          name: shops-${{ needs.publish-release.outputs.previous-tag }}
 
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
-          tag: Shops $PREVIOUS_TAG
+          tag: Shops ${{ needs.publish-release.outputs.previous-tag }}
