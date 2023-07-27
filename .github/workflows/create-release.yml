@@ -1,6 +1,9 @@
 name: Create Release
 
 on:
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
@@ -40,6 +43,8 @@ jobs:
     name: Create GitHub Release
     needs: publish-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -56,3 +61,5 @@ jobs:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
           tag: ${{ needs.publish-release.outputs.previous-tag }}
+        run: |
+          echo "${{ steps.download-shaded-jar.outputs.artifact_paths }}"
