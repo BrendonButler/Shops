@@ -35,6 +35,6 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: shops-${{ steps.previoustag.outputs.tag }}.jar
+          artifacts: shops-${{ steps.previoustag.outputs.tag }}
           skipIfReleaseExists: true
           tag: ${{ steps.previoustag.outputs.tag }}
