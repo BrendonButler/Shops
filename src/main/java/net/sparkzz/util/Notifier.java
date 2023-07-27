@@ -31,6 +31,7 @@ public class Notifier {
      * Composes a String from the CipherKey by either the default value or a custom value in the messages Map
      *
      * @param cipherKey the key for determining the message value
+     * @param attributes the attributes to be attached to the input string
      * @return the custom message if it exists or the default message
      */
     public static String compose(CipherKey cipherKey, Map<String, Object> attributes) {
@@ -122,6 +123,9 @@ public class Notifier {
         messages.remove(cipherKey);
     }
 
+    /**
+     * CipherKeys in this context are the keys with default values and wildcards to be processed
+     */
     public enum CipherKey {
         ADD_SUCCESS("§aYou have successfully added §6{material}§a to the store!"),
         ADD_SUCCESS_QUANTITY("§aYou have successfully added §6{quantity} §aof §6{material}§a to the store!"),
@@ -248,6 +252,8 @@ public class Notifier {
         }
 
         /**
+         * Builds the mutli-line message to a string
+         *
          * @return the finalMessage as a completed string
          */
         public String build() {
@@ -276,6 +282,9 @@ public class Notifier {
         }
     }
 
+    /**
+     * Helper class for creating pages
+     */
     public static class Paginator {
         private static final int pageSize = 10;
 

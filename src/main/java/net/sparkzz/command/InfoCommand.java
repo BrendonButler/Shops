@@ -15,6 +15,15 @@ import java.util.List;
  */
 public class InfoCommand extends CommandManager {
 
+    /**
+     * The base command for the plugin to provide plugin details
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return whether the command was successful
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!sender.hasPermission("shops.cmd.shops")) {
@@ -26,6 +35,15 @@ public class InfoCommand extends CommandManager {
         return true;
     }
 
+    /**
+     * TabCompleter for generating suggestions when a player starts typing the /shops command
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return null as there are no options for this command
+     */
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         return null;

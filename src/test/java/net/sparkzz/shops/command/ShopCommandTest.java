@@ -134,7 +134,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - buy tab complete")
         @Order(6)
         void testShopTabComplete_Buy2Args() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentShop(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
@@ -148,7 +148,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - remove tab complete")
         @Order(7)
         void testShopTabComplete_Remove2Args() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentShop(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
@@ -162,7 +162,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - update tab complete when op")
         @Order(8)
         void testShopTabComplete_Update2Args_WhenOp() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentShop(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
@@ -177,7 +177,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - update tab complete when not op")
         @Order(9)
         void testShopTabComplete_Update2Args_WhenNotOp() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentShop(player).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(player).getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());

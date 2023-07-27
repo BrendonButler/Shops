@@ -24,7 +24,7 @@ public class BrowseCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentShop(player));
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
 
         int pageNumber = (args.length > 1) ? Integer.parseInt(args[1]) : 1;
 

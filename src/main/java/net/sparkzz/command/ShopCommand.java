@@ -43,6 +43,15 @@ public class ShopCommand extends CommandManager {
         put("withdraw", new WithdrawCommand());
     }};
 
+    /**
+     * TabCompleter for generating suggestions when a player starts typing the /shop command
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return a list of options for the /shop command arguments
+     */
     @Override
     @SuppressWarnings("all")
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -145,6 +154,15 @@ public class ShopCommand extends CommandManager {
         return new ArrayList<>();
     }
 
+    /**
+     * The base command for all shop user subcommands
+     *
+     * @param sender the sender attempting the command
+     * @param command the command to be processed
+     * @param label the command label
+     * @param args the arguments following the command
+     * @return whether the command was successful
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         resetAttributes();

@@ -26,7 +26,7 @@ public class SellCommand extends SubCommand {
         setArgsAsAttributes(args);
         Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        setAttribute("store", InventoryManagementSystem.locateCurrentShop(player));
+        setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
         int quantity = (Integer) setAttribute("quantity", 1);
 
         if (args.length == 3)

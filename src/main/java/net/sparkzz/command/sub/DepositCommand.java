@@ -24,7 +24,7 @@ public class DepositCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = InventoryManagementSystem.locateCurrentShop(player);
+        Store store = InventoryManagementSystem.locateCurrentStore(player);
         setAttribute("store", store.getName());
         double amount = (Double) setAttribute("amount", Double.parseDouble(args[1]));
 

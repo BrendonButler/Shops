@@ -41,6 +41,12 @@ public class Warehouse {
     private static final String configTitle = "data.shops";
     private static final TypeSerializer<Map<Material, Map<String, Number>>> materialMapSerializer = new MaterialMapSerializer();
 
+    /**
+     * Loads the configuration(s)
+     *
+     * @param shops the Shops plugin instance to be loaded
+     * @return whether the configuration(s) were loaded successfully
+     */
     public static boolean loadConfig(Shops shops) {
         TypeToken<Map<Material, Map<String, Number>>> mapTypeToken = new TypeToken<>() {};
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder().register(mapTypeToken, materialMapSerializer).build();
@@ -74,6 +80,9 @@ public class Warehouse {
         return true;
     }
 
+    /**
+     * Saves the config to data.shops in the plugin data folder
+     */
     public static void saveConfig() {
         try {
             saveShops();
@@ -84,6 +93,9 @@ public class Warehouse {
         }
     }
 
+    /**
+     * Loads the stores from the data.shops file
+     */
     private static void loadShops() {
         try {
             mapper = ObjectMapper.factory().get(TypeToken.get(Store.class));
@@ -91,14 +103,17 @@ public class Warehouse {
             for (CommentedConfigurationNode currentNode : config.node("shops").childrenList())
                 STORES.add(mapper.load(currentNode));
 
-            log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop": "shops"));
-            // TODO: remove once shops are dynamically loaded
-            Shops.setDefaultShop(STORES.get(0));
+            log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop" : "shops"));
+            if (!STORES.isEmpty())
+                Shops.setDefaultShop(STORES.get(0)); // TODO: remove once shops are dynamically loaded
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Saves the stores to the data.stores file
+     */
     private static void saveShops() {
         try {
             CommentedConfigurationNode shopsNode = config.node("shops");
@@ -117,10 +132,20 @@ public class Warehouse {
         }
     }
 
+    /**
+     * Helper class to map materials based on their attributes and configure serialization/deserialization
+     */
     static class MaterialMapSerializer implements TypeSerializer<Map<Material, Map<String, Number>>> {
 
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
+        /**
+         * Configures the deserializer to properly map and deserialize store item data
+         *
+         * @param type the provided type
+         * @param node the provided base node for stores
+         * @return the deserialized store item data
+         */
         @Override
         public Map<Material, Map<String, Number>> deserialize(Type type, ConfigurationNode node) {
             try {
@@ -132,6 +157,13 @@ public class Warehouse {
             return new HashMap<>();
         }
 
+        /**
+         * Configures the deserializer to properly serialize store item data
+         *
+         * @param type the provided type
+         * @param obj the provided material to attribute map
+         * @param node the provided base node for stores
+         */
         @Override
         public void serialize(Type type, @Nullable Map<Material, Map<String, Number>> obj, ConfigurationNode node) throws SerializationException {
             try {
@@ -143,6 +175,13 @@ public class Warehouse {
             }
         }
 
+        /**
+         * Handles empty values
+         *
+         * @param specificType the provided type
+         * @param options the provided options
+         * @return an empty map
+         */
         @Override
         public @Nullable Map<Material, Map<String, Number>> emptyValue(Type specificType, ConfigurationOptions options) {
             return new HashMap<>();

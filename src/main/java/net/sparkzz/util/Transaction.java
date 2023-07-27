@@ -9,6 +9,10 @@ import org.bukkit.inventory.ItemStack;
 
 import static net.sparkzz.util.Notifier.CipherKey.*;
 
+/**
+ * This helper class provides a transaction handler so that transactions can be built and verified before being
+ * processed
+ */
 public class Transaction {
 
     private static final Economy econ = Shops.getEconomy();
@@ -20,13 +24,20 @@ public class Transaction {
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
     private double cost;
 
+    /**
+     * Constructs the transaction with the player, item stack, and transaction type
+     *
+     * @param player the player associated with the transaction
+     * @param itemStack the item stack associated with the transaction
+     * @param type the provided type of transaction
+     */
     public Transaction(Player player, ItemStack itemStack, TransactionType type) {
         this.player = player;
         this.itemStack = itemStack;
         this.type = type;
         this.transactionMessage = new Notifier.MultilineBuilder();
 
-        store = InventoryManagementSystem.locateCurrentShop(player);
+        store = InventoryManagementSystem.locateCurrentStore(player);
 
         switch (type) {
             case PURCHASE -> cost = (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
@@ -83,6 +94,11 @@ public class Transaction {
         }
     }
 
+    /**
+     * Validates whether the finances and inventory are ready for both the player and the store
+     *
+     * @return whether the finances and inventory are ready
+     */
     public boolean validateReady() {
         validateFinances();
         validateInventory();
@@ -93,18 +109,36 @@ public class Transaction {
         return transactionReady;
     }
 
+    /**
+     * Gets the total cost of the transaction
+     *
+     * @return the total cost of the transaction
+     */
     public double getTotalCost() {
         return cost;
     }
 
+    /**
+     * Gets the transaction message
+     *
+     * @return the transaction message
+     */
     public Notifier.MultilineBuilder getMessage() {
         return transactionMessage;
     }
 
+    /**
+     * Gets the transaction type
+     *
+     * @return the transaction type
+     */
     public TransactionType getType() {
         return type;
     }
 
+    /**
+     * Processes the transaction for the player and store
+     */
     public void process() {
         switch (type) {
             case PURCHASE -> {
@@ -127,6 +161,9 @@ public class Transaction {
         }
     }
 
+    /**
+     * The transaction type determines how the transaction should be processed
+     */
     public enum TransactionType {
         PURCHASE, SALE
     }

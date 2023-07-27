@@ -27,7 +27,7 @@ public class BuyCommand extends SubCommand {
         Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
         int quantity = (Integer) setAttribute("quantity", 1);
-        setAttribute("store", InventoryManagementSystem.locateCurrentShop(player));
+        setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
 
         if (args.length == 3)
             quantity = (Integer) setAttribute("quantity", Integer.parseInt(args[2]));

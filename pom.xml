@@ -14,8 +14,9 @@
 
         <!-- Dependency Versions -->
         <essentialsx.version>2.20.0</essentialsx.version>
+        <guava.version>32.1.1-jre</guava.version>
         <hocon.version>4.1.2</hocon.version>
-        <jackson-databind.version>2.15.0</jackson-databind.version>
+        <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>5.9.2</jupiter.version>
         <snakeyaml.version>1.33</snakeyaml.version>
@@ -34,6 +35,7 @@
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
         <maven.reports.version>3.4.5</maven.reports.version>
         <maven.site.version>4.0.0-M8</maven.site.version>
+        <project.build.encoding>UTF-8</project.build.encoding>
     </properties>
 
     <name>Shops</name>
@@ -72,68 +74,23 @@
     </issueManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <!-- Compiler Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven.compiler.version}</version>
-                    <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
-                    </configuration>
-                </plugin>
-
-                <!-- Shade Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>${maven.shade.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>shade</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- Surefire Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven.surefire.version}</version>
-                </plugin>
-
-                <!-- Jacoco Plugin -->
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                </plugin>
-
-                <!-- Site Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>${maven.site.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
             </plugin>
 
             <!-- Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.version}</version>
                 <configuration>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -183,6 +140,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
                 <configuration>
                     <dependenciesToScan>
                         <dependency>net.essentialsx:EssentialsX</dependency>
@@ -195,6 +153,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -208,8 +167,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
                 <configuration>
-                    <outputEncoding>UTF-8</outputEncoding>
+                    <outputEncoding>${project.build.encoding}</outputEncoding>
                 </configuration>
             </plugin>
         </plugins>
@@ -316,6 +276,13 @@
                 <version>${snakeyaml.version}</version>
             </dependency>
 
+            <!-- Guava (override vulnerable transitive dependency -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
             <!-- JetBrains Annotations -->
             <dependency>
                 <groupId>org.jetbrains</groupId>
@@ -344,6 +311,13 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Guava (override vulnerable transitive dependency -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -410,6 +384,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <excludePackageNames>net.sparkzz.command.sub</excludePackageNames>
+                    <doclint>all,-missing</doclint>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>

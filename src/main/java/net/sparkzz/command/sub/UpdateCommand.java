@@ -27,7 +27,7 @@ public class UpdateCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = InventoryManagementSystem.locateCurrentShop(player);
+        Store store = InventoryManagementSystem.locateCurrentStore(player);
         setAttribute("store", store.getName());
         if (args.length >= 2) setAttribute("material", args[1]);
 

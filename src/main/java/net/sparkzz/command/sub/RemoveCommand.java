@@ -26,7 +26,7 @@ public class RemoveCommand extends SubCommand {
         setArgsAsAttributes(args);
         Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        Store store = InventoryManagementSystem.locateCurrentShop(player);
+        Store store = InventoryManagementSystem.locateCurrentStore(player);
         setAttribute("store", store.getName());
 
         int quantity = 0;
