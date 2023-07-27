@@ -21,7 +21,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Get Previous tag
-        id: previoustag
+        id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
 
       - name: Build and package the shaded jar
@@ -30,8 +30,8 @@ jobs:
       - name: Upload shaded jar as a release artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shops-${{ steps.previoustag.outputs.tag }}
-          path: target/shops-${{ steps.previoustag.outputs.tag }}.jar
+          name: shops-${{ steps.previous-tag.outputs.tag }}
+          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
 
 
   create-release:
@@ -44,16 +44,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get Previous tag
-        id: previoustag
+        id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
 
       - name: Download the shaded jar artifact
-        uses: actions/download-artifact@v2
+        id: download-shaded-jar
+        uses: actions/download-artifact@v3
         with:
-          name: shops-${{ steps.previoustag.outputs.tag }}
+          name: shops-${{ steps.previous-tag.outputs.tag }}
 
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
           artifacts: ${{ steps.download-shaded-jar.outputs.artifact_paths }}
-          tag: Shops ${{ steps.previoustag.outputs.tag }}
+          tag: Shops ${{ steps.previous-tag.outputs.tag }}
