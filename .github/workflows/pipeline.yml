@@ -67,13 +67,10 @@ jobs:
           name: target
           path: target/
 
-      - name: Generate code coverage report
-        run: mvn jacoco:report
+      - name: Check documentation and publish reports
+        run: mvn validate site -DskipTests
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Check documentation and publish reports
-        run: mvn validate site -DskipTests
