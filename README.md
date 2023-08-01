@@ -1,6 +1,6 @@
 # Shops
 [![CI Pipeline](https://github.com/MrSparkzz/Shops/actions/workflows/pipeline.yml/badge.svg)](https://github.com/MrSparkzz/Shops/actions/workflows/pipeline.yml)
-![Codecov](https://img.shields.io/codecov/c/github/MrSparkzz/Shops?logo=codecov&logoColor=white&label=Coverage)
+[![Codecov](https://img.shields.io/codecov/c/github/MrSparkzz/Shops?logo=codecov&logoColor=white&label=Coverage)](https://app.codecov.io/github/MrSparkzz/Shops)
 
 Shops plugin for Bukkit/Spigot 2022+ [Built for Spigot 1.18]
 
