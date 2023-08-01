@@ -1,0 +1,10 @@
+#bannerLeft {
+  max-width: 100px;
+  max-height: 100px;
+  overflow: hidden;
+}
+
+#bannerLeft img {
+  max-width: 100px;
+  height: auto;
+}
