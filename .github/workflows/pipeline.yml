@@ -32,16 +32,15 @@ jobs:
       - name: Build and run unit tests
         run: mvn clean install
 
-      - name: Generate code coverage report
-        run: mvn jacoco:report
+      - name: Upload 'target' folder as an artifact
+        id: upload-target-folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: ~/
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  integration-tests:
-    name: Integration Tests
+  documentation-and-reporting:
+    name: Documentation and Reports
     runs-on: ubuntu-latest
     needs: build-and-test
 
@@ -61,23 +60,20 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml') }}
 
-      - name: Run integration tests
-        run: mvn verify
-
-  documentation:
-    name: Documentation and Reports
-    runs-on: ubuntu-latest
-    needs: build-and-test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Download the 'target' folder artifact
+        id: download-target-folder
+        uses: actions/download-artifact@v3
         with:
-          java-version: '17'
-          distribution: 'zulu'
+          name: target
+          path: ~/target/
+
+      - name: Generate code coverage report
+        run: mvn jacoco:report
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Check documentation and publish reports
-        run: mvn validate site
+        run: mvn validate site -DskipTests
