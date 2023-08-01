@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: target
-          path: ~/target
+          path: target/
 
   documentation-and-reporting:
     name: Documentation and Reports
@@ -65,7 +65,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: target
-          path: ~/target
+          path: target/
 
       - name: Generate code coverage report
         run: mvn jacoco:report
