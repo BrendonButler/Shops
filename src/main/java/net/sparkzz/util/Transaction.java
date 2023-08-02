@@ -22,7 +22,7 @@ public class Transaction {
     private final Store store;
     private final Notifier.MultilineBuilder transactionMessage;
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
-    private double cost;
+    private final double cost;
 
     /**
      * Constructs the transaction with the player, item stack, and transaction type
@@ -42,6 +42,7 @@ public class Transaction {
         switch (type) {
             case PURCHASE -> cost = (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
             case SALE -> cost = (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
+            default -> cost = 0D;
         }
     }
 
@@ -59,6 +60,7 @@ public class Transaction {
 
                 if (!financesReady) transactionMessage.append(INSUFFICIENT_FUNDS_STORE);
             }
+            default -> {}
         }
     }
 
@@ -91,6 +93,7 @@ public class Transaction {
                 if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;
             }
+            default -> {}
         }
     }
 
@@ -158,6 +161,7 @@ public class Transaction {
                 player.getInventory().removeItem(itemStack);
                 econ.depositPlayer(player, cost);
             }
+            default -> {}
         }
     }
 

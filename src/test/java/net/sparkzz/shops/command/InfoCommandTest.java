@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.Collections;
+import java.util.List;
+
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,12 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class InfoCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
+    private static ServerMock server;
     private static Shops plugin;
 
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST INFO COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        server = MockBukkit.getOrCreateMock();
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         plugin = MockBukkit.load(Shops.class);
@@ -45,6 +49,7 @@ class InfoCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.STORES.clear();
     }
 
     @Test
@@ -63,5 +68,15 @@ class InfoCommandTest {
         performCommand(mrSparkzz, "shops");
         assertEquals(String.format("§l§3Shops v%s", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
         printSuccessMessage("info command test");
+    }
+
+    @Test
+    @DisplayName("Test Info - info tab complete")
+    @Order(3)
+    void testShopTabComplete() {
+        List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shops ");
+
+        assertEquals(Collections.emptyList(), actualOptions);
+        printSuccessMessage("tab complete - \"shops\"");
     }
 }

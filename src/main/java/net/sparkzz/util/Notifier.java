@@ -164,6 +164,7 @@ public class Notifier {
         STORE_CREATE_SUCCESS("§aYou have successfully created §6{store}§a!"),
         STORE_DELETE_FAIL("§cSomething went wrong when attempting to delete the store!"),
         STORE_DELETE_SUCCESS("§aYou have successfully deleted §6{store}§a!"),
+        STORE_DELETE_INSUFFICIENT_INV_PLAYER("§cYou don't have enough inventory space to delete the store, please try removing items first or use the '-f' flag to ignore inventory!"),
         STORE_MULTI_MATCH("§cMultiple stores matched, please specify the store's UUID!"),
         STORE_NO_STORE_FOUND("§cCould not find a store with the name and/or UUID of: §6{store}§c!"),
         STORE_NOT_FOUND("§cCould not find a store!"),

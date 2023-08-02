@@ -57,6 +57,7 @@ class AddCommandTest {
 
     @AfterEach
     void tearDownEach() {
+        Store.STORES.clear();
         mrSparkzz.getInventory().clear();
     }
 

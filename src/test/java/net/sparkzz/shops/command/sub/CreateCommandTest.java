@@ -45,6 +45,7 @@ class CreateCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.STORES.clear();
     }
 
     @Test

@@ -36,16 +36,17 @@ class WithdrawCommandTest {
         Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
-    @BeforeEach
-    void setUpWithdrawCommand() {
-        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
-        Shops.getDefaultShop().setBalance(125);
-    }
-
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.STORES.clear();
+    }
+
+    @BeforeEach
+    void setUpWithdrawCommand() {
+        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+        Shops.getDefaultShop().setBalance(125);
     }
 
     @AfterEach

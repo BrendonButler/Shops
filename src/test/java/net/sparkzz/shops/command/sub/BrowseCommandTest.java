@@ -9,6 +9,7 @@ import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -65,6 +66,11 @@ public class BrowseCommandTest {
         store.addItem(Material.BUCKET, 2, 12, 10, 2.5);
         store.addItem(Material.SPRUCE_LOG, 40, 64, 4, 2);
         store.addItem(Material.STICK, 12800, -1, 0.25, 0.1);
+    }
+
+    @AfterEach
+    void tearDownStore() {
+        Store.STORES.clear();
     }
 
     @Test

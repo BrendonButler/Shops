@@ -5,7 +5,9 @@ import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -25,9 +27,31 @@ public class InventoryManagementSystem {
      * @return whether the provided quantity of material can be added to the player's inventory
      */
     public static boolean canInsert(Player player, Material material, int quantity) {
-        int availableSpace = getAvailableSpace(player, material);
+        int availableSpace = getAvailableSpace(player.getInventory(), material);
 
         return (quantity <= availableSpace);
+    }
+
+    /**
+     * Checks whether the provided material and quantity can be added to the player's inventory
+     *
+     * @param player the player to have their inventory checked
+     * @param items the item stacks to be checked if they can be added to the player's inventory
+     * @return whether the provided quantity of material can be added to the player's inventory
+     */
+    public static boolean canInsertAll(Player player, List<ItemStack> items) {
+        PlayerInventory inventory = player.getInventory();
+        boolean canInsertAll = true;
+
+        for (ItemStack item : items) {
+            int availableSpace = getAvailableSpace(inventory, item.getType());
+
+            if (item.getAmount() <= availableSpace)
+                inventory.addItem(item);
+            else canInsertAll = false;
+        }
+
+        return canInsertAll;
     }
 
     /**
@@ -101,16 +125,15 @@ public class InventoryManagementSystem {
      * Gets the available space in the player's inventory based on the material's max stack size, it will even check
      * partial stacks of the input material
      *
-     * @param player the player to have their inventory queried
+     * @param inventory the player's inventory to be queried
      * @param material the material to be used to query the player's inventory
      * @return the available space based on the material's stack size and inventory space
      */
-    private static int getAvailableSpace(Player player, Material material) {
-        ListIterator<ItemStack> iterator = player.getInventory().iterator();
+    private static int getAvailableSpace(PlayerInventory inventory, Material material) {
         int availableSpace = 0;
 
-        while (iterator.hasNext()) {
-            ItemStack stack = iterator.next();
+        for (int i = 0; i <= 35; i++) {
+            ItemStack stack = inventory.getItem(i);
 
             if (stack == null)
                 availableSpace += material.getMaxStackSize();

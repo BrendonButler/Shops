@@ -54,6 +54,7 @@ class ShopCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.STORES.clear();
     }
 
     @Order(1)
