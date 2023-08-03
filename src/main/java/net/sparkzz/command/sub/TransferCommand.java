@@ -43,6 +43,7 @@ public class TransferCommand extends SubCommand {
         boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
         // TODO: remove mock references once Server mocking is updated to fix issues with getServer()
+        setAttribute("target", args[2]);
         Server server = (!Shops.isTest()) ? Shops.getPlugin(Shops.class).getServer() : Shops.getMockServer();
         OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
 

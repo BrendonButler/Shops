@@ -88,7 +88,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - browse tab complete")
-        @Order(2)
+        @Order(20)
         void testShopTabComplete_Browse2Args() {
             List<String> expectedOptions = List.of("<page-number>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop browse ");
@@ -99,7 +99,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - deposit tab complete")
-        @Order(3)
+        @Order(21)
         void testShopTabComplete_Deposit2Args() {
             List<String> expectedOptions = List.of("<amount>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop deposit ");
@@ -110,7 +110,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - withdraw tab complete")
-        @Order(4)
+        @Order(22)
         void testShopTabComplete_Withdraw2Args() {
             List<String> expectedOptions = List.of("<amount>", "all");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop withdraw ");
@@ -121,7 +121,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - add tab complete")
-        @Order(5)
+        @Order(23)
         void testShopTabComplete_Add2Args() {
             List<String> expectedOptions = Arrays.stream(Material.values())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
@@ -133,7 +133,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - buy tab complete")
-        @Order(6)
+        @Order(24)
         void testShopTabComplete_Buy2Args() {
             Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
@@ -147,7 +147,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - remove tab complete")
-        @Order(7)
+        @Order(25)
         void testShopTabComplete_Remove2Args() {
             Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
@@ -161,7 +161,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - update tab complete when op")
-        @Order(8)
+        @Order(26)
         void testShopTabComplete_Update2Args_WhenOp() {
             Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
 
@@ -176,7 +176,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - update tab complete when not op")
-        @Order(9)
+        @Order(27)
         void testShopTabComplete_Update2Args_WhenNotOp() {
             Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(player).getItems().keySet();
 
@@ -191,7 +191,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - sell tab complete")
-        @Order(10)
+        @Order(28)
         void testShopTabComplete_Sell2Args() {
             List<String> expectedOptions = Arrays.stream(mrSparkzz.getInventory().getContents())
                     .filter(Objects::nonNull).map(i -> i.getType().toString().toLowerCase())
@@ -204,7 +204,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - create tab complete")
-        @Order(11)
+        @Order(29)
         void testShopTabComplete_Create2Args() {
             List<String> expectedOptions = List.of("<name>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create ");
@@ -215,7 +215,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - delete tab complete")
-        @Order(12)
+        @Order(30)
         void testShopTabComplete_Delete2Args() {
             List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop delete ");
@@ -226,7 +226,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 2 args - transfer tab complete")
-        @Order(13)
+        @Order(31)
         void testShopTabComplete_Transfer2Args() {
             List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop transfer ");
@@ -237,7 +237,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - remove tab complete")
-        @Order(14)
+        @Order(40)
         void testShopTabComplete_Remove3Args() {
             List<String> expectedOptions = List.of("[<quantity>]", "all");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop remove item ");
@@ -248,7 +248,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - sell tab complete")
-        @Order(15)
+        @Order(41)
         void testShopTabComplete_Sell3Args() {
             List<String> expectedOptions = List.of("[<quantity>]", "all");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop sell item ");
@@ -259,7 +259,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - add tab complete")
-        @Order(16)
+        @Order(42)
         void testShopTabComplete_Add3Args() {
             List<String> expectedOptions = List.of("<customer-buy-price>", "[<quantity>]", "all");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item ");
@@ -270,7 +270,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - buy tab complete")
-        @Order(17)
+        @Order(43)
         void testShopTabComplete_Buy3Args() {
             List<String> expectedOptions = List.of("[<quantity>]");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop buy item ");
@@ -281,7 +281,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - update infinite-funds tab complete")
-        @Order(18)
+        @Order(44)
         void testShopTabComplete_Update3Args_InfiniteFunds() {
             List<String> expectedOptions = List.of("true", "false");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update infinite-funds ");
@@ -292,7 +292,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - update infinite-stock tab complete")
-        @Order(19)
+        @Order(45)
         void testShopTabComplete_Update3Args_InfiniteStock() {
             List<String> expectedOptions = List.of("true", "false");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update infinite-stock ");
@@ -303,7 +303,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - update shop-name tab complete")
-        @Order(20)
+        @Order(46)
         void testShopTabComplete_Update3Args_ShopName() {
             List<String> expectedOptions = List.of("<name>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update shop-name ");
@@ -314,7 +314,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 3 args - update tab complete")
-        @Order(21)
+        @Order(47)
         void testShopTabComplete_Update3Args() {
             List<String> expectedOptions = List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update item ");
@@ -326,7 +326,7 @@ class ShopCommandTest {
         @Test
         @Disabled("Currently not working due to the way mocking is implemented, will fix")
         @DisplayName("Test Shop - 3 args - transfer tab complete")
-        @Order(22)
+        @Order(48)
         void testShopTabComplete_Transfer3Args() {
             List<String> expectedOptions = server.getOnlinePlayers().stream().map(EntityMock::getName).collect(Collectors.toList());
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop transfer shop-name ");
@@ -336,8 +336,20 @@ class ShopCommandTest {
         }
 
         @Test
+        @Disabled("Currently not working due to the way mocking is implemented, will fix")
+        @DisplayName("Test Shop - 3 args - transfer tab complete")
+        @Order(49)
+        void testShopTabComplete_Create3Args() {
+            List<String> expectedOptions = server.getOnlinePlayers().stream().map(EntityMock::getName).collect(Collectors.toList());
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create shop-name ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop transfer shop-name\"");
+        }
+
+        @Test
         @DisplayName("Test Shop - 4 args - add tab complete")
-        @Order(23)
+        @Order(60)
         void testShopTabComplete_Add4Args() {
             List<String> expectedOptions = List.of("<customer-sell-price>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 ");
@@ -348,7 +360,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 4 args - update item infinite-quantity tab complete")
-        @Order(24)
+        @Order(61)
         void testShopTabComplete_Update4Args_InfiniteQuantity() {
             List<String> expectedOptions = List.of("true", "false");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update item infinite-quantity ");
@@ -359,7 +371,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 4 args - update item infinite-quantity tab complete")
-        @Order(25)
+        @Order(62)
         void testShopTabComplete_Update4Args() {
             List<String> expectedOptions = List.of("<value>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update item customer-buy-price ");
@@ -370,7 +382,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 5 args - add tab complete")
-        @Order(26)
+        @Order(80)
         void testShopTabComplete_Add5Args() {
             List<String> expectedOptions = List.of("<max-quantity>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 1 ");
@@ -381,7 +393,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 6 args - add tab complete")
-        @Order(27)
+        @Order(100)
         void testShopTabComplete_Add6Args() {
             List<String> expectedOptions = List.of("[<quantity>]", "all");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 1 1 ");
@@ -392,7 +404,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 6 args - console tab complete")
-        @Order(98)
+        @Order(101)
         void testShopTabComplete_Console() {
             List<String> expectedOptions = new ArrayList<>();
             List<String> actualOptions = server.getCommandTabComplete(console, "shop add item 1 1 1 1 ");
@@ -403,7 +415,7 @@ class ShopCommandTest {
 
         @Test
         @DisplayName("Test Shop - 6 args - default tab complete")
-        @Order(99)
+        @Order(102)
         void testShopTabComplete_Default() {
             List<String> expectedOptions = new ArrayList<>();
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 1 1 1 ");
@@ -420,7 +432,6 @@ class ShopCommandTest {
     class OnCommandTests {
 
         @Test
-        @Disabled("This works when running tests, but not during mvn test for some reason")
         @DisplayName("Test Shop - console sender")
         @Order(1)
         void testShopCommand_ConsoleSender() {

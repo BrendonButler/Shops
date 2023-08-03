@@ -128,7 +128,7 @@ public class ShopCommand extends CommandManager {
                 };
             }
 
-            if (args[0].equalsIgnoreCase("transfer"))
+            if (args[0].equalsIgnoreCase("transfer") || args[0].equalsIgnoreCase("create"))
                 return Shops.getPlugin(Shops.class).getServer().getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
         }
 

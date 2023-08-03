@@ -110,7 +110,7 @@ class TransferCommandTest {
     @Order(5)
     void testTransferCommand_NoTargetPlayer() {
         performCommand(mrSparkzz, "shop transfer BetterBuy Player99");
-        assertEquals("§aPlayer (Player99) not found!", mrSparkzz.nextMessage());
+        assertEquals("§cPlayer (Player99) not found!", mrSparkzz.nextMessage());
         assertEquals(mrSparkzz.getUniqueId(), store.getOwner());
         assertEquals(mrSparkzz.getUniqueId(), duplicateStore.getOwner());
         printSuccessMessage("transfer command test - target player not found");

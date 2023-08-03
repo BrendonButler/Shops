@@ -34,6 +34,7 @@ class CreateCommandTest {
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
 
+        Shops.setMockServer(server);
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
@@ -65,5 +66,34 @@ class CreateCommandTest {
         performCommand(mrSparkzz, "shop create TestShop");
         assertEquals(String.format("%sYou have successfully created %s%s%s!", GREEN, GOLD, "TestShop", GREEN), mrSparkzz.nextMessage());
         printSuccessMessage("create command test - creation of TestShop");
+    }
+
+    @Test
+    @DisplayName("Test Create - main functionality - another player as owner")
+    @Order(3)
+    void testCreateShop_ForAnotherPlayer() {
+        // TODO: create MockPermissions to add specific permissions to a player mock
+        performCommand(mrSparkzz, String.format("shop create TestShop %s", player2.getName()));
+        assertEquals(String.format("§aYou have successfully created §6TestShop§a for §6%s§a!", player2.getName()), mrSparkzz.nextMessage());
+        printSuccessMessage("create command test - creation of TestShop for Player0");
+    }
+
+    @Test
+    @DisplayName("Test Create - main functionality - another player (by UUID) as owner")
+    @Order(4)
+    void testCreateShop_ForAnotherPlayerByUUID() {
+        // TODO: create MockPermissions to add specific permissions to a player mock
+        performCommand(mrSparkzz, String.format("shop create TestShop %s", player2.getUniqueId()));
+        assertEquals(String.format("§aYou have successfully created §6TestShop§a for §6%s§a!", player2.getUniqueId()), mrSparkzz.nextMessage());
+        printSuccessMessage("create command test - creation of TestShop for Player0 by UUID");
+    }
+
+    @Test
+    @DisplayName("Test Create - main functionality - target player not found")
+    @Order(5)
+    void testCreateCommand_NoTargetPlayer() {
+        performCommand(mrSparkzz, "shop create BetterBuy Player99");
+        assertEquals("§cPlayer (Player99) not found!", mrSparkzz.nextMessage());
+        printSuccessMessage("create command test - target player not found");
     }
 }
