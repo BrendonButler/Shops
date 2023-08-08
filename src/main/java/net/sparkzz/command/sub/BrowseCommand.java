@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import static net.sparkzz.util.Notifier.CipherKey.INVALID_PAGE_NUM;
-import static net.sparkzz.util.Notifier.CipherKey.STORE_NOT_FOUND;
+import static net.sparkzz.util.Notifier.CipherKey.NO_STORE_FOUND;
 
 /**
  * Browse subcommand used for browsing items to a shop
@@ -26,21 +26,21 @@ public class BrowseCommand extends SubCommand {
         Player player = (Player) setAttribute("sender", sender);
         Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
 
-        int pageNumber = (args.length > 1) ? Integer.parseInt(args[1]) : 1;
-
-        if (store != null) {
-            String page = Notifier.Paginator.buildBrowsePage(store, pageNumber);
-
-            if (page == null) {
-                Notifier.process(sender, INVALID_PAGE_NUM, getAttributes());
-                return true;
-            }
-
-            sender.sendMessage(page);
+        if (store == null) {
+            Notifier.process(player, NO_STORE_FOUND, getAttributes());
             return true;
         }
 
-        Notifier.process(sender, STORE_NOT_FOUND, getAttributes());
+        int pageNumber = (args.length > 1) ? Integer.parseInt(args[1]) : 1;
+
+        String page = Notifier.Paginator.buildBrowsePage(store, pageNumber);
+
+        if (page == null) {
+            Notifier.process(sender, INVALID_PAGE_NUM, getAttributes());
+            return true;
+        }
+
+        sender.sendMessage(page);
         return true;
     }
 }

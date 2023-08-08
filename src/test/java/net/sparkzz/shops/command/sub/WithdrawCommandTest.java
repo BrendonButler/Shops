@@ -33,7 +33,7 @@ class WithdrawCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
@@ -46,7 +46,7 @@ class WithdrawCommandTest {
     @BeforeEach
     void setUpWithdrawCommand() {
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
-        Shops.getDefaultShop().setBalance(125);
+        Store.getDefaultStore().setBalance(125);
     }
 
     @AfterEach

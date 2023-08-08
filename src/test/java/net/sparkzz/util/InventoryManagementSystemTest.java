@@ -6,6 +6,7 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -34,7 +35,7 @@ public class InventoryManagementSystemTest {
     private static final ItemStack snowballs = new ItemStack(Material.SNOWBALL, 14);
     private static PlayerMock mrSparkzz;
     private static ServerMock server;
-    private static Store store;
+    private static Store store, secondaryStore;
 
     @BeforeAll
     static void setUp() {
@@ -47,7 +48,8 @@ public class InventoryManagementSystemTest {
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        secondaryStore = new Store("SecondaryStore", mrSparkzz.getUniqueId(), new Cuboid(server.getWorld("world"), -20D, -20D, -20D, 20D, 20D, 20D));
     }
 
     @AfterAll
@@ -56,12 +58,13 @@ public class InventoryManagementSystemTest {
     }
 
     @BeforeEach
-    void setUpInventory() {
+    void setUpIMS() {
+        Store.setDefaultStore(store);
         store.addItem(emeralds.getType(), emeralds.getAmount(), 128, 1, 1);
     }
 
     @AfterEach
-    void tearDownInventory() {
+    void tearDownIMS() {
         store.getItems().clear();
         store.setInfiniteStock(false);
         mrSparkzz.getInventory().clear();
@@ -236,5 +239,37 @@ public class InventoryManagementSystemTest {
         int quantity = InventoryManagementSystem.getAvailableSpace(store, emeralds.getType());
         assertEquals(Integer.MAX_VALUE, quantity);
         printSuccessMessage("IMS - get available space (store) - max quantity negative");
+    }
+
+    @Test
+    @DisplayName("Test IMS - identify store - within secondary store")
+    @Order(18)
+    void testIdentifyStore_WithinSecondaryStore() {
+        mrSparkzz.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
+
+        assertEquals(secondaryStore, InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        printSuccessMessage("IMS - identify store - within secondary store");
+    }
+
+    @Test
+    @DisplayName("Test IMS - identify store - within default store")
+    @Order(19)
+    void testIdentifyStore_NotWithinSecondaryStore() {
+        mrSparkzz.setLocation(new Location(server.getWorld("world"), 21D, 0D, 0D));
+
+        assertEquals(store, InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        printSuccessMessage("IMS - identify store - within default store");
+    }
+
+    @Test
+    @DisplayName("Test IMS - identify store - not within any store")
+    @Order(20)
+    void testIdentifyStore_NotWithinAnyStore() {
+        mrSparkzz.setLocation(new Location(server.getWorld("not-a-world"), 0D, 0D, 0D));
+        Store.setDefaultStore(null);
+
+        System.out.println(mrSparkzz.getWorld());
+        assertNull(InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        printSuccessMessage("IMS - identify store - not within secondary store");
     }
 }

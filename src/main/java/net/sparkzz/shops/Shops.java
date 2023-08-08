@@ -21,7 +21,6 @@ public class Shops extends JavaPlugin {
 
     private static boolean isTest = false;
     private static Server server;
-    private static Store shop;
     private static Economy econ;
     private static PluginDescriptionFile desc;
 
@@ -128,24 +127,6 @@ public class Shops extends JavaPlugin {
      */
     public static Server getMockServer() {
         return server;
-    }
-
-    /**
-     * Get the default store, which will be replaced in the future once location-based stores are enabled
-     *
-     * @return the default store
-     */
-    public static Store getDefaultShop() {
-        return shop;
-    }
-
-    /**
-     * Sets the default store, which will be replaced in the future once location-based shops are enabled
-     *
-     * @param store the store to be set as default
-     */
-    public static void setDefaultShop(Store store) {
-        shop = store;
     }
 
     /**

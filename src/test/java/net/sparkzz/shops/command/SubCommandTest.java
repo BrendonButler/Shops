@@ -46,7 +46,7 @@ class SubCommandTest {
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
     }
 
     @AfterAll

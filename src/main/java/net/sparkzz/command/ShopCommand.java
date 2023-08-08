@@ -3,6 +3,7 @@ package net.sparkzz.command;
 import net.sparkzz.command.sub.*;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Notifier.CipherKey;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +81,8 @@ public class ShopCommand extends CommandManager {
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
             }
 
-            Set<Material> shopItems = Shops.getDefaultShop().getItems().keySet();
+            Store currentStore = InventoryManagementSystem.locateCurrentStore(((Player) sender));
+            Set<Material> shopItems = (currentStore != null ? currentStore.getItems().keySet() : Collections.emptySet());
 
             // Buy/Remove command autocomplete item list
             if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))

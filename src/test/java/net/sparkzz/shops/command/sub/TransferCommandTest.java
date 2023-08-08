@@ -52,7 +52,7 @@ class TransferCommandTest {
 
     @BeforeEach
     void setUpShop() {
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterEach

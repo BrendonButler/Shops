@@ -1,6 +1,7 @@
 package net.sparkzz.command.sub;
 
 import net.sparkzz.command.SubCommand;
+import net.sparkzz.shops.Store;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Transaction;
@@ -27,7 +28,12 @@ public class BuyCommand extends SubCommand {
         Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
         int quantity = (Integer) setAttribute("quantity", 1);
-        setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+
+        if (store == null) {
+            Notifier.process(player, NO_STORE_FOUND, getAttributes());
+            return true;
+        }
 
         if (args.length == 3)
             quantity = (Integer) setAttribute("quantity", Integer.parseInt(args[2]));

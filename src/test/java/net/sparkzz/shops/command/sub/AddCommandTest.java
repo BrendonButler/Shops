@@ -38,10 +38,10 @@ class AddCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Shops.getDefaultShop().getItems().clear();
-        Shops.getDefaultShop().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
-        Shops.getDefaultShop().addFunds(100);
+        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.getDefaultStore().getItems().clear();
+        Store.getDefaultStore().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
+        Store.getDefaultStore().addFunds(100);
     }
 
     @AfterAll
@@ -81,7 +81,7 @@ class AddCommandTest {
         performCommand(mrSparkzz, "shop add emerald 1");
         assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
         assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
-        assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add 1");
     }
 
@@ -96,7 +96,7 @@ class AddCommandTest {
         performCommand(mrSparkzz, "shop add emerald all");
         assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
         assertFalse(mrSparkzz.getInventory().contains(material));
-        assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add all");
     }
 

@@ -41,7 +41,7 @@ class DeleteCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
     }
 
     @AfterAll

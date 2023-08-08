@@ -65,13 +65,13 @@ class ShopCommandTest {
 
         @BeforeEach
         void setUpShops() {
-            Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+            Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
             new Store("DiscountPlus", mrSparkzz.getUniqueId());
         }
 
         @AfterEach
         void tearDownShops() {
-            Shops.setDefaultShop(null);
+            Store.setDefaultStore(null);
             Store.STORES.clear();
         }
 

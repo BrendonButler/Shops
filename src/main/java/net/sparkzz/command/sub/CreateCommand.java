@@ -3,6 +3,7 @@ package net.sparkzz.command.sub;
 import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Cuboid;
 import net.sparkzz.util.Notifier;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -50,7 +51,17 @@ public class CreateCommand extends SubCommand {
             return true;
         }
 
-        Store store = new Store(args[1], owner.getUniqueId());
+        Cuboid cuboid = new Cuboid(
+                ((Player) sender).getWorld(),
+                ((Player) sender).getLocation().getX() - 20,
+                ((Player) sender).getLocation().getY() - 20,
+                ((Player) sender).getLocation().getZ() - 20,
+                ((Player) sender).getLocation().getX() + 20,
+                ((Player) sender).getLocation().getY() + 20,
+                ((Player) sender).getLocation().getZ() + 20
+        );
+
+        Store store = new Store(args[1], owner.getUniqueId(), cuboid);
 
         setAttribute("store", store.getName());
         if (owner.getUniqueId().equals(((Player) sender).getUniqueId()))

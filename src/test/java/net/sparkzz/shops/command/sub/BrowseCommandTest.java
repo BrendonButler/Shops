@@ -52,7 +52,7 @@ public class BrowseCommandTest {
     @BeforeEach
     void setUpShopItems() {
         Store store;
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
 
         store.addItem(Material.EMERALD, 3, 64, 24.5, 12);
         store.addItem(Material.ACACIA_LOG, 2018, -1, 2, 1);
@@ -108,9 +108,9 @@ public class BrowseCommandTest {
     @DisplayName("Test Browse - main functionality - invalid shop")
     @Order(2)
     void testBrowse_InvalidShop() {
-        Shops.setDefaultShop(null);
+        Store.setDefaultStore(null);
         performCommand(mrSparkzz, "shop browse");
-        assertEquals("§cCould not find a store!", mrSparkzz.nextMessage());
+        assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - invalid shop");
     }
 
