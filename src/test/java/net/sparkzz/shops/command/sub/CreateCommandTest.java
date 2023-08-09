@@ -96,4 +96,22 @@ class CreateCommandTest {
         assertEquals("§cPlayer (Player99) not found!", mrSparkzz.nextMessage());
         printSuccessMessage("create command test - target player not found");
     }
+
+    @Test
+    @DisplayName("Test Create - main functionality - cuboid shop")
+    @Order(6)
+    void testCreateCommand_CuboidShop() {
+        performCommand(mrSparkzz, "shop create BetterBuy 10.5 64 -20 100 0 -47");
+        assertEquals("§aYou have successfully created §6BetterBuy§a!", mrSparkzz.nextMessage());
+        printSuccessMessage("create command test - cuboid shop");
+    }
+
+    @Test
+    @DisplayName("Test Create - main functionality - cuboid shop for other player")
+    @Order(7)
+    void testCreateCommand_CuboidShop_OtherPlayer() {
+        performCommand(mrSparkzz, String.format("shop create TestShop %s 10.5 64 -20 100 0 -47", player2.getUniqueId()));
+        assertEquals(String.format("§aYou have successfully created §6TestShop§a for §6%s§a!", player2.getUniqueId()), mrSparkzz.nextMessage());
+        printSuccessMessage("create command test - cuboid shop for other player");
+    }
 }

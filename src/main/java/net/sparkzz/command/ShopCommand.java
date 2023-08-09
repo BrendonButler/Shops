@@ -7,6 +7,7 @@ import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Notifier.CipherKey;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -113,6 +114,8 @@ public class ShopCommand extends CommandManager {
                 return Store.STORES.stream().filter(s -> s.getOwner().equals(((Player) sender).getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
         }
 
+        Server server = (Shops.isTest() ? Shops.getMockServer() : Shops.getPlugin(Shops.class).getServer());
+
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))
                 return Arrays.asList("[<quantity>]", "all");
@@ -131,28 +134,69 @@ public class ShopCommand extends CommandManager {
                 };
             }
 
-            if (args[0].equalsIgnoreCase("transfer") || args[0].equalsIgnoreCase("create"))
-                return Shops.getPlugin(Shops.class).getServer().getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
+            if (args[0].equalsIgnoreCase("transfer"))
+                return server.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
+
+            if (args[0].equalsIgnoreCase("create")) {
+                List<String> options = server.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
+                options.add("<x1>");
+
+                return options;
+            }
         }
 
-        if (args.length == 4 && (args[0].equalsIgnoreCase("add"))) {
-            return Arrays.asList("<customer-sell-price>");
+        if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("add")) {
+                return Arrays.asList("<customer-sell-price>");
+            }
+
+            if (args[0].equalsIgnoreCase("update")) {
+                return switch (args[2].toLowerCase()) {
+                    case "infinite-quantity" -> Arrays.asList("true", "false");
+                    default -> Arrays.asList("<value>");
+                };
+            }
+
+            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+                return Arrays.asList("<x1>");
+            else if (args[0].equalsIgnoreCase("create"))
+                return Arrays.asList("<y1>");
         }
 
-        if (args.length == 4 && (args[0].equalsIgnoreCase("update"))) {
-            return switch (args[2].toLowerCase()) {
-                case "infinite-quantity" -> Arrays.asList("true", "false");
-                default -> Arrays.asList("<value>");
-            };
+        if (args.length == 5 ) {
+            if (args[0].equalsIgnoreCase("add")) {
+                return Arrays.asList("<max-quantity>");
+            }
+
+            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+                return Arrays.asList("<y1>");
+            else if (args[0].equalsIgnoreCase("create"))
+                return Arrays.asList("<z1>");
         }
 
-        if (args.length == 5 && (args[0].equalsIgnoreCase("add"))) {
-            return Arrays.asList("<max-quantity>");
+        if (args.length == 6) {
+            if (args[0].equalsIgnoreCase("add")) {
+                return Arrays.asList("[<quantity>]", "all");
+            }
+
+            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+                return Arrays.asList("<z1>");
+            else if (args[0].equalsIgnoreCase("create"))
+                return Arrays.asList("<x2>");
         }
 
-        if (args.length == 6 && (args[0].equalsIgnoreCase("add"))) {
-            return Arrays.asList("[<quantity>]", "all");
-        }
+        if (args.length == 7 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+            return Arrays.asList("<x2>");
+        else if (args.length == 7 && args[0].equalsIgnoreCase("create"))
+            return Arrays.asList("<y2>");
+
+        if (args.length == 8 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+            return Arrays.asList("<y2>");
+        else if (args.length == 8 && args[0].equalsIgnoreCase("create"))
+            return Arrays.asList("<z2>");
+
+        if (args.length == 9 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
+            return Arrays.asList("<z2>");
 
         return new ArrayList<>();
     }

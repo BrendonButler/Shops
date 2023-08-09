@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
+import java.util.stream.DoubleStream;
 
 import static net.sparkzz.util.Notifier.CipherKey.PLAYER_NOT_FOUND;
 
@@ -33,7 +34,7 @@ public class CreateCommand extends SubCommand {
         OfflinePlayer owner = (Player) sender;
         setAttribute("target", owner);
 
-        if (args.length == 3) {
+        if (args.length == 3 || args.length == 9) {
             if (!sender.hasPermission("shops.create.other-player")) {
                 Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CREATE_OTHER, getAttributes());
                 return true;
@@ -51,19 +52,35 @@ public class CreateCommand extends SubCommand {
             return true;
         }
 
-        Cuboid cuboid = new Cuboid(
-                ((Player) sender).getWorld(),
-                ((Player) sender).getLocation().getX() - 20,
-                ((Player) sender).getLocation().getY() - 20,
-                ((Player) sender).getLocation().getZ() - 20,
-                ((Player) sender).getLocation().getX() + 20,
-                ((Player) sender).getLocation().getY() + 20,
-                ((Player) sender).getLocation().getZ() + 20
-        );
+        double x1, y1, z1, x2, y2, z2;
+        x1 = y1 = z1 = x2 = y2 = z2 = 0D;
 
-        Store store = new Store(args[1], owner.getUniqueId(), cuboid);
+        if (args.length == 8) {
+            x1 = Double.parseDouble(args[2]);
+            y1 = Double.parseDouble(args[3]);
+            z1 = Double.parseDouble(args[4]);
+            x2 = Double.parseDouble(args[5]);
+            y2 = Double.parseDouble(args[6]);
+            z2 = Double.parseDouble(args[7]);
+        }
+
+        if (args.length == 9) {
+            x1 = Double.parseDouble(args[3]);
+            y1 = Double.parseDouble(args[4]);
+            z1 = Double.parseDouble(args[5]);
+            x2 = Double.parseDouble(args[6]);
+            y2 = Double.parseDouble(args[7]);
+            z2 = Double.parseDouble(args[8]);
+        }
+
+        Store store;
+
+        if (DoubleStream.of(x1, y1, z1, x2, y2, z2).allMatch(value -> value == 0D))
+            store = new Store(args[1], owner.getUniqueId());
+        else store = new Store(args[1], owner.getUniqueId(), new Cuboid(((Player) sender).getWorld(), x1, y1, z1, x2, y2, z2));
 
         setAttribute("store", store.getName());
+
         if (owner.getUniqueId().equals(((Player) sender).getUniqueId()))
             Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_SUCCESS, getAttributes());
         else Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_SUCCESS_OTHER_PLAYER, getAttributes());
