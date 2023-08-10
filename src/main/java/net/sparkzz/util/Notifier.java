@@ -82,7 +82,8 @@ public class Notifier {
      * @param attributes attributes that can be added to the message
      */
     public static void process(CommandSender target, CipherKey cipherKey, Map<String, Object> attributes) {
-        target.sendMessage(compose(cipherKey, attributes));
+        if (!cipherKey.value.isBlank())
+            target.sendMessage(compose(cipherKey, attributes));
     }
 
     /**
@@ -168,12 +169,14 @@ public class Notifier {
         STORE_DELETE_FAIL("§cSomething went wrong when attempting to delete the store!"),
         STORE_DELETE_SUCCESS("§aYou have successfully deleted §6{store}§a!"),
         STORE_DELETE_INSUFFICIENT_INV_PLAYER("§cYou don't have enough inventory space to delete the store, please try removing items first or use the '-f' flag to ignore inventory!"),
+        STORE_GOODBYE_MSG("§9We hope to see you again!"),
         STORE_MULTI_MATCH("§cMultiple stores matched, please specify the store's UUID!"),
         STORE_NO_STORE_FOUND("§cCould not find a store with the name and/or UUID of: §6{store}§c!"),
         STORE_TRANSFER_SUCCESS("§aYou have successfully transferred §6{store}§a to player §6{target}§a!"),
         STORE_UPDATE_SUCCESS("§aYou have successfully updated §6{arg1}§a to §6{arg2}§a in the store!"),
         STORE_UPDATE_SUCCESS_2("§aYou have successfully updated §6{arg2}§a to §6{arg3}§a in the store!"),
         STORE_UPDATE_NO_STOCK("§cPlease ensure there is no stock in the store for this item and try again!"),
+        STORE_WELCOME_MSG("§9Welcome to §6{store}§9!"),
         WITHDRAW_SUCCESS("§aYou have successfully withdrawn §6{amount}§a from the store!");
 
         public final String value;

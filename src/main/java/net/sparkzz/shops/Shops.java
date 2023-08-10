@@ -2,6 +2,7 @@ package net.sparkzz.shops;
 
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
+import net.sparkzz.event.EntranceListener;
 import net.sparkzz.util.Warehouse;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -74,6 +75,7 @@ public class Shops extends JavaPlugin {
         desc = this.getDescription();
 
         CommandManager.registerCommands(this);
+        getServer().getPluginManager().registerEvents(new EntranceListener(), this);
 
         if (!isTest && !Warehouse.loadConfig(this))
             getServer().getPluginManager().disablePlugin(this);
