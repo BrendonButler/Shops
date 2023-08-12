@@ -18,29 +18,39 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
+import org.spongepowered.configurate.yaml.NodeStyle;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 
 import static net.sparkzz.shops.Store.STORES;
 
 /**
- * Helper class to manage saving and loading of Shops
+ * Helper class to manage saving and loading of Stores
  *
  * @author Brendon Butler
  */
 public class Warehouse {
 
-    private static CommentedConfigurationNode config;
-    private static ConfigurationLoader<CommentedConfigurationNode> loader;
+    private static CommentedConfigurationNode config, storeConfig;
+    private static ConfigurationLoader<CommentedConfigurationNode> configLoader, storeLoader;
     private static ObjectMapper<Store> storeMapper;
     private static final Logger log = Shops.getPlugin(Shops.class).getLogger();
-    private static final String configTitle = "data.shops";
+    private static final String configName = "config.yml";
+    private static final String storeConfigName = "data.shops";
 
     /**
      * Loads the configuration(s)
@@ -57,29 +67,44 @@ public class Warehouse {
         ConfigurationOptions options = ConfigurationOptions.defaults().serializers(serializers);
 
         File dataFolder = shops.getDataFolder();
-        boolean dirsExists = dataFolder.exists();
+        boolean dirExists = dataFolder.exists();
 
-        if (!dirsExists) dirsExists = dataFolder.mkdirs();
+        if (!dirExists) dirExists = dataFolder.mkdirs();
 
-        if (!dirsExists) {
+        if (!dirExists) {
             log.severe("Error loading or creating data folder");
             return false;
         }
 
-        File configFile = new File(dataFolder, configTitle);
-        loader = HoconConfigurationLoader.builder().file(configFile).build();
+        File configFile = new File(dataFolder, configName);
+        File storeConfigFile = new File(dataFolder, storeConfigName);
+        storeLoader = HoconConfigurationLoader.builder().file(storeConfigFile).build();
+        configLoader = YamlConfigurationLoader.builder()
+                .file(configFile)
+                .nodeStyle(NodeStyle.BLOCK).indent(2)
+                .source(() ->
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    (configFile.exists()) ? new FileInputStream(configFile) : Objects.requireNonNull(shops.getResource("config.yml"))
+                            )
+                    )
+                )
+                .sink(() -> new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile)))).build();
 
         try {
-            config = loader.load(options);
+            config = configLoader.load();
+            storeConfig = storeLoader.load(options);
 
-            if (config == null) throw new IOException();
+            if (config == null || storeConfig == null) throw new IOException();
         } catch (IOException exception) {
-            log.severe("Error loading config file, disabling Shops plugin");
+            log.severe("Error loading config file(s), disabling Shops plugin");
             return false;
         }
 
-        loadShops();
-        log.info("Config loaded successfully");
+        Config.setRootNode(config);
+        Config.addOffLimitsArea(new Cuboid(Bukkit.getWorld("world"), 1, 2, 3, 4, 5, 6));
+        loadStores();
+        log.info("Configurations loaded successfully");
 
         return true;
     }
@@ -89,8 +114,9 @@ public class Warehouse {
      */
     public static void saveConfig() {
         try {
-            saveShops();
-            loader.save(config);
+            saveStores();
+            configLoader.save(config);
+            storeLoader.save(storeConfig);
             log.info("Config saved successfully");
         } catch (IOException exception) {
             log.severe("Error saving configuration");
@@ -100,16 +126,16 @@ public class Warehouse {
     /**
      * Loads the stores from the data.shops file
      */
-    private static void loadShops() {
+    private static void loadStores() {
         try {
             storeMapper = ObjectMapper.factory().get(TypeToken.get(Store.class));
 
-            for (CommentedConfigurationNode currentNode : config.node("shops").childrenList())
+            for (CommentedConfigurationNode currentNode : storeConfig.node("stores").childrenList())
                 STORES.add(storeMapper.load(currentNode));
 
             log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop" : "shops"));
             if (!STORES.isEmpty())
-                Store.setDefaultStore(STORES.get(0)); // TODO: remove once shops are dynamically loaded
+                Store.setDefaultStore(STORES.get(0)); // TODO: remove once stores are dynamically loaded
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
@@ -118,17 +144,17 @@ public class Warehouse {
     /**
      * Saves the stores to the data.stores file
      */
-    private static void saveShops() {
+    private static void saveStores() {
         try {
-            CommentedConfigurationNode shopsNode = config.node("shops");
+            CommentedConfigurationNode storesNode = storeConfig.node("stores");
 
-            // Clear the existing shops before saving the updated list
-            shopsNode.childrenMap().keySet().forEach(shopsNode::removeChild);
+            // Clear the existing stores before saving the updated list
+            storesNode.childrenMap().keySet().forEach(storesNode::removeChild);
 
             int i = 0;
 
             for (Store store : STORES) {
-                ConfigurationNode storeNode = shopsNode.node(i);
+                ConfigurationNode storeNode = storesNode.node(i);
                 storeMapper.save(store, storeNode);
 
                 if (store.getCuboidLocation() != null) {
@@ -138,7 +164,7 @@ public class Warehouse {
                 i++;
             }
 
-            log.info(String.format("%d %s saved", i, (STORES.size() == 1) ? "shop" : "shops"));
+            log.info(String.format("%d %s saved", i, (STORES.size() == 1) ? "store" : "stores"));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }

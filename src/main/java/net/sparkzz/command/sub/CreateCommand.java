@@ -3,6 +3,7 @@ package net.sparkzz.command.sub;
 import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Config;
 import net.sparkzz.util.Cuboid;
 import net.sparkzz.util.Notifier;
 import org.bukkit.OfflinePlayer;
@@ -77,7 +78,25 @@ public class CreateCommand extends SubCommand {
 
         if (DoubleStream.of(x1, y1, z1, x2, y2, z2).allMatch(value -> value == 0D))
             store = new Store(args[1], owner.getUniqueId());
-        else store = new Store(args[1], owner.getUniqueId(), new Cuboid(((Player) sender).getWorld(), x1, y1, z1, x2, y2, z2));
+        else {
+            Cuboid cuboid = new Cuboid(((Player) sender).getWorld(), x1, y1, z1, x2, y2, z2);
+
+            for (Cuboid currentCuboid : Config.getOffLimitsCuboids()) {
+                if (cuboid.intersects(currentCuboid) || currentCuboid.intersects(cuboid)) {
+                    Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_OFFLIMITS, getAttributes());
+                    return true;
+                }
+            }
+
+            for (Cuboid currentCuboid : Store.STORES.stream().map(Store::getCuboidLocation).toList()) {
+                if (cuboid.intersects(currentCuboid) || currentCuboid.intersects(cuboid)) {
+                    Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_OVERLAPS, getAttributes());
+                    return true;
+                }
+            }
+
+            store = new Store(args[1], owner.getUniqueId(), cuboid);
+        }
 
         setAttribute("store", store.getName());
 
