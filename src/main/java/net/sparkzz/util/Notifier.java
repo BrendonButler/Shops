@@ -97,6 +97,9 @@ public class Notifier {
      * Loads
      */
     public static void loadCustomMessages() {
+        if (Config.getRootNode() == null)
+            return;
+
         CipherKey[] key = CipherKey.values();
 
         for (CipherKey cipherKey : key) {

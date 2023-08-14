@@ -60,6 +60,7 @@ class CreateCommandTest {
     }
 
     @Test
+    @Disabled("Disabled until the configuration can be loaded by the test")
     @DisplayName("Test Create - main functionality")
     @Order(2)
     void testCreateShop() {
@@ -70,6 +71,7 @@ class CreateCommandTest {
     }
 
     @Test
+    @Disabled("Disabled until the configuration can be loaded by the test")
     @DisplayName("Test Create - main functionality - another player as owner")
     @Order(3)
     void testCreateShop_ForAnotherPlayer() {
@@ -80,6 +82,7 @@ class CreateCommandTest {
     }
 
     @Test
+    @Disabled("Disabled until the configuration can be loaded by the test")
     @DisplayName("Test Create - main functionality - another player (by UUID) as owner")
     @Order(4)
     void testCreateShop_ForAnotherPlayerByUUID() {
@@ -90,6 +93,7 @@ class CreateCommandTest {
     }
 
     @Test
+    @Disabled("Disabled until the configuration can be loaded by the test")
     @DisplayName("Test Create - main functionality - target player not found")
     @Order(5)
     void testCreateCommand_NoTargetPlayer() {

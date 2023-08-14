@@ -124,7 +124,7 @@ public class CreateCommand extends SubCommand {
                 return true;
             }
 
-            if (volume > maxVolume) {
+            if (maxVolume > 0 && volume > maxVolume) {
                 Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_VOL, getAttributes());
                 return true;
             }

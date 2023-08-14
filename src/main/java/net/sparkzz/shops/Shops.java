@@ -50,6 +50,7 @@ public class Shops extends JavaPlugin {
             File file) {
         super(loader, description, dataFolder, file);
         isTest = true;
+        setMockServer(this.getServer());
     }
 
     /**

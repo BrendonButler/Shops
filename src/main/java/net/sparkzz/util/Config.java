@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class Config {
 
-    private static final Logger log = Shops.getPlugin(Shops.class).getLogger();
+    private static final Logger log = (Shops.isTest() ? Shops.getMockServer().getLogger() : Shops.getPlugin(Shops.class).getLogger());
 
     private static CommentedConfigurationNode rootNode;
 

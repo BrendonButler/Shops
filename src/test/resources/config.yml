@@ -1,0 +1,19 @@
+store:
+  max-owned-stores: 1
+  min-dimensions:
+    x: 3
+    y: 3
+    z: 3
+  max-dimensions:
+    x: 16
+    y: 8
+    z: 16
+  min-volume: 27
+  max-volume: 1024
+  off-limits:
+  - world(world),start(-20,-64,-20),end(20,320,20)
+  - world(world_nether),start(-20,-64,-20),end(20,128,20)
+  - world(world_the_end),start(-20,-64,-20),end(20,256,20)
+messages:
+  NO_PERMS_CMD: §cDon't even try it! §fYou don't have permission to do that.
+  NOT_BUYING: §cThe store is not buying §6{material}§c at this time!
