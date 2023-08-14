@@ -31,6 +31,16 @@ public class CreateCommand extends SubCommand {
         setAttribute("sender", sender);
         setArgsAsAttributes(args);
         // TODO: new permission to limit a player to a number of shops (shops.create.<quantity>)
+        int shopsOwned = 0;
+
+        for (Store store : Store.STORES)
+            if (store.getOwner().equals(((Player) sender).getUniqueId()))
+                shopsOwned++;
+
+        if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
+            Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_STORES, getAttributes());
+            return true;
+        }
 
         OfflinePlayer owner = (Player) sender;
         setAttribute("target", owner);
@@ -79,6 +89,46 @@ public class CreateCommand extends SubCommand {
         if (DoubleStream.of(x1, y1, z1, x2, y2, z2).allMatch(value -> value == 0D))
             store = new Store(args[1], owner.getUniqueId());
         else {
+            double minX = (double) setAttribute("min-x", Math.min(x1, x2));
+            double maxX = (double) setAttribute("max-x", Math.max(x1, x2));
+            double minY = (double) setAttribute("min-y", Math.min(y1, y2));
+            double maxY = (double) setAttribute("max-y", Math.max(y1, y2));
+            double minZ = (double) setAttribute("min-z", Math.min(z1, z2));
+            double maxZ = (double) setAttribute("max-z", Math.max(z1, z2));
+            double[] minDims = Config.getMinDimensions();
+            double[] maxDims = Config.getMaxDimensions();
+            double limitMinX = (double) setAttribute("limit-min-x", minDims[0]);
+            double limitMinY = (double) setAttribute("limit-min-y", minDims[1]);
+            double limitMinZ = (double) setAttribute("limit-min-z", minDims[2]);
+            double limitMaxX = (double) setAttribute("limit-max-x", maxDims[0]);
+            double limitMaxY = (double) setAttribute("limit-max-y", maxDims[1]);
+            double limitMaxZ = (double) setAttribute("limit-max-z", maxDims[2]);
+
+            // TODO: make 0 or negative limits ignore check
+            if ((maxX - minX) < limitMinX || (maxY - minY) < limitMinY || (maxZ - minZ) < limitMinZ) {
+                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
+                return true;
+            }
+
+            if ((limitMaxX > 0 && (maxX - minX) > limitMaxX) || (limitMaxY > 0 && (maxY - minY) > limitMaxY) || (limitMaxZ > 0 && (maxZ - minZ) > limitMaxZ)) {
+                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_DIMS, getAttributes());
+                return true;
+            }
+
+            double volume = (double) setAttribute("volume", (maxX - minX) * (maxY - minY) * (maxZ - minZ));
+            double minVolume = (double) setAttribute("limit-min-vol", Config.getMinVolume());
+            double maxVolume = (double) setAttribute("limit-max-vol", Config.getMaxVolume());
+
+            if (volume < minVolume) {
+                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MIN_VOL, getAttributes());
+                return true;
+            }
+
+            if (volume > maxVolume) {
+                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_VOL, getAttributes());
+                return true;
+            }
+
             Cuboid cuboid = new Cuboid(((Player) sender).getWorld(), x1, y1, z1, x2, y2, z2);
 
             for (Cuboid currentCuboid : Config.getOffLimitsCuboids()) {

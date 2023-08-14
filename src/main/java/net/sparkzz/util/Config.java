@@ -118,6 +118,10 @@ public class Config {
         return cuboids;
     }
 
+    public static String getMessage(Notifier.CipherKey key) {
+        return rootNode.node("messages").node(key.name()).getString();
+    }
+
     public static void addOffLimitsArea(Cuboid cuboid) {
         try {
             CommentedConfigurationNode offLimitsNode = rootNode.node("store", "off-limits");

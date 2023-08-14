@@ -28,6 +28,35 @@ public class Notifier {
     private static final String lineSeparator = System.getProperty("line.separator");
 
     /**
+     * Sends the CommandSender a usage message based off invalid command usage
+     *
+     * @param target the target user to send a message to
+     * @param args the arguments for determining the subcommand
+     * @return true if handled, false if default
+     */
+    public static boolean usageSubCommand(CommandSender target, String[] args) {
+        String message = "/shop ";
+
+        message += switch (args[0]) {
+            case "add" -> (args.length < 3 ? "add <material> [<quantity>|all]" : "add <material> <customer-buy-price> <customer-sell-price> <max-quantity> [<quantity>|all]");
+            case "remove" -> "remove <material> [<quantity>|all]";
+            case "update" -> "update [<material>|<shop-name>|<infinite-funds>|<infinite-stock>]";
+            case "buy" -> "buy <material> [<quantity>]";
+            case "sell" -> "sell <material> [<quantity>|all]";
+            case "create" -> "create <name>";
+            case "delete" -> "delete [<name>|<uuid>|<name>~<uuid>]";
+            case "transfer" -> "transfer [<name>|<uuid>|<name>~<uuid>] <player>";
+            case "deposit" -> "deposit <amount>";
+            case "withdraw" -> "withdraw <amount>";
+            default -> "default";
+        };
+
+        if (message.contains("default")) return false;
+        target.sendMessage(message);
+        return true;
+    }
+
+    /**
      * Composes a String from the CipherKey by either the default value or a custom value in the messages Map
      *
      * @param cipherKey the key for determining the message value
@@ -65,13 +94,17 @@ public class Notifier {
     }
 
     /**
-     * Adds an entry to the messages Map which will be used when composing messages instead of the defaults in the enum
-     *
-     * @param cipherKey the key to have a value mapped
-     * @param message the custom message to be mapped to the CipherKey
+     * Loads
      */
-    public static void updateMessage(CipherKey cipherKey, String message) {
-        messages.put(cipherKey, message);
+    public static void loadCustomMessages() {
+        CipherKey[] key = CipherKey.values();
+
+        for (CipherKey cipherKey : key) {
+            String message = Config.getMessage(cipherKey);
+
+            if (message != null && !message.isEmpty())
+                updateMessage(cipherKey, message);
+        }
     }
 
     /**
@@ -82,37 +115,7 @@ public class Notifier {
      * @param attributes attributes that can be added to the message
      */
     public static void process(CommandSender target, CipherKey cipherKey, Map<String, Object> attributes) {
-        if (!cipherKey.value.isBlank())
-            target.sendMessage(compose(cipherKey, attributes));
-    }
-
-    /**
-     * Sends the CommandSender a usage message based off invalid command usage
-     *
-     * @param target the target user to send a message to
-     * @param args the arguments for determining the subcommand
-     * @return true if handled, false if default
-     */
-    public static boolean usageSubCommand(CommandSender target, String[] args) {
-        String message = "/shop ";
-
-        message += switch (args[0]) {
-            case "add" -> (args.length < 3 ? "add <material> [<quantity>|all]" : "add <material> <customer-buy-price> <customer-sell-price> <max-quantity> [<quantity>|all]");
-            case "remove" -> "remove <material> [<quantity>|all]";
-            case "update" -> "update [<material>|<shop-name>|<infinite-funds>|<infinite-stock>]";
-            case "buy" -> "buy <material> [<quantity>]";
-            case "sell" -> "sell <material> [<quantity>|all]";
-            case "create" -> "create <name>";
-            case "delete" -> "delete [<name>|<uuid>|<name>~<uuid>]";
-            case "transfer" -> "transfer [<name>|<uuid>|<name>~<uuid>] <player>";
-            case "deposit" -> "deposit <amount>";
-            case "withdraw" -> "withdraw <amount>";
-            default -> "default";
-        };
-
-        if (message.contains("default")) return false;
-        target.sendMessage(message);
-        return true;
+        target.sendMessage(compose(cipherKey, attributes));
     }
 
     /**
@@ -122,6 +125,16 @@ public class Notifier {
      */
     public static void resetMessage(CipherKey cipherKey) {
         messages.remove(cipherKey);
+    }
+
+    /**
+     * Adds an entry to the messages Map which will be used when composing messages instead of the defaults in the enum
+     *
+     * @param cipherKey the key to have a value mapped
+     * @param message the custom message to be mapped to the CipherKey
+     */
+    public static void updateMessage(CipherKey cipherKey, String message) {
+        messages.put(cipherKey, message);
     }
 
     /**
@@ -166,6 +179,11 @@ public class Notifier {
         SELL_SUCCESS("§aSuccess! You have sold §6{quantity}§a of §6{material}§a for §6{cost}§a."),
         STORE_CREATE_SUCCESS("§aYou have successfully created §6{store}§a!"),
         STORE_CREATE_SUCCESS_OTHER_PLAYER("§aYou have successfully created §6{store}§a for §6{target}§a!"),
+        STORE_CREATE_FAIL_MAX_DIMS("§cYou can't create a store that large!§f Maximum dimensions: ({limit-max-x}, {limit-max-y}, {limit-max-z})."),
+        STORE_CREATE_FAIL_MIN_DIMS("§cYou can't create a store that small!§f Minimum dimensions: ({limit-min-x}, {limit-min-y}, {limit-min-z})."),
+        STORE_CREATE_FAIL_MAX_STORES("§cYou can't create any more stores!§f Maximum stores: {max-stores}."),
+        STORE_CREATE_FAIL_MAX_VOL("§cYou can't create a store that large!§f Maximum volume: {limit-max-vol}."),
+        STORE_CREATE_FAIL_MIN_VOL("§cYou can't create a store that small!§f Minimum volume: {limit-min-vol}."),
         STORE_CREATE_FAIL_OFFLIMITS("§cYou can't create a store within this area (off limits)!"),
         STORE_CREATE_FAIL_OVERLAPS("§cYou can't create a store within this area (intersects another store)!"),
         STORE_DELETE_FAIL("§cSomething went wrong when attempting to delete the store!"),
@@ -194,12 +212,24 @@ public class Notifier {
     public static class MultilineBuilder {
 
         private final StringBuilder finalMessage;
+        private final Map<String, Object> attributes;
 
         /**
          * Constructs a MultilineBuilder without any initial message
          */
         public MultilineBuilder() {
             finalMessage = new StringBuilder();
+            attributes = null;
+        }
+
+        /**
+         * Constructs a MultilineBuilder without any initial message, but adds attributes
+         *
+         * @param attributes the attributes to be parsed in the message
+         */
+        public MultilineBuilder(Map<String, Object> attributes) {
+            finalMessage = new StringBuilder();
+            this.attributes = attributes;
         }
 
         /**
@@ -209,6 +239,18 @@ public class Notifier {
          */
         public MultilineBuilder(String message) {
             finalMessage = new StringBuilder(message);
+            attributes = null;
+        }
+
+        /**
+         * Constructs a MultilineBuilder with an initial message and attributes
+         *
+         * @param message the initial message for the builder
+         * @param attributes the attributes to be parsed in the message
+         */
+        public MultilineBuilder(String message, Map<String, Object> attributes) {
+            finalMessage = new StringBuilder(message);
+            this.attributes = attributes;
         }
 
         /**
@@ -218,7 +260,7 @@ public class Notifier {
          * @return the current instance
          */
         public MultilineBuilder append(CipherKey key) {
-            return append(key.value);
+            return append(compose(key, attributes));
         }
 
         /**
@@ -243,7 +285,7 @@ public class Notifier {
          * @return the current instance
          */
         public MultilineBuilder appendf(CipherKey key, @Nullable Object... args) {
-            String tempMessage = String.format(key.value, args);
+            String tempMessage = String.format(compose(key, attributes), args);
             return append(tempMessage);
         }
 

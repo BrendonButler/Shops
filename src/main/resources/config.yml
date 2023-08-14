@@ -15,5 +15,5 @@ store:
   - world(world_nether),start(-20,-64,-20),end(20,128,20)
   - world(world_the_end),start(-20,-64,-20),end(20,256,20)
 messages: [] # remove square brackets if using custom messages
-#  - INSUFFICIENT_INV_STORE: "§6{store}§c doesn't have enough §6{material}§c!"
-#  - NOT_BUYING: "§cThe store is not buying §6{material}§c at this time!"
+#  NO_PERMS_CMD: §cDon't even try it! §fYou don't have permission to do that.
+#  NOT_BUYING: §cThe store is not buying §6{material}§c at this time!

@@ -102,7 +102,6 @@ public class Warehouse {
         }
 
         Config.setRootNode(config);
-        Config.addOffLimitsArea(new Cuboid(Bukkit.getWorld("world"), 1, 2, 3, 4, 5, 6));
         loadStores();
         log.info("Configurations loaded successfully");
 
