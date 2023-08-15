@@ -1,5 +1,5 @@
 store:
-  max-owned-stores: 1
+  max-owned-stores: 2
   min-dimensions:
     x: 3
     y: 3

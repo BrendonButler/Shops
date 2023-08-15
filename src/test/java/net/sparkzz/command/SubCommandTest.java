@@ -1,9 +1,8 @@
-package net.sparkzz.shops.command;
+package net.sparkzz.command;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -29,21 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SubCommandTest {
 
-    private static PlayerMock mrSparkzz;
-    private static ServerMock server;
     private static Store store;
     private static SubCommandTestClass testClass;
 
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST SUB COMMAND ]==");
-        server = MockBukkit.getOrCreateMock();
+        ServerMock server = MockBukkit.getOrCreateMock();
         testClass = new SubCommandTestClass();
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
 
-        mrSparkzz = server.addPlayer("MrSparkzz");
+        PlayerMock mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
         Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));

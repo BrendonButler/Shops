@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;

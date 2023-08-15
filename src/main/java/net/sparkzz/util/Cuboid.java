@@ -303,4 +303,14 @@ public class Cuboid {
         this.y2 = y;
         this.z2 = z;
     }
+
+    /**
+     * Generates a string containing the world name and coordinate points
+     *
+     * @return a formatted string for the Cuboid
+     */
+    @Override
+    public String toString() {
+        return String.format("%s(%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f)", ((world != null) ? world.getName() + ", " : ""), x1, y1, z1, x2, y2, z2);
+    }
 }
