@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -52,7 +52,7 @@ class TransferCommandTest {
 
     @BeforeEach
     void setUpShop() {
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterEach

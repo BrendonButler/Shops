@@ -1,9 +1,8 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.command.sub.DeleteCommand;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -41,7 +40,7 @@ class DeleteCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
     }
 
     @AfterAll

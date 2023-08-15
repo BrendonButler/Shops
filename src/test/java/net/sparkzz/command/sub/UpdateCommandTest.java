@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -45,11 +45,11 @@ class UpdateCommandTest {
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
-        oldName = Shops.getDefaultShop().getName();
-        wasInfFunds = Shops.getDefaultShop().hasInfiniteFunds();
-        wasInfStock = Shops.getDefaultShop().hasInfiniteStock();
+        oldName = Store.getDefaultStore().getName();
+        wasInfFunds = Store.getDefaultStore().hasInfiniteFunds();
+        wasInfStock = Store.getDefaultStore().hasInfiniteStock();
     }
 
     @AfterAll
@@ -61,9 +61,9 @@ class UpdateCommandTest {
 
     @AfterEach
     void resetShop() {
-        Shops.getDefaultShop().setName(oldName);
-        Shops.getDefaultShop().setInfiniteFunds(wasInfFunds);
-        Shops.getDefaultShop().setInfiniteStock(wasInfStock);
+        Store.getDefaultStore().setName(oldName);
+        Store.getDefaultStore().setInfiniteFunds(wasInfFunds);
+        Store.getDefaultStore().setInfiniteStock(wasInfStock);
     }
 
     @Test

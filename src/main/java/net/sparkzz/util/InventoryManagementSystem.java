@@ -1,6 +1,5 @@
 package net.sparkzz.util;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -173,7 +172,15 @@ public class InventoryManagementSystem {
      * @return the store the player is currently located in
      */
     public static Store locateCurrentStore(Player player) {
-        // TODO: locate the player within the bounds of a current shop
-        return Shops.getDefaultShop();
+        Store store = Store.getDefaultStore();
+
+        for (Store currentStore : Store.STORES) {
+            if (currentStore.getCuboidLocation() != null && currentStore.getCuboidLocation().isPlayerWithin(player)) {
+                store = currentStore;
+                break;
+            }
+        }
+
+        return store;
     }
 }

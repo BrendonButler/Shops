@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command;
+package net.sparkzz.command;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -42,14 +42,13 @@ class InfoCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
-        Store.STORES.clear();
     }
 
     @Test

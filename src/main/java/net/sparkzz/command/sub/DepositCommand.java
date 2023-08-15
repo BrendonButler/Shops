@@ -24,9 +24,13 @@ public class DepositCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = InventoryManagementSystem.locateCurrentStore(player);
-        setAttribute("store", store.getName());
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
         double amount = (Double) setAttribute("amount", Double.parseDouble(args[1]));
+
+        if (store == null) {
+            Notifier.process(player, NO_STORE_FOUND, getAttributes());
+            return true;
+        }
 
         if (amount < 0) throw new NumberFormatException(String.format("Invalid amount: \"%s\"", args[1]));
 

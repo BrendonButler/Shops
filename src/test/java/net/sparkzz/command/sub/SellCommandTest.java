@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -36,7 +36,7 @@ class SellCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
@@ -48,15 +48,15 @@ class SellCommandTest {
 
     @BeforeEach
     void setUpSellCommand() {
-        Shops.getDefaultShop().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-        Shops.getDefaultShop().setBalance(100);
+        Store.getDefaultStore().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+        Store.getDefaultStore().setBalance(100);
         mrSparkzz.getInventory().addItem(emeralds);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
 
     @AfterEach
     void tearDownShop() {
-        Shops.getDefaultShop().getItems().clear();
+        Store.getDefaultStore().getItems().clear();
     }
 
     @Test
@@ -75,12 +75,12 @@ class SellCommandTest {
     void testSellCommand() {
         Material material = emeralds.getType();
         int quantity = 1;
-        double price = Shops.getDefaultShop().getSellPrice(material);
+        double price = Store.getDefaultStore().getSellPrice(material);
 
         performCommand(mrSparkzz, "shop sell emerald " + quantity);
         assertEquals(String.format("%sSuccess! You have sold %s%s%s of %s%s%s for %s$%.2f%s.",
                 GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, price * quantity, GREEN), mrSparkzz.nextMessage());
-        assertEquals(25, Shops.getDefaultShop().getBalance());
+        assertEquals(25, Store.getDefaultStore().getBalance());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test");
     }

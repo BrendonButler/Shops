@@ -2,6 +2,8 @@ package net.sparkzz.shops;
 
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.command.CommandManager;
+import net.sparkzz.event.EntranceListener;
+import net.sparkzz.util.Notifier;
 import net.sparkzz.util.Warehouse;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -21,7 +23,6 @@ public class Shops extends JavaPlugin {
 
     private static boolean isTest = false;
     private static Server server;
-    private static Store shop;
     private static Economy econ;
     private static PluginDescriptionFile desc;
 
@@ -49,6 +50,7 @@ public class Shops extends JavaPlugin {
             File file) {
         super(loader, description, dataFolder, file);
         isTest = true;
+        setMockServer(this.getServer());
     }
 
     /**
@@ -75,9 +77,12 @@ public class Shops extends JavaPlugin {
         desc = this.getDescription();
 
         CommandManager.registerCommands(this);
+        getServer().getPluginManager().registerEvents(new EntranceListener(), this);
 
         if (!isTest && !Warehouse.loadConfig(this))
             getServer().getPluginManager().disablePlugin(this);
+
+        Notifier.loadCustomMessages();
 
         log.info("Shops has been enabled!");
     }
@@ -128,24 +133,6 @@ public class Shops extends JavaPlugin {
      */
     public static Server getMockServer() {
         return server;
-    }
-
-    /**
-     * Get the default store, which will be replaced in the future once location-based stores are enabled
-     *
-     * @return the default store
-     */
-    public static Store getDefaultShop() {
-        return shop;
-    }
-
-    /**
-     * Sets the default store, which will be replaced in the future once location-based shops are enabled
-     *
-     * @param store the store to be set as default
-     */
-    public static void setDefaultShop(Store store) {
-        shop = store;
     }
 
     /**

@@ -9,15 +9,7 @@ import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import static net.sparkzz.shops.TestHelper.printMessage;
 import static net.sparkzz.shops.TestHelper.printSuccessMessage;
@@ -47,7 +39,12 @@ public class TransactionTest {
         player = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        Store.STORES.clear();
     }
 
     @BeforeEach

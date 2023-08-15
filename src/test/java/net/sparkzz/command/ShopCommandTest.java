@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command;
+package net.sparkzz.command;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -46,6 +46,7 @@ class ShopCommandTest {
         player = server.addPlayer();
         console = new ConsoleCommandSenderMock();
 
+        Shops.setMockServer(server);
         mrSparkzz.getInventory().addItem(emeralds);
         mrSparkzz.setOp(true);
     }
@@ -65,13 +66,13 @@ class ShopCommandTest {
 
         @BeforeEach
         void setUpShops() {
-            Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+            Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
             new Store("DiscountPlus", mrSparkzz.getUniqueId());
         }
 
         @AfterEach
         void tearDownShops() {
-            Shops.setDefaultShop(null);
+            Store.setDefaultStore(null);
             Store.STORES.clear();
         }
 
@@ -324,7 +325,6 @@ class ShopCommandTest {
         }
 
         @Test
-        @Disabled("Currently not working due to the way mocking is implemented, will fix")
         @DisplayName("Test Shop - 3 args - transfer tab complete")
         @Order(48)
         void testShopTabComplete_Transfer3Args() {
@@ -336,11 +336,11 @@ class ShopCommandTest {
         }
 
         @Test
-        @Disabled("Currently not working due to the way mocking is implemented, will fix")
         @DisplayName("Test Shop - 3 args - transfer tab complete")
         @Order(49)
         void testShopTabComplete_Create3Args() {
             List<String> expectedOptions = server.getOnlinePlayers().stream().map(EntityMock::getName).collect(Collectors.toList());
+            expectedOptions.add("<x1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create shop-name ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -381,6 +381,28 @@ class ShopCommandTest {
         }
 
         @Test
+        @DisplayName("Test Shop - 4 args - create tab complete")
+        @Order(63)
+        void testShopTabComplete_Create4Args() {
+            List<String> expectedOptions = List.of("<y1>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop 10.5\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 4 args - create tab complete with player")
+        @Order(64)
+        void testShopTabComplete_Create4Args_Player() {
+            List<String> expectedOptions = List.of("<x1>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz\"");
+        }
+
+        @Test
         @DisplayName("Test Shop - 5 args - add tab complete")
         @Order(80)
         void testShopTabComplete_Add5Args() {
@@ -389,6 +411,28 @@ class ShopCommandTest {
 
             assertEquals(expectedOptions, actualOptions);
             printSuccessMessage("tab complete - \"shop add item 1 1\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 5 args - create tab complete")
+        @Order(81)
+        void testShopTabComplete_Create5Args() {
+            List<String> expectedOptions = List.of("<z1>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop 10.5 64\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 5 args - create tab complete with player")
+        @Order(82)
+        void testShopTabComplete_Create5Args_Player() {
+            List<String> expectedOptions = List.of("<y1>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz 10.5\"");
         }
 
         @Test
@@ -422,6 +466,83 @@ class ShopCommandTest {
 
             assertEquals(expectedOptions, actualOptions);
             printSuccessMessage("tab complete - default");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 6 args - create tab complete")
+        @Order(103)
+        void testShopTabComplete_Create6Args() {
+            List<String> expectedOptions = List.of("<x2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop 10.5 64 -19.2\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 6 args - create tab complete with player")
+        @Order(104)
+        void testShopTabComplete_Create6Args_Player() {
+            List<String> expectedOptions = List.of("<z1>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz 10.5 64\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 7 args - create tab complete")
+        @Order(110)
+        void testShopTabComplete_Create7Args() {
+            List<String> expectedOptions = List.of("<y2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 60 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop 10.5 64 -19.2\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 7 args - create tab complete with player")
+        @Order(111)
+        void testShopTabComplete_Create7Args_Player() {
+            List<String> expectedOptions = List.of("<x2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz 10.5 64 -19.2\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 8 args - create tab complete")
+        @Order(120)
+        void testShopTabComplete_Create8Args() {
+            List<String> expectedOptions = List.of("<z2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 60 20 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop 10.5 64 -19.2 20\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 8 args - create tab complete with player")
+        @Order(121)
+        void testShopTabComplete_Create8Args_Player() {
+            List<String> expectedOptions = List.of("<y2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 60 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz 10.5 64 -19.2 60\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 9 args - create tab complete with player")
+        @Order(130)
+        void testShopTabComplete_Create9Args_Player() {
+            List<String> expectedOptions = List.of("<z2>");
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 60 20 ");
+
+            assertEquals(expectedOptions, actualOptions);
+            printSuccessMessage("tab complete - \"shop create TestShop MrSparkzz 10.5 64 -19.2 60 20\"");
         }
     }
 

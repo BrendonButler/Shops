@@ -24,7 +24,7 @@ class NotifierTest {
     private static final Logger log = Logger.getLogger("Notifier");
 
     private static PlayerMock player;
-    private static String message1;
+    private static String message1, message2;
 
     @BeforeAll
     static void setUp() {
@@ -33,6 +33,7 @@ class NotifierTest {
 
         player = mock.addPlayer();
         message1 = "This is a test message!";
+        message2 = "Test the attributes: {player} is {mood}";
     }
 
     @Test
@@ -150,7 +151,7 @@ class NotifierTest {
     @DisplayName("MultilineBuilder Tests")
     class MultilineBuilderTest {
 
-        private static String message2;
+        private static String message3;
 
         private Notifier.MultilineBuilder builder;
 
@@ -158,7 +159,7 @@ class NotifierTest {
         static void setUp() {
             printMessage("==[ TEST MultilineBuilder UTILITY ]==");
 
-            message2 = "This should be on a new line!";
+            message3 = "This should be on a new line!";
         }
 
         @BeforeEach
@@ -170,11 +171,11 @@ class NotifierTest {
         @DisplayName("Test Append")
         void testAppend() {
             builder.append(message1);
-            builder.append(message2);
+            builder.append(message3);
 
             String result = builder.build();
 
-            assertEquals(result, String.format("%s%s%s", message1, System.getProperty("line.separator"), message2));
+            assertEquals(result, String.format("%s%s%s", message1, System.getProperty("line.separator"), message3));
             printSuccessMessage("appending processed message");
         }
 
@@ -200,13 +201,27 @@ class NotifierTest {
         }
 
         @Test
+        @DisplayName("Test MultilineBuilder constructor with default message and attributes")
+        void testConstructor_StarterMessageAndAttributes() {
+            Map<String, Object> attributes = Map.ofEntries(
+                    entry("player", player.getName()),
+                    entry("mood", "Happy")
+            );
+            Notifier.MultilineBuilder builder = new Notifier.MultilineBuilder(message2, attributes);
+            builder.append(message3);
+
+            assertEquals(String.format("Test the attributes: %s is %s%n%s", player.getName(), "Happy", message3), builder.build());
+            printSuccessMessage("MultilineBuilder constructor with default message and attributes");
+        }
+
+        @Test
         @DisplayName("Test formatted Append")
         void testAppendf() {
-            builder.appendf("%s %s", message1, message2);
+            builder.appendf("%s %s", message1, message3);
 
             String result = builder.build();
 
-            assertEquals(result, String.format("%s %s", message1, message2));
+            assertEquals(result, String.format("%s %s", message1, message3));
             printSuccessMessage("appending processed formatted message");
         }
 
@@ -224,7 +239,7 @@ class NotifierTest {
         @Test
         @DisplayName("Test Processing message to Player")
         void testProcess() {
-            builder.append(message1).append(message2).process(player);
+            builder.append(message1).append(message3).process(player);
 
             String result = builder.build();
 
@@ -235,10 +250,10 @@ class NotifierTest {
         @Test
         @DisplayName("Test Processing Individual messages to Player")
         void testProcessIndividual() {
-            builder.append(message1).append(message2).processIndividual(player);
+            builder.append(message1).append(message3).processIndividual(player);
 
             assertEquals(message1, player.nextMessage());
-            assertEquals(message2, player.nextMessage());
+            assertEquals(message3, player.nextMessage());
             printSuccessMessage("processing individual messages to Player");
         }
     }

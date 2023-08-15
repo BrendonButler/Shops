@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -46,9 +46,9 @@ public class RemoveCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop(new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Shops.getDefaultShop().getItems().clear();
-        Shops.getDefaultShop().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.getDefaultStore().getItems().clear();
+        Store.getDefaultStore().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
     }
 
     @AfterAll
@@ -77,7 +77,7 @@ public class RemoveCommandTest {
         performCommand(mrSparkzz, "shop remove emerald 1");
         assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
         assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
-        assertEquals(11, Shops.getDefaultShop().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("remove command test - remove 1 of type from shop");
     }
 
@@ -89,7 +89,7 @@ public class RemoveCommandTest {
 
         performCommand(mrSparkzz, "shop remove emerald");
         assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
-        assertNull(Shops.getDefaultShop().getItems().get(material));
+        assertNull(Store.getDefaultStore().getItems().get(material));
         printSuccessMessage("remove command test - remove all of type from shop");
     }
 
