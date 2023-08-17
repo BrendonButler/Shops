@@ -68,13 +68,13 @@ public class ShopCommand extends CommandManager {
 
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("browse"))
-                return Arrays.asList("<page-number>");
+                return Collections.singletonList("<page-number>");
 
             if (args[0].equalsIgnoreCase("deposit"))
-                return Arrays.asList("<amount>");
+                return Collections.singletonList("<amount>");
 
             if (args[0].equalsIgnoreCase("withdraw"))
-                return Arrays.asList("<amount>", "all");
+                return List.of("<amount>", "all");
 
             // Add command autocomplete item list
             if (args[0].equalsIgnoreCase("add")) {
@@ -107,7 +107,7 @@ public class ShopCommand extends CommandManager {
                         .collect(Collectors.toList());
 
             if (args[0].equalsIgnoreCase("create"))
-                return Arrays.asList("<name>");
+                return Collections.singletonList("<name>");
 
             // Only display a list of shops that are owned by the player, and provide a list of "ShopName~UUID"
             if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("transfer"))
@@ -118,19 +118,19 @@ public class ShopCommand extends CommandManager {
 
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))
-                return Arrays.asList("[<quantity>]", "all");
+                return List.of("[<quantity>]", "all");
 
             if (args[0].equalsIgnoreCase("add"))
-                return Arrays.asList("<customer-buy-price>", "[<quantity>]", "all");
+                return List.of("<customer-buy-price>", "[<quantity>]", "all");
 
             if (args[0].equalsIgnoreCase("buy"))
-                return Arrays.asList("[<quantity>]");
+                return Collections.singletonList("[<quantity>]");
 
             if (args[0].equalsIgnoreCase("update")) {
                 return switch (args[1].toLowerCase()) {
-                    case "infinite-funds", "infinite-stock" -> Arrays.asList("true", "false");
-                    case "shop-name" -> Arrays.asList("<name>");
-                    default -> Arrays.asList("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
+                    case "infinite-funds", "infinite-stock" -> List.of("true", "false");
+                    case "shop-name" -> Collections.singletonList("<name>");
+                    default -> List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
                 };
             }
 
@@ -147,56 +147,56 @@ public class ShopCommand extends CommandManager {
 
         if (args.length == 4) {
             if (args[0].equalsIgnoreCase("add")) {
-                return Arrays.asList("<customer-sell-price>");
+                return Collections.singletonList("<customer-sell-price>");
             }
 
             if (args[0].equalsIgnoreCase("update")) {
                 return switch (args[2].toLowerCase()) {
-                    case "infinite-quantity" -> Arrays.asList("true", "false");
-                    default -> Arrays.asList("<value>");
+                    case "infinite-quantity" -> List.of("true", "false");
+                    default -> Collections.singletonList("<value>");
                 };
             }
 
             if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Arrays.asList("<x1>");
+                return Collections.singletonList("<x1>");
             else if (args[0].equalsIgnoreCase("create"))
-                return Arrays.asList("<y1>");
+                return Collections.singletonList("<y1>");
         }
 
         if (args.length == 5 ) {
             if (args[0].equalsIgnoreCase("add")) {
-                return Arrays.asList("<max-quantity>");
+                return Collections.singletonList("<max-quantity>");
             }
 
             if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Arrays.asList("<y1>");
+                return Collections.singletonList("<y1>");
             else if (args[0].equalsIgnoreCase("create"))
-                return Arrays.asList("<z1>");
+                return Collections.singletonList("<z1>");
         }
 
         if (args.length == 6) {
             if (args[0].equalsIgnoreCase("add")) {
-                return Arrays.asList("[<quantity>]", "all");
+                return List.of("[<quantity>]", "all");
             }
 
             if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Arrays.asList("<z1>");
+                return Collections.singletonList("<z1>");
             else if (args[0].equalsIgnoreCase("create"))
-                return Arrays.asList("<x2>");
+                return Collections.singletonList("<x2>");
         }
 
         if (args.length == 7 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-            return Arrays.asList("<x2>");
+            return Collections.singletonList("<x2>");
         else if (args.length == 7 && args[0].equalsIgnoreCase("create"))
-            return Arrays.asList("<y2>");
+            return Collections.singletonList("<y2>");
 
         if (args.length == 8 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-            return Arrays.asList("<y2>");
+            return Collections.singletonList("<y2>");
         else if (args.length == 8 && args[0].equalsIgnoreCase("create"))
-            return Arrays.asList("<z2>");
+            return Collections.singletonList("<z2>");
 
         if (args.length == 9 && args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-            return Arrays.asList("<z2>");
+            return Collections.singletonList("<z2>");
 
         return new ArrayList<>();
     }

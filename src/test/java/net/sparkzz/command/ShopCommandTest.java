@@ -14,8 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -80,7 +80,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - shop tab complete")
         @Order(1)
         void testShopTabComplete() {
-            List<String> expectedOptions = new ArrayList<>(List.of("add", "transfer", "buy", "sell", "create", "deposit", "update", "delete", "remove", "browse", "withdraw"));
+            List<String> expectedOptions = List.of("add", "transfer", "buy", "sell", "create", "deposit", "update", "delete", "remove", "browse", "withdraw");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -91,7 +91,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - browse tab complete")
         @Order(20)
         void testShopTabComplete_Browse2Args() {
-            List<String> expectedOptions = List.of("<page-number>");
+            List<String> expectedOptions = Collections.singletonList("<page-number>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop browse ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -102,7 +102,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - deposit tab complete")
         @Order(21)
         void testShopTabComplete_Deposit2Args() {
-            List<String> expectedOptions = List.of("<amount>");
+            List<String> expectedOptions = Collections.singletonList("<amount>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop deposit ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -207,7 +207,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - create tab complete")
         @Order(29)
         void testShopTabComplete_Create2Args() {
-            List<String> expectedOptions = List.of("<name>");
+            List<String> expectedOptions = Collections.singletonList("<name>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -218,7 +218,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - delete tab complete")
         @Order(30)
         void testShopTabComplete_Delete2Args() {
-            List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
+            List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toList());
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop delete ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -229,7 +229,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - transfer tab complete")
         @Order(31)
         void testShopTabComplete_Transfer2Args() {
-            List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
+            List<String> expectedOptions = Store.STORES.stream().filter(s -> s.getOwner().equals(mrSparkzz.getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toList());
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop transfer ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -273,7 +273,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 3 args - buy tab complete")
         @Order(43)
         void testShopTabComplete_Buy3Args() {
-            List<String> expectedOptions = List.of("[<quantity>]");
+            List<String> expectedOptions = Collections.singletonList("[<quantity>]");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop buy item ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -306,7 +306,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 3 args - update shop-name tab complete")
         @Order(46)
         void testShopTabComplete_Update3Args_ShopName() {
-            List<String> expectedOptions = List.of("<name>");
+            List<String> expectedOptions = Collections.singletonList("<name>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update shop-name ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -351,7 +351,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 4 args - add tab complete")
         @Order(60)
         void testShopTabComplete_Add4Args() {
-            List<String> expectedOptions = List.of("<customer-sell-price>");
+            List<String> expectedOptions = Collections.singletonList("<customer-sell-price>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -373,7 +373,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 4 args - update item infinite-quantity tab complete")
         @Order(62)
         void testShopTabComplete_Update4Args() {
-            List<String> expectedOptions = List.of("<value>");
+            List<String> expectedOptions = Collections.singletonList("<value>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop update item customer-buy-price ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -384,7 +384,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 4 args - create tab complete")
         @Order(63)
         void testShopTabComplete_Create4Args() {
-            List<String> expectedOptions = List.of("<y1>");
+            List<String> expectedOptions = Collections.singletonList("<y1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -395,7 +395,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 4 args - create tab complete with player")
         @Order(64)
         void testShopTabComplete_Create4Args_Player() {
-            List<String> expectedOptions = List.of("<x1>");
+            List<String> expectedOptions = Collections.singletonList("<x1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -406,7 +406,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 5 args - add tab complete")
         @Order(80)
         void testShopTabComplete_Add5Args() {
-            List<String> expectedOptions = List.of("<max-quantity>");
+            List<String> expectedOptions = Collections.singletonList("<max-quantity>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 1 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -417,7 +417,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 5 args - create tab complete")
         @Order(81)
         void testShopTabComplete_Create5Args() {
-            List<String> expectedOptions = List.of("<z1>");
+            List<String> expectedOptions = Collections.singletonList("<z1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -428,7 +428,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 5 args - create tab complete with player")
         @Order(82)
         void testShopTabComplete_Create5Args_Player() {
-            List<String> expectedOptions = List.of("<y1>");
+            List<String> expectedOptions = Collections.singletonList("<y1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -450,7 +450,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 6 args - console tab complete")
         @Order(101)
         void testShopTabComplete_Console() {
-            List<String> expectedOptions = new ArrayList<>();
+            List<String> expectedOptions = Collections.emptyList();
             List<String> actualOptions = server.getCommandTabComplete(console, "shop add item 1 1 1 1 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -461,7 +461,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 6 args - default tab complete")
         @Order(102)
         void testShopTabComplete_Default() {
-            List<String> expectedOptions = new ArrayList<>();
+            List<String> expectedOptions = Collections.emptyList();
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop add item 1 1 1 1 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -472,7 +472,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 6 args - create tab complete")
         @Order(103)
         void testShopTabComplete_Create6Args() {
-            List<String> expectedOptions = List.of("<x2>");
+            List<String> expectedOptions = Collections.singletonList("<x2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -483,7 +483,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 6 args - create tab complete with player")
         @Order(104)
         void testShopTabComplete_Create6Args_Player() {
-            List<String> expectedOptions = List.of("<z1>");
+            List<String> expectedOptions = Collections.singletonList("<z1>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -494,7 +494,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 7 args - create tab complete")
         @Order(110)
         void testShopTabComplete_Create7Args() {
-            List<String> expectedOptions = List.of("<y2>");
+            List<String> expectedOptions = Collections.singletonList("<y2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 60 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -505,7 +505,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 7 args - create tab complete with player")
         @Order(111)
         void testShopTabComplete_Create7Args_Player() {
-            List<String> expectedOptions = List.of("<x2>");
+            List<String> expectedOptions = Collections.singletonList("<x2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -516,7 +516,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 8 args - create tab complete")
         @Order(120)
         void testShopTabComplete_Create8Args() {
-            List<String> expectedOptions = List.of("<z2>");
+            List<String> expectedOptions = Collections.singletonList("<z2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop 10.5 64 -19.2 60 20 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -527,7 +527,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 8 args - create tab complete with player")
         @Order(121)
         void testShopTabComplete_Create8Args_Player() {
-            List<String> expectedOptions = List.of("<y2>");
+            List<String> expectedOptions = Collections.singletonList("<y2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 60 ");
 
             assertEquals(expectedOptions, actualOptions);
@@ -538,7 +538,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 9 args - create tab complete with player")
         @Order(130)
         void testShopTabComplete_Create9Args_Player() {
-            List<String> expectedOptions = List.of("<z2>");
+            List<String> expectedOptions = Collections.singletonList("<z2>");
             List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop create TestShop MrSparkzz 10.5 64 -19.2 60 20 ");
 
             assertEquals(expectedOptions, actualOptions);
