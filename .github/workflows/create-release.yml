@@ -7,9 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-release:
-    name: Create Release
+  create-and-publish-release:
+    name: Create and Publish Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -31,41 +33,15 @@ jobs:
       - name: Build and package the shaded jar
         run: mvn clean package shade:shade
 
-      - name: Upload shaded jar as a release artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: shops-${{ steps.previous-tag.outputs.tag }}
-          path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
-
-    outputs:
-      previous-tag: ${{ steps.previous-tag.outputs.tag }}
-
-  create-release:
-    name: Publish Release
-    needs: publish-release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download the shaded jar artifact
-        id: download-shaded-jar
-        uses: actions/download-artifact@v3
-        with:
-          path: ~/
-
       - uses: ncipollo/release-action@v1
         with:
           skipIfReleaseExists: true
-          artifacts: ~/shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
-          tag: ${{ needs.publish-release.outputs.previous-tag }}
+          artifacts: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
+          tag: ${{ steps.previous-tag.outputs.tag }}
 
       - name: Determine Release Stage
         run: |
-          tag=${{ needs.publish-release.outputs.previous-tag }}
+          tag=${{ steps.previous-tag.outputs.tag }}
           lowercase_tag=$(echo "$tag" | tr '[:upper:]' '[:lower:]')
   
           if [[ $lowercase_tag == *"beta"* ]]; then
@@ -82,7 +58,7 @@ jobs:
       - name: Upload to CurseForge
         uses: itsmeow/curseforge-upload@v3
         with:
-          file_path: ../shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
+          file_path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
           game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
