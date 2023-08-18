@@ -38,7 +38,7 @@ Scan through the [existing issues](https://github.com/BrendonButler/Shops/issues
     - Using the command line:
       - [Fork the repo](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo#fork-an-example-repository) so that you can make your changes without affecting the original project until you're ready to merge them.
 
-3. Create a working branch and start with your changes!
+2. Create a working branch and start with your changes!
     - Create a branch with the appropriate prefix for the issue type:
       - `feature/GH-{ISSUE_NUM}` - use the "feature/GH-##" prefix to create the new feature branch
       - `fix/GH-{ISSUE_NUM}` - use the "fix/GH-##" prefix to create a fix branch for bugs and other issues
