@@ -76,6 +76,7 @@ jobs:
             release_stage="release"
           fi
 
+          cd ~
           echo $(ls)
           echo "Release stage: $release_stage"
           echo "release_stage=$release_stage" >> $GITHUB_OUTPUT
