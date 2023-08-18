@@ -305,6 +305,30 @@ public class Cuboid {
     }
 
     /**
+     * Determines whether this cuboid is equal to another object
+     *
+     * @param object the other object to compare against
+     * @return whether the cuboids are equal
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        Cuboid otherCuboid = (Cuboid) object;
+        return this.world.equals(otherCuboid.getWorld()) &&
+               this.x1 == otherCuboid.getX1() &&
+               this.y1 == otherCuboid.getY1() &&
+               this.z1 == otherCuboid.getZ1() &&
+               this.x2 == otherCuboid.getX2() &&
+               this.y2 == otherCuboid.getY2() &&
+               this.z2 == otherCuboid.getZ2();
+    }
+
+    /**
      * Generates a string containing the world name and coordinate points
      *
      * @return a formatted string for the Cuboid

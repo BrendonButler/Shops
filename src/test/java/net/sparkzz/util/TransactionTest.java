@@ -44,6 +44,8 @@ public class TransactionTest {
 
     @AfterAll
     static void tearDownAll() {
+        MockBukkit.unmock();
+        Store.setDefaultStore(null);
         Store.STORES.clear();
     }
 

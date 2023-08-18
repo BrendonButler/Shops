@@ -94,7 +94,7 @@ public class Notifier {
     }
 
     /**
-     * Loads
+     * Loads custom messages from the config to replace default messages in CipherKey
      */
     public static void loadCustomMessages() {
         if (Config.getRootNode() == null)
@@ -197,11 +197,13 @@ public class Notifier {
         STORE_NO_STORE_FOUND("§cCould not find a store with the name and/or UUID of: §6{store}§c!"),
         STORE_TRANSFER_FAIL_MAX_STORES("§c{target} can't have any more stores!§f Maximum stores: {max-stores}."),
         STORE_TRANSFER_SUCCESS("§aYou have successfully transferred §6{store}§a to player §6{target}§a!"),
-        STORE_UPDATE_SUCCESS("§aYou have successfully updated §6{arg1}§a to §6{arg2}§a in the store!"),
-        STORE_UPDATE_SUCCESS_2("§aYou have successfully updated §6{arg2}§a to §6{arg3}§a in the store!"),
+        STORE_UPDATE_SUCCESS("§aYou have successfully updated §6{arg1}§a to §6{arg2}§a in {store}!"),
+        STORE_UPDATE_SUCCESS_2("§aYou have successfully updated §6{arg2}§a to §6{arg3}§a in {store}!"),
+        STORE_UPDATE_SUCCESS_LOCATION("§aYou have successfully updated the location of {store} to ({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) in {world}!"),
         STORE_UPDATE_NO_STOCK("§cPlease ensure there is no stock in the store for this item and try again!"),
         STORE_WELCOME_MSG("§9Welcome to §6{store}§9!"),
-        WITHDRAW_SUCCESS("§aYou have successfully withdrawn §6{amount}§a from the store!");
+        WITHDRAW_SUCCESS("§aYou have successfully withdrawn §6{amount}§a from the store!"),
+        WORLD_NOT_FOUND("§cCould not find world ({world})!");
 
         public final String value;
 

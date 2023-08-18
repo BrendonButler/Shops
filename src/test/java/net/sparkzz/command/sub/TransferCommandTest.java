@@ -48,6 +48,7 @@ class TransferCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
     }
 
     @BeforeEach

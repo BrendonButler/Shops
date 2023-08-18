@@ -17,3 +17,5 @@ store:
 messages:
   NO_PERMS_CMD: §cDon't even try it! §fYou don't have permission to do that.
   NOT_BUYING: §cThe store is not buying §6{material}§c at this time!
+  NOT_BUYING_ANYMORE: ""
+  NOT_SELLING:

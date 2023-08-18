@@ -37,6 +37,7 @@ public class ConfigTest {
 
     @AfterAll
     static void tearDown() {
+        MockBukkit.unmock();
         List<Cuboid> cuboids = List.of(
                 new Cuboid(world, -20, -64, -20, 20, 320, 20),
                 new Cuboid(world_nether, -20, -64, -20, 20, 128, 20),

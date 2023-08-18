@@ -54,6 +54,8 @@ public class InventoryManagementSystemTest {
 
     @AfterAll
     static void tearDown() {
+        MockBukkit.unmock();
+        Store.setDefaultStore(null);
         Store.STORES.clear();
     }
 

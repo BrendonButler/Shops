@@ -50,6 +50,7 @@ class SubCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
         Store.STORES.clear();
     }
 

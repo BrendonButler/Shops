@@ -3,8 +3,11 @@ package net.sparkzz.util;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +19,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.Map.entry;
+import static net.sparkzz.shops.TestHelper.loadConfig;
+import static net.sparkzz.shops.TestHelper.unLoadConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Notifier Tests")
@@ -30,10 +35,25 @@ class NotifierTest {
     static void setUp() {
         printMessage("==[ TEST Notifier UTILITY ]==");
         ServerMock mock = MockBukkit.getOrCreateMock();
+        MockBukkit.load(Shops.class);
+        loadConfig();
 
         player = mock.addPlayer();
         message1 = "This is a test message!";
         message2 = "Test the attributes: {player} is {mood}";
+    }
+
+    @AfterAll
+    static void tearDown() {
+        MockBukkit.unmock();
+        Store.setDefaultStore(null);
+        unLoadConfig();
+    }
+
+    @AfterEach
+    void resetCustomMessages() {
+        Notifier.resetMessage(Notifier.CipherKey.NO_PERMS_CMD);
+        Notifier.resetMessage(Notifier.CipherKey.NOT_BUYING);
     }
 
     @Test
@@ -145,6 +165,16 @@ class NotifierTest {
 
         assertEquals(result, Notifier.CipherKey.NO_PERMS_CMD.value);
         printSuccessMessage("composing message to a String using default with non-empty custom messages");
+    }
+
+    @Test
+    @DisplayName("Test loading custom messages from config")
+    void checkCustomMessagesLoaded() {
+        Notifier.loadCustomMessages();
+        assertEquals("§cDon't even try it! §fYou don't have permission to do that.", Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null));
+        assertEquals("§cThe store is not buying §6{material}§c at this time!", Notifier.compose(Notifier.CipherKey.NOT_BUYING, null));
+        assertEquals("§cThe Store is not buying any more of these at this time!", Notifier.compose(Notifier.CipherKey.NOT_BUYING_ANYMORE, null));
+        assertEquals("§cThe store is not selling any of these at this time!", Notifier.compose(Notifier.CipherKey.NOT_SELLING, null));
     }
 
     @Nested

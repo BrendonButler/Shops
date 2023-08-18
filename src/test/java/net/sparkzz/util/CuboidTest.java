@@ -3,9 +3,11 @@ package net.sparkzz.util;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import net.sparkzz.shops.Store;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,12 @@ public class CuboidTest {
     void setUpCuboids() {
         cuboid = new Cuboid(server.getWorld("world"), -20D, -20D, -20D, 20D, 20D, 20D);
         noWorldCuboid = new Cuboid(null, -60D, -60D, -60D, 19D, 19D, 19D);
+    }
+
+    @AfterAll
+    static void tearDown() {
+        MockBukkit.unmock();
+        Store.setDefaultStore(null);
     }
 
     @Test
