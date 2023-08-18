@@ -8,7 +8,7 @@
 
 Shops plugin for Bukkit/Spigot 2022+
 
-![Shops social image](https://repository-images.githubusercontent.com/388618586/0d033997-0fcd-44db-a53d-c635f8bc38f5)
+![Shops social image](https://repository-images.githubusercontent.com/388618586/2bc0f5a2-80f8-4cc7-859b-962e4d5e773d)
 
 **Depends on:** [Vault](https://github.com/MilkBowl/Vault)
 
