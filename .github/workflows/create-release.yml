@@ -77,12 +77,12 @@ jobs:
           fi
         
           echo "Release stage: $release_stage"
-          echo "::set-output name=release_stage::$release_stage"
+          echo "release_stage=$release_stage" >> $GITHUB_OUTPUT
 
       - name: Upload to CurseForge
         uses: itsmeow/curseforge-upload@v3
         with:
-          file_path: ~/shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
+          file_path: shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
           game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
