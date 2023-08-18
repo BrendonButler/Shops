@@ -1,5 +1,6 @@
 package net.sparkzz.shops;
 
+import net.sparkzz.util.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -20,9 +21,12 @@ public class Store {
      * This List contains all stores that have been created
      */
     public static final ArrayList<Store> STORES = new ArrayList<>();
+    private static Store defaultStore;
 
     @Setting private boolean infFunds = false;
     @Setting private boolean infStock = false;
+    // TODO: Create a map of Worlds to Cuboids to allow for multiple locations for the same store
+    @Setting("location") private Cuboid cuboidLocation;
     @Setting private double balance;
     @Setting private String name;
     // item : attribute, value (block_dirt : quantity, 550)
@@ -52,7 +56,7 @@ public class Store {
     }
 
     /**
-     * Creates a store with the provided name
+     * Creates a store with the provided name and owner
      *
      * @param name the name of the store to be created
      * @param owner the owner's UUID to be added to the store
@@ -60,6 +64,37 @@ public class Store {
     public Store(String name, UUID owner) {
         this(name);
         this.owner = owner;
+    }
+
+    /**
+     * Creates a store with the provided name, owner, and cuboid location
+     *
+     * @param name the name of the store to be created
+     * @param owner the owner's UUID to be added to the store
+     * @param cuboidLocation the Cuboid location where this store is located
+     */
+    public Store(String name, UUID owner, Cuboid cuboidLocation) {
+        this(name);
+        this.owner = owner;
+        this.cuboidLocation = cuboidLocation;
+    }
+
+    /**
+     * Gets the default store
+     *
+     * @return the default store
+     */
+    public static Store getDefaultStore() {
+        return defaultStore;
+    }
+
+    /**
+     * Sets the default store
+     *
+     * @param store the default store to be set
+     */
+    public static void setDefaultStore(Store store) {
+        defaultStore = store;
     }
 
     /**
@@ -110,6 +145,14 @@ public class Store {
     }
 
     /**
+     * Gets the cuboid location of the store
+     * @return
+     */
+    public Cuboid getCuboidLocation() {
+        return cuboidLocation;
+    }
+
+    /**
      * Checks the sell price of a material
      *
      * @param material the material to be queried for its sell price
@@ -117,15 +160,6 @@ public class Store {
      */
     public double getSellPrice(Material material) {
         return (items.containsKey(material) ? items.get(material).get("sell").doubleValue() : -1D);
-    }
-
-    /**
-     * Get the store's unique ID
-     *
-     * @return the store's UUID
-     */
-    public UUID getUUID() {
-        return uuid;
     }
 
     /**
@@ -163,6 +197,15 @@ public class Store {
      */
     public UUID getOwner() {
         return owner;
+    }
+
+    /**
+     * Get the store's unique ID
+     *
+     * @return the store's UUID
+     */
+    public UUID getUUID() {
+        return uuid;
     }
 
     /**
@@ -272,6 +315,15 @@ public class Store {
      */
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    /**
+     * Sets the bounds of the store based on the Cuboid inputted
+     *
+     * @param cuboid the store bounds defined by a cuboid
+     */
+    public void setCuboidLocation(Cuboid cuboid) {
+        this.cuboidLocation = cuboid;
     }
 
     /**

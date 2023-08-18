@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -6,18 +6,14 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Cuboid;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.WorldCreator;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
@@ -28,14 +24,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UpdateCommandTest {
 
-    private static boolean wasInfStock, wasInfFunds;
+    private static Cuboid defaultLocation, cuboidLocation, cuboidLocationNether;
     private static PlayerMock mrSparkzz;
     private static ServerMock server;
-    private static String oldName;
     private static Store store;
 
     @BeforeAll
-    static void saveOldValues() {
+    static void setUp() {
         printMessage("==[ TEST UPDATE COMMAND ]==");
         server = MockBukkit.getOrCreateMock();
 
@@ -43,26 +38,33 @@ class UpdateCommandTest {
         MockBukkit.load(Shops.class);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
-
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
-        store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
-        oldName = Shops.getDefaultShop().getName();
-        wasInfFunds = Shops.getDefaultShop().hasInfiniteFunds();
-        wasInfStock = Shops.getDefaultShop().hasInfiniteStock();
+        server.createWorld(WorldCreator.name("world"));
+        server.createWorld(WorldCreator.name("world-nether"));
+        defaultLocation = new Cuboid(server.getWorld("world"), 0D, 0D, 0D, 50D, 50D, 50D);
+        cuboidLocation = new Cuboid(server.getWorld("world"), 10D, 20D, 30D, 40D, 50D, 60D);
+        cuboidLocationNether = new Cuboid(server.getWorld("world-nether"), 10D, 20D, 30D, 40D, 50D, 60D);
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
+    }
+
+    @BeforeEach
+    void setupShop() {
+        mrSparkzz.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
+        store = new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(server.getWorld("world"), 0D, 0D, 0D, 50D, 50D, 50D));
+        store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
+        store.addItem(Material.BUCKET, 1, 64, 1D, 0.5D);
     }
 
     @AfterEach
     void resetShop() {
-        Shops.getDefaultShop().setName(oldName);
-        Shops.getDefaultShop().setInfiniteFunds(wasInfFunds);
-        Shops.getDefaultShop().setInfiniteStock(wasInfStock);
+        mrSparkzz.nextMessage();
+        Store.STORES.clear();
     }
 
     @Test
@@ -70,7 +72,7 @@ class UpdateCommandTest {
     @Order(1)
     void testUpdateCommand_BuyPrice() {
         performCommand(mrSparkzz, "shop update emerald customer-buy-price 5");
-        assertEquals("§aYou have successfully updated §6customer-buy-price§a to §65§a in the store!", mrSparkzz.nextMessage());
+        assertEquals("§aYou have successfully updated §6customer-buy-price§a to §65§a in BetterBuy!", mrSparkzz.nextMessage());
         assertEquals(5D, store.getAttributes(Material.EMERALD).get("buy").doubleValue());
         printSuccessMessage("update command test - customer buy price");
     }
@@ -80,7 +82,7 @@ class UpdateCommandTest {
     @Order(2)
     void testUpdateCommand_SellPrice() {
         performCommand(mrSparkzz, "shop update emerald customer-sell-price 5");
-        assertEquals("§aYou have successfully updated §6customer-sell-price§a to §65§a in the store!", mrSparkzz.nextMessage());
+        assertEquals("§aYou have successfully updated §6customer-sell-price§a to §65§a in BetterBuy!", mrSparkzz.nextMessage());
         assertEquals(5D, store.getAttributes(Material.EMERALD).get("sell").doubleValue());
         printSuccessMessage("update command test - customer sell price");
     }
@@ -90,7 +92,7 @@ class UpdateCommandTest {
     @Order(3)
     void testUpdateCommand_MaxQuantity() {
         performCommand(mrSparkzz, "shop update emerald max-quantity 128");
-        assertEquals("§aYou have successfully updated §6max-quantity§a to §6128§a in the store!", mrSparkzz.nextMessage());
+        assertEquals("§aYou have successfully updated §6max-quantity§a to §6128§a in BetterBuy!", mrSparkzz.nextMessage());
         assertEquals(128, store.getAttributes(Material.EMERALD).get("max_quantity").intValue());
         printSuccessMessage("update command test - max quantity");
     }
@@ -109,7 +111,7 @@ class UpdateCommandTest {
     @Order(5)
     void testUpdateCommand_InfFunds() {
         performCommand(mrSparkzz, "shop update infinite-funds true");
-        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the store!", GREEN, GOLD, "infinite-funds", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in BetterBuy!", GREEN, GOLD, "infinite-funds", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
         assertTrue(store.hasInfiniteFunds());
         printSuccessMessage("update command test - update infinite funds");
     }
@@ -119,7 +121,7 @@ class UpdateCommandTest {
     @Order(6)
     void testUpdateCommand_InfStock() {
         performCommand(mrSparkzz, "shop update infinite-stock true");
-        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the store!", GREEN, GOLD, "infinite-stock", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in BetterBuy!", GREEN, GOLD, "infinite-stock", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
         assertTrue(store.hasInfiniteStock());
         printSuccessMessage("update command test - update infinite stock");
     }
@@ -129,7 +131,7 @@ class UpdateCommandTest {
     @Order(7)
     void testUpdateCommand_ShopName() {
         performCommand(mrSparkzz, "shop update shop-name TestShop99");
-        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in the store!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
         assertEquals("TestShop99", store.getName());
         printSuccessMessage("update command test - update shop name");
     }
@@ -175,8 +177,6 @@ class UpdateCommandTest {
     @DisplayName("Test Update - main functionality - infinite stock per item allow but has stock")
     @Order(12)
     void testUpdateCommand_Permissions_InfStockItemHasStock() {
-        store.addItem(Material.BUCKET, 1, 64, 1D, 0.5D);
-
         performCommand(mrSparkzz, "shop update bucket infinite-quantity true");
         assertEquals("§cPlease ensure there is no stock in the store for this item and try again!", mrSparkzz.nextMessage());
         assertFalse(store.hasInfiniteStock());
@@ -187,10 +187,8 @@ class UpdateCommandTest {
     @DisplayName("Test Update - main functionality - infinite stock per item allow false")
     @Order(13)
     void testUpdateCommand_Permissions_InfStockItemFalse() {
-        store.addItem(Material.BUCKET, 1, 64, 1D, 0.5D);
-
         performCommand(mrSparkzz, "shop update bucket infinite-quantity false");
-        assertEquals("§aYou have successfully updated §6infinite-quantity§a to §6false§a in the store!", mrSparkzz.nextMessage());
+        assertEquals("§aYou have successfully updated §6infinite-quantity§a to §6false§a in BetterBuy!", mrSparkzz.nextMessage());
         assertFalse(store.hasInfiniteStock());
         printSuccessMessage("update command test - infinite stock per item allow false");
     }
@@ -202,9 +200,109 @@ class UpdateCommandTest {
         store.removeItem(Material.BUCKET, store.getAttributes(Material.BUCKET).get("quantity").intValue());
 
         performCommand(mrSparkzz, "shop update bucket infinite-quantity true");
-        assertEquals("§aYou have successfully updated §6infinite-quantity§a to §6true§a in the store!", mrSparkzz.nextMessage());
+        assertEquals("§aYou have successfully updated §6infinite-quantity§a to §6true§a in BetterBuy!", mrSparkzz.nextMessage());
         assertEquals(-1, store.getAttributes(Material.BUCKET).get("quantity").intValue());
         printSuccessMessage("update command test - infinite stock per item allow");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location")
+    @Order(15)
+    void testUpdateCommand_Location() {
+        performCommand(mrSparkzz, "shop update location 10 20 30 40 50 60");
+        assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world!", mrSparkzz.nextMessage());
+        assertEquals(cuboidLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with store")
+    @Order(16)
+    void testUpdateCommand_Location_WithStore() {
+        performCommand(mrSparkzz, "shop update location BetterBuy 10 20 30 40 50 60");
+        assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world!", mrSparkzz.nextMessage());
+        assertEquals(cuboidLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with store");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with world")
+    @Order(17)
+    void testUpdateCommand_Location_WithWorld() {
+        performCommand(mrSparkzz, "shop update location world-nether 10 20 30 40 50 60");
+        assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world-nether!", mrSparkzz.nextMessage());
+        assertEquals(cuboidLocationNether, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with world");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with store and world")
+    @Order(18)
+    void testUpdateCommand_Location_WithStoreAndWorld() {
+        performCommand(mrSparkzz, "shop update location BetterBuy world-nether 10 20 30 40 50 60");
+        assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world-nether!", mrSparkzz.nextMessage());
+        assertEquals(cuboidLocationNether, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with store and world");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with null world")
+    @Order(19)
+    void testUpdateCommand_Location_WithNullWorld() {
+        performCommand(mrSparkzz, "shop update location world-the-start 10 20 30 40 50 60");
+        assertEquals("§cCould not find world (world-the-start)!", mrSparkzz.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with null world");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with store and null world")
+    @Order(20)
+    void testUpdateCommand_Location_WithStoreAndNullWorld() {
+        performCommand(mrSparkzz, "shop update location BetterBuy world-the-start 10 20 30 40 50 60");
+        assertEquals("§cCould not find world (world-the-start)!", mrSparkzz.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with store and null world");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location with world and invalid store")
+    @Order(23)
+    void testUpdateCommand_Location_WithWorldAndInvalidStore() {
+        performCommand(mrSparkzz, "shop update location DiscountPlus world 10 20 30 40 50 60");
+        assertEquals("§cCould not find a store with the name and/or UUID of: §6DiscountPlus§c!", mrSparkzz.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with world and invalid store");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - player not in a store")
+    @Order(24)
+    void testUpdateCommand_Location_PlayerNotInStore() {
+        mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
+        performCommand(mrSparkzz, "shop update location 10 20 30 40 50 60");
+        assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
+        printSuccessMessage("update command test - player not in a store");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location update - player not in a store")
+    @Order(25)
+    void testUpdateCommand_Location_PlayerNotInStore_2() {
+        mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
+        performCommand(mrSparkzz, "shop update location world 10 20 30 40 50 60");
+        assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
+        printSuccessMessage("update command test - player not in a store");
+    }
+
+    @Test
+    @DisplayName("Test Update - main functionality - location update - player not in a store")
+    @Order(26)
+    void testUpdateCommand_PlayerNotInStore() {
+        mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
+        performCommand(mrSparkzz, "shop update infinite-stock true");
+        assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
+        printSuccessMessage("update command test - player not in a store");
     }
 
     @Nested

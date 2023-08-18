@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -33,19 +33,21 @@ class WithdrawCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
-    }
-
-    @BeforeEach
-    void setUpWithdrawCommand() {
-        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
-        Shops.getDefaultShop().setBalance(125);
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
+        Store.STORES.clear();
+    }
+
+    @BeforeEach
+    void setUpWithdrawCommand() {
+        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+        Store.getDefaultStore().setBalance(125);
     }
 
     @AfterEach

@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -48,11 +48,12 @@ class TransferCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
     }
 
     @BeforeEach
     void setUpShop() {
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterEach
@@ -110,7 +111,7 @@ class TransferCommandTest {
     @Order(5)
     void testTransferCommand_NoTargetPlayer() {
         performCommand(mrSparkzz, "shop transfer BetterBuy Player99");
-        assertEquals("§aPlayer (Player99) not found!", mrSparkzz.nextMessage());
+        assertEquals("§cPlayer (Player99) not found!", mrSparkzz.nextMessage());
         assertEquals(mrSparkzz.getUniqueId(), store.getOwner());
         assertEquals(mrSparkzz.getUniqueId(), duplicateStore.getOwner());
         printSuccessMessage("transfer command test - target player not found");

@@ -5,6 +5,16 @@ on:
     tags:
       - '*'
   workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release Type'
+        required: true
+        default: release
+        type: choice
+        options:
+          - alpha
+          - beta
+          - release
 
 jobs:
   publish-release:
@@ -22,6 +32,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'zulu'
+          cache: 'maven'
 
       - name: Get Previous tag
         id: previous-tag
@@ -61,3 +72,17 @@ jobs:
           skipIfReleaseExists: true
           artifacts: ~/shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
           tag: ${{ needs.publish-release.outputs.previous-tag }}
+
+      - name: Upload to CurseForge
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          file_path: ~/shops-${{ needs.publish-release.outputs.previous-tag }}/shops-${{ needs.publish-release.outputs.previous-tag }}.jar
+          game_endpoint: bukkit
+          relations: vault:requiredDependency,essentialsx:optionalDependency
+          game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
+          release_type: ${{ inputs.releaseType }}
+          display_name: Shops ${{ needs.publish-release.outputs.previous-tag }'
+          #changelog: TODO: ADD GENERATED CHANGELOG
+          #changelog_type: markdown
+          project_id: 873479
+          token: ${{ secrets.CF_API_TOKEN }}

@@ -30,6 +30,11 @@ public class AddCommand extends SubCommand {
         int quantity = (Integer) setAttribute("quantity", 0);
         String message = "";
 
+        if (store == null) {
+            Notifier.process(player, NO_STORE_FOUND, getAttributes());
+            return true;
+        }
+
         if (material != null) {
             if (args.length == 3) {
                 quantity = (int) setAttribute("quantity", args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));

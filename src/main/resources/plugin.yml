@@ -22,6 +22,7 @@ permissions:
     description: Allows access to all shops permissions
     children:
       shops.cmd.*: true
+      shops.create.*: true
       shops.update.*: true
   shops.cmd.*:
     description: Allows access to all shops commands
@@ -65,6 +66,13 @@ permissions:
   shops.cmd.browse:
     description: Allows a player to browse shop items
     default: true
+  shops.create.*:
+    description: Allows access to all create commands
+    children:
+      shops.create.other-player: true
+  shops.create.other-player:
+    description: Allows a player to create a store for another player
+    default: op
   shops.update.*:
     description: Allows access to all update commands
     children:

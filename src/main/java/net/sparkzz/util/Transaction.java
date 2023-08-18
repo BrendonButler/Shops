@@ -13,7 +13,7 @@ import static net.sparkzz.util.Notifier.CipherKey.*;
  * This helper class provides a transaction handler so that transactions can be built and verified before being
  * processed
  */
-public class Transaction {
+public class Transaction extends Notifiable {
 
     private static final Economy econ = Shops.getEconomy();
     private final ItemStack itemStack;
@@ -22,7 +22,7 @@ public class Transaction {
     private final Store store;
     private final Notifier.MultilineBuilder transactionMessage;
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
-    private double cost;
+    private final double cost;
 
     /**
      * Constructs the transaction with the player, item stack, and transaction type
@@ -32,17 +32,20 @@ public class Transaction {
      * @param type the provided type of transaction
      */
     public Transaction(Player player, ItemStack itemStack, TransactionType type) {
-        this.player = player;
+        this.player = (Player) setAttribute("player", player);
         this.itemStack = itemStack;
-        this.type = type;
-        this.transactionMessage = new Notifier.MultilineBuilder();
+        this.type = (TransactionType) setAttribute("type", type);
+        this.transactionMessage = new Notifier.MultilineBuilder(getAttributes());
 
-        store = InventoryManagementSystem.locateCurrentStore(player);
+        setAttribute("material", itemStack.getType());
+        setAttribute("quantity", itemStack.getAmount());
 
-        switch (type) {
-            case PURCHASE -> cost = (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
-            case SALE -> cost = (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
-        }
+        store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+        cost = (double) setAttribute("cost", switch (type) {
+            case PURCHASE -> (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
+            case SALE -> (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
+        });
+
     }
 
     private void validateFinances() {
@@ -59,6 +62,7 @@ public class Transaction {
 
                 if (!financesReady) transactionMessage.append(INSUFFICIENT_FUNDS_STORE);
             }
+            default -> {}
         }
     }
 
@@ -91,6 +95,7 @@ public class Transaction {
                 if (storeIsBuying && storeIsBuyingMore && canWithdrawPlayer)
                     inventoryReady = true;
             }
+            default -> {}
         }
     }
 
@@ -158,6 +163,7 @@ public class Transaction {
                 player.getInventory().removeItem(itemStack);
                 econ.depositPlayer(player, cost);
             }
+            default -> {}
         }
     }
 

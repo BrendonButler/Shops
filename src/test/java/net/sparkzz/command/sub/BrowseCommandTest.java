@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -9,6 +9,7 @@ import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,12 +47,13 @@ public class BrowseCommandTest {
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
     }
 
     @BeforeEach
     void setUpShopItems() {
         Store store;
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
 
         store.addItem(Material.EMERALD, 3, 64, 24.5, 12);
         store.addItem(Material.ACACIA_LOG, 2018, -1, 2, 1);
@@ -65,6 +67,11 @@ public class BrowseCommandTest {
         store.addItem(Material.BUCKET, 2, 12, 10, 2.5);
         store.addItem(Material.SPRUCE_LOG, 40, 64, 4, 2);
         store.addItem(Material.STICK, 12800, -1, 0.25, 0.1);
+    }
+
+    @AfterEach
+    void tearDownStore() {
+        Store.STORES.clear();
     }
 
     @Test
@@ -102,9 +109,9 @@ public class BrowseCommandTest {
     @DisplayName("Test Browse - main functionality - invalid shop")
     @Order(2)
     void testBrowse_InvalidShop() {
-        Shops.setDefaultShop(null);
+        Store.setDefaultStore(null);
         performCommand(mrSparkzz, "shop browse");
-        assertEquals("§cCould not find a store!", mrSparkzz.nextMessage());
+        assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - invalid shop");
     }
 

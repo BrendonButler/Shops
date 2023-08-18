@@ -15,7 +15,7 @@
         <!-- Dependency Versions -->
         <essentialsx.version>2.20.0</essentialsx.version>
         <guava.version>32.1.1-jre</guava.version>
-        <hocon.version>4.1.2</hocon.version>
+        <configurate.version>4.1.2</configurate.version>
         <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>5.9.2</jupiter.version>
@@ -31,6 +31,7 @@
         <!-- Other Properties -->
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
+        <maven.changelog.version>2.3</maven.changelog.version>
         <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
         <maven.reports.version>3.4.5</maven.reports.version>
@@ -41,7 +42,7 @@
     <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
-    <version>ALPHA</version>
+    <version>0.1-BETA</version>
     <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
     <url>https://shops.sparkzz.net/</url>
 
@@ -67,6 +68,12 @@
             <timezone>America/New_York</timezone>
         </developer>
     </developers>
+
+    <scm>
+        <url>https://github.com/MrSparkzz/Shops.git</url>
+        <connection>scm:git:https://github.com/MrSparkzz/Shops.git</connection>
+        <developerConnection>scm:git:https://github.com/MrSparkzz/Shops.git</developerConnection>
+    </scm>
 
     <issueManagement>
         <system>GitHub</system>
@@ -171,6 +178,14 @@
                 <configuration>
                     <outputEncoding>${project.build.encoding}</outputEncoding>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-xhtml</artifactId>
+                        <version>2.0.0-M3</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
 
@@ -193,21 +208,30 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+
         <repository>
             <id>essentials-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+
         <repository>
             <id>paper-repo</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
     </repositories>
 
@@ -259,7 +283,14 @@
             <dependency>
                 <groupId>org.spongepowered</groupId>
                 <artifactId>configurate-hocon</artifactId>
-                <version>${hocon.version}</version>
+                <version>${configurate.version}</version>
+            </dependency>
+
+            <!-- SpongePowered Configurate YAML (configuration management) -->
+            <dependency>
+                <groupId>org.spongepowered</groupId>
+                <artifactId>configurate-yaml</artifactId>
+                <version>${configurate.version}</version>
             </dependency>
 
             <!-- Jackson Databind (expanded serialization and deserialization) -->
@@ -353,7 +384,12 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-hocon</artifactId>
-            <version>${hocon.version}</version>
+        </dependency>
+
+        <!-- SpongePowered Configurate YAML (configuration management) -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-yaml</artifactId>
         </dependency>
 
         <!-- Jackson Databind (expanded serialization and deserialization) -->
@@ -434,8 +470,16 @@
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs.version}</version>
                 <configuration>
+                    <encoding>${project.build.encoding}</encoding>
                     <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
                 </configuration>
+            </plugin>
+
+            <!-- Generates a changelog -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>${maven.changelog.version}</version>
             </plugin>
         </plugins>
     </reporting>

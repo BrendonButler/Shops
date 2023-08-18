@@ -2,15 +2,19 @@ package net.sparkzz.command.sub;
 
 import net.sparkzz.command.SubCommand;
 import net.sparkzz.shops.Store;
+import net.sparkzz.util.Cuboid;
 import net.sparkzz.util.InventoryManagementSystem;
 import net.sparkzz.util.Notifier;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static net.sparkzz.util.Notifier.CipherKey.*;
 
@@ -27,9 +31,72 @@ public class UpdateCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = InventoryManagementSystem.locateCurrentStore(player);
-        setAttribute("store", store.getName());
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+
+        if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
+            switch (args.length) {
+                case 8 -> {
+                    if (store == null) {
+                        Notifier.process(player, NO_STORE_FOUND, getAttributes());
+                        return true;
+                    }
+
+                    World world = Bukkit.getWorld((String) setAttribute("world", store.getCuboidLocation().getWorld().getName()));
+
+                    store.setCuboidLocation(generateCuboid(world, args[2], args[3], args[4], args[5], args[6], args[7]));
+                }
+                case 9 -> {
+                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
+                    World world = Bukkit.getWorld((String) setAttribute("world", args[2]));
+                    store = (Store) setAttribute("store", foundStore.orElse(store));
+
+                    if (store == null) {
+                        Notifier.process(player, NO_STORE_FOUND, getAttributes());
+                        return true;
+                    }
+
+                    if (foundStore.isEmpty() && world == null) {
+                        Notifier.process(sender, Notifier.CipherKey.WORLD_NOT_FOUND, getAttributes());
+                        return true;
+                    } else if (foundStore.isPresent())
+                        world = Bukkit.getWorld((String) setAttribute("world", store.getCuboidLocation().getWorld().getName()));
+
+                    store.setCuboidLocation(generateCuboid(world, args[3], args[4], args[5], args[6], args[7], args[8]));
+                }
+                case 10 -> {
+                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
+                    World world = Bukkit.getWorld((String) setAttribute("world", args[3]));
+
+                    if (foundStore.isEmpty()) {
+                        Notifier.process(sender, STORE_NO_STORE_FOUND, getAttributes());
+                        return true;
+                    }
+
+                    store = foundStore.get();
+                    setAttribute("store", store.getName());
+
+                    if (world == null) {
+                        Notifier.process(sender, Notifier.CipherKey.WORLD_NOT_FOUND, getAttributes());
+                        return true;
+                    }
+
+                    store.setCuboidLocation(generateCuboid(world, args[4], args[5], args[6], args[7], args[8], args[9]));
+                }
+                default -> {
+                    return false;
+                }
+            }
+
+            Notifier.process(sender, Notifier.CipherKey.STORE_UPDATE_SUCCESS_LOCATION, getAttributes());
+            return true;
+        }
+
         if (args.length >= 2) setAttribute("material", args[1]);
+
+        if (store == null) {
+            Notifier.process(player, NO_STORE_FOUND, getAttributes());
+            return true;
+        }
 
         if (args.length == 3) {
             switch (args[1].toLowerCase()) {
@@ -103,5 +170,16 @@ public class UpdateCommand extends SubCommand {
 
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
+    }
+
+    private Cuboid generateCuboid(World world, String x1String, String y1String, String z1String, String x2String, String y2String, String z2String) {
+        double x1 = (double) setAttribute("x1", Double.parseDouble(x1String));
+        double y1 = (double) setAttribute("y1", Double.parseDouble(y1String));
+        double z1 = (double) setAttribute("z1", Double.parseDouble(z1String));
+        double x2 = (double) setAttribute("x2", Double.parseDouble(x2String));
+        double y2 = (double) setAttribute("y2", Double.parseDouble(y2String));
+        double z2 = (double) setAttribute("z2", Double.parseDouble(z2String));
+
+        return new Cuboid(world, x1, y1, z1, x2, y2, z2);
     }
 }

@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -44,19 +44,21 @@ class BuyCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
+        Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpBuyCommand() {
-        Shops.getDefaultShop().getItems().clear();
-        Shops.getDefaultShop().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
+        Store.getDefaultStore().getItems().clear();
+        Store.getDefaultStore().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
 

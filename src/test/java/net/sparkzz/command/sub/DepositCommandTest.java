@@ -1,4 +1,4 @@
-package net.sparkzz.shops.command.sub;
+package net.sparkzz.command.sub;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -33,19 +33,21 @@ class DepositCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Shops.setDefaultShop((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the mock server
         MockBukkit.unmock();
+        Store.setDefaultStore(null);
+        Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpDepositCommand() {
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 150);
-        Shops.getDefaultShop().setBalance(25);
+        Store.getDefaultStore().setBalance(25);
     }
 
     @AfterEach
@@ -72,7 +74,7 @@ class DepositCommandTest {
 
         performCommand(mrSparkzz, "shop deposit " + amount);
         assertEquals(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
-        assertEquals(125, Shops.getDefaultShop().getBalance());
+        assertEquals(125, Store.getDefaultStore().getBalance());
         assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("deposit command test");
     }
