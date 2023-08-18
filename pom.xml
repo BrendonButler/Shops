@@ -42,7 +42,7 @@
     <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
-    <version>0.1-BETA</version>
+    <version>0.2-BETA</version>
     <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
     <url>https://shops.sparkzz.net/</url>
 
