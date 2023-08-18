@@ -1,4 +1,4 @@
-name: Create Release
+name: Create and Publish Release
 
 on:
   push:
@@ -40,6 +40,7 @@ jobs:
           tag: ${{ steps.previous-tag.outputs.tag }}
 
       - name: Determine Release Stage
+        id: release-stage
         run: |
           tag=${{ steps.previous-tag.outputs.tag }}
           lowercase_tag=$(echo "$tag" | tr '[:upper:]' '[:lower:]')
@@ -62,8 +63,8 @@ jobs:
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
           game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
-          release_type: ${{ steps.create-release.outputs.release_stage }}
-          display_name: Shops ${{ needs.publish-release.outputs.previous-tag }}
+          release_type: ${{ steps.release-stage.outputs.release_stage }}
+          display_name: Shops ${{ steps.previous-tag.outputs.tag }}
           #changelog: TODO: ADD GENERATED CHANGELOG
           #changelog_type: markdown
           project_id: 873479
