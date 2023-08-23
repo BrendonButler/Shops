@@ -25,7 +25,7 @@ public class WithdrawCommand extends SubCommand {
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
         Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        double amount = (Double) setAttribute("amount", (args[1].equalsIgnoreCase("all")) ? store.getBalance() : Double.parseDouble(args[1]));
+        double amount = (Double) setAttribute("amount", (args[1].equalsIgnoreCase("all")) ? (store == null) ? 0 : store.getBalance() : Double.parseDouble(args[1]));
 
         if (store == null) {
             Notifier.process(player, NO_STORE_FOUND, getAttributes());

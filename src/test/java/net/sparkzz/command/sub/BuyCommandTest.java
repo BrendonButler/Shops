@@ -6,21 +6,17 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
+
+import java.util.Collections;
+import java.util.Map;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.RED;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -63,12 +59,17 @@ class BuyCommandTest {
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
 
+    @AfterEach
+    void tearDownEach() {
+        mrSparkzz.getInventory().clear();
+    }
+
     @Test
     @DisplayName("Test Buy - permissions")
     @Order(1)
     void testBuyCommand_Permissions() {
         performCommand(player2, "shop buy emerald 1");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("buy command permission check");
     }
 
@@ -78,7 +79,7 @@ class BuyCommandTest {
     @Order(2)
     void testBuyCommand() {
         performCommand(mrSparkzz, "shop buy emerald 12");
-        assertEquals("§aSuccess! You have purchased §612§a of §6EMERALD§a for §624§a.", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(BUY_SUCCESS, Map.of("quantity", 12, "material", Material.EMERALD, "cost", 24)), mrSparkzz.nextMessage());
         assertEquals(24, store.getBalance());
         assertEquals(26, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test");
@@ -89,7 +90,7 @@ class BuyCommandTest {
     @Order(3)
     void testBuyCommand_BelowMinimum() {
         performCommand(mrSparkzz, "shop buy emerald -1");
-        assertEquals("§cInvalid quantity (-1)!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
         assertEquals(0, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - below minimum amount");
@@ -100,7 +101,7 @@ class BuyCommandTest {
     @Order(4)
     void testBuyCommand_AboveMaximum() {
         performCommand(mrSparkzz, "shop buy emerald 2305");
-        assertEquals("§cInvalid quantity (2305)!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
         assertEquals(0, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - above maximum amount");
@@ -111,7 +112,7 @@ class BuyCommandTest {
     @Order(4)
     void testBuyCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop buy emeral 10");
-        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
         assertEquals(0, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
@@ -123,9 +124,21 @@ class BuyCommandTest {
     @Order(5)
     void testBuyCommand_QueryPrice() {
         performCommand(mrSparkzz, "shop buy emerald");
-        assertEquals("§9Price: §a2.0", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 2D)), mrSparkzz.nextMessage());
         assertEquals(0, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - query price");
+    }
+
+    @Test
+    @DisplayName("Test Buy - main functionality - no store")
+    @Order(6)
+    void testBuyCommand_NoStore() {
+        Store.DEFAULT_STORES.clear();
+        performCommand(mrSparkzz, "shop buy emerald 2");
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        assertEquals(0, store.getBalance());
+        // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
+        printSuccessMessage("buy command test - no store");
     }
 }
