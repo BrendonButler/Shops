@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Entrance Listener")
@@ -35,29 +34,30 @@ public class StoreTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         Shops.setMockServer(server);
 
-        Store.setDefaultStore(new Store("BetterBuy"));
+        Store.setDefaultStore(null, new Store("BetterBuy"));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
+        unLoadConfig();
     }
 
     @AfterEach
     void reset() {
         Store.STORES.clear();
-        Store.setDefaultStore(new Store("BetterBuy"));
+        Store.setDefaultStore(null, new Store("BetterBuy"));
     }
 
     @Test
     @DisplayName("Test get buy price - material not in store")
     @Order(1)
     void testGetBuyPrice_MaterialNotInStore() {
-        assertEquals(-1D, Store.getDefaultStore().getBuyPrice(Material.BEEF));
+        assertEquals(-1D, Store.getDefaultStore(null).get().getBuyPrice(Material.BEEF));
         printSuccessMessage("get buy price test - material not in store");
     }
 
@@ -65,7 +65,7 @@ public class StoreTest {
     @DisplayName("Test get sell price - material not in shop")
     @Order(2)
     void testGetSellPrice_MaterialNotInStore() {
-        assertEquals(-1D, Store.getDefaultStore().getSellPrice(Material.BEEF));
+        assertEquals(-1D, Store.getDefaultStore(null).get().getSellPrice(Material.BEEF));
         printSuccessMessage("get sell price test - material not in store");
     }
 
@@ -73,8 +73,8 @@ public class StoreTest {
     @DisplayName("Test removing funds - more than store balance")
     @Order(3)
     void testRemoveFunds_MoreThanStoreBalance() {
-        Store.getDefaultStore().removeFunds(10D);
-        assertEquals(0D, Store.getDefaultStore().getBalance());
+        Store.getDefaultStore(null).get().removeFunds(10D);
+        assertEquals(0D, Store.getDefaultStore(null).get().getBalance());
         printSuccessMessage("remove funds - more than stpre balance");
     }
 
@@ -82,9 +82,9 @@ public class StoreTest {
     @DisplayName("Test removing funds")
     @Order(4)
     void testRemoveFunds() {
-        Store.getDefaultStore().setBalance(15.52D);
-        Store.getDefaultStore().removeFunds(10D);
-        assertEquals(5.52D, Store.getDefaultStore().getBalance());
+        Store.getDefaultStore(null).get().setBalance(15.52D);
+        Store.getDefaultStore(null).get().removeFunds(10D);
+        assertEquals(5.52D, Store.getDefaultStore(null).get().getBalance());
         printSuccessMessage("remove funds");
     }
 
@@ -92,9 +92,9 @@ public class StoreTest {
     @DisplayName("Test removing item stack")
     @Order(5)
     void testRemoveItemStack() {
-        Store.getDefaultStore().addItem(new ItemStack(Material.SNOWBALL, 20));
-        Store.getDefaultStore().removeItem(new ItemStack(Material.SNOWBALL, 15));
-        assertEquals(5, Store.getDefaultStore().getAttributes(Material.SNOWBALL).get("quantity"));
+        Store.getDefaultStore(null).get().addItem(new ItemStack(Material.SNOWBALL, 20));
+        Store.getDefaultStore(null).get().removeItem(new ItemStack(Material.SNOWBALL, 15));
+        assertEquals(5, Store.getDefaultStore(null).get().getAttributes(Material.SNOWBALL).get("quantity"));
         printSuccessMessage("remove item stack");
     }
 
@@ -104,8 +104,8 @@ public class StoreTest {
     void testSetCuboidLocation() {
         World world = server.createWorld(WorldCreator.name("world"));
         Cuboid cuboid = new Cuboid(world, 1D, 1D, 1D, 2D, 2D, 2D);
-        Store.getDefaultStore().setCuboidLocation(cuboid);
-        assertEquals(cuboid, Store.getDefaultStore().getCuboidLocation());
+        Store.getDefaultStore(null).get().setCuboidLocation(cuboid);
+        assertEquals(cuboid, Store.getDefaultStore(null).get().getCuboidLocation());
         printSuccessMessage("set cuboid location");
     }
 }

@@ -31,7 +31,7 @@ public class UpdateCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
             switch (args.length) {

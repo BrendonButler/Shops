@@ -51,10 +51,9 @@ class CreateCommandTest {
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
         unLoadConfig();
+        Store.DEFAULT_STORES.clear();
     }
 
     @AfterEach
@@ -64,7 +63,7 @@ class CreateCommandTest {
 
     @BeforeEach
     void setUpStore() {
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(world, -50, 10, -25, -100, 60, -50)));
+        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(world, -50, 10, -25, -100, 60, -50)));
     }
 
     @Test

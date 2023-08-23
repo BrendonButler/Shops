@@ -19,8 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Optional;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -39,18 +38,19 @@ class SubCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         PlayerMock mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(mrSparkzz.getWorld(), store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 

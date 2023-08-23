@@ -41,21 +41,22 @@ public class RemoveCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Store.getDefaultStore().getItems().clear();
-        Store.getDefaultStore().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
@@ -78,7 +79,7 @@ public class RemoveCommandTest {
         performCommand(mrSparkzz, "shop remove emerald 1");
         assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
         assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
-        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("remove command test - remove 1 of type from shop");
     }
 
@@ -90,7 +91,7 @@ public class RemoveCommandTest {
 
         performCommand(mrSparkzz, "shop remove emerald");
         assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
-        assertNull(Store.getDefaultStore().getItems().get(material));
+        assertNull(Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material));
         printSuccessMessage("remove command test - remove all of type from shop");
     }
 

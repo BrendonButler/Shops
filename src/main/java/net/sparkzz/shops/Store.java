@@ -1,15 +1,21 @@
 package net.sparkzz.shops;
 
+import net.sparkzz.util.Config;
 import net.sparkzz.util.Cuboid;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The Store class is instantiable and serialized/deserialized around the data.shops file
@@ -21,7 +27,11 @@ public class Store {
      * This List contains all stores that have been created
      */
     public static final ArrayList<Store> STORES = new ArrayList<>();
-    private static Store defaultStore;
+
+    /**
+     * This Map contains all default stores per world
+     */
+    public static final Map<@Nullable World, Store> DEFAULT_STORES = new HashMap<>();
 
     @Setting private boolean infFunds = false;
     @Setting private boolean infStock = false;
@@ -80,21 +90,51 @@ public class Store {
     }
 
     /**
-     * Gets the default store
+     * Gets the default store based on the input world
      *
-     * @return the default store
+     * @param world the world to check for the default store
+     * @return the default store based on the world
      */
-    public static Store getDefaultStore() {
-        return defaultStore;
+    public static Optional<Store> getDefaultStore(@Nullable World world) {
+        Optional<Store> nullDefaultStore = Optional.ofNullable(DEFAULT_STORES.get(null));
+
+        return nullDefaultStore.isPresent() ? nullDefaultStore : Optional.ofNullable(DEFAULT_STORES.get(world));
     }
 
     /**
-     * Sets the default store
+     * The identifyStore method is a common method for identifying a store based on a string name, UUID or a combination
+     * using the format name~UUID
+     *
+     * @param nameOrUUID input name or UUID
+     * @return the optional store if found or optional empty if not found or duplicates are found
+     */
+    public static Optional<Store> identifyStore(String nameOrUUID) throws Shops.MultipleStoresMatchedException {
+        List<Store> identifiedStores;
+        Optional<Store> store = Optional.empty();
+
+        if (nameOrUUID.contains("~")) {
+            String[] input = nameOrUUID.split("~");
+
+            identifiedStores = STORES.stream().filter(s -> s.getName().equalsIgnoreCase(input[0]) && s.getUUID().toString().equalsIgnoreCase(input[1])).collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            identifiedStores = STORES.stream().filter(s -> s.getName().equalsIgnoreCase(nameOrUUID) || s.getUUID().toString().equalsIgnoreCase(nameOrUUID)).collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        if (identifiedStores.size() == 1)
+            store = Optional.of(identifiedStores.get(0));
+        else if (identifiedStores.size() > 1) throw new Shops.MultipleStoresMatchedException("Multiple Stores matched");
+
+        return store;
+    }
+
+    /**
+     * Sets the default store(s) per world (1 default store per world)
      *
      * @param store the default store to be set
      */
-    public static void setDefaultStore(Store store) {
-        defaultStore = store;
+    public static void setDefaultStore(World world, Store store) {
+        DEFAULT_STORES.put(world, store);
+        Config.setDefaultStore(world, store);
     }
 
     /**
@@ -146,7 +186,8 @@ public class Store {
 
     /**
      * Gets the cuboid location of the store
-     * @return
+     *
+     * @return the cuboid location of the store
      */
     public Cuboid getCuboidLocation() {
         return cuboidLocation;

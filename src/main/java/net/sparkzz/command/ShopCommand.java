@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,8 +86,8 @@ public class ShopCommand extends CommandManager {
                         .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
             }
 
-            Store currentStore = InventoryManagementSystem.locateCurrentStore(((Player) sender));
-            Set<Material> shopItems = (currentStore != null ? currentStore.getItems().keySet() : Collections.emptySet());
+            Optional<Store> currentStore = InventoryManagementSystem.locateCurrentStore(((Player) sender));
+            Set<Material> shopItems = (currentStore.isPresent() ? currentStore.get().getItems().keySet() : Collections.emptySet());
 
             // Buy/Remove command autocomplete item list
             if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))

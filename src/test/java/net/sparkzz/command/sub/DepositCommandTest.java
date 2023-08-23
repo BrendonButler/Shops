@@ -6,11 +6,13 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GREEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -28,26 +30,27 @@ class DepositCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpDepositCommand() {
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 150);
-        Store.getDefaultStore().setBalance(25);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(25);
     }
 
     @AfterEach
@@ -61,7 +64,7 @@ class DepositCommandTest {
     @Order(1)
     void testWithdrawCommand_Permissions() {
         performCommand(player2, "shop deposit 100");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("deposit command permission check");
     }
 
@@ -74,7 +77,7 @@ class DepositCommandTest {
 
         performCommand(mrSparkzz, "shop deposit " + amount);
         assertEquals(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
-        assertEquals(125, Store.getDefaultStore().getBalance());
+        assertEquals(125, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
         assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("deposit command test");
     }

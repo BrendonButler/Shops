@@ -1,4 +1,7 @@
 store:
+  default: [] # remove square brackets if setting default store(s) per world
+#    'null': d19ba2a1-0a24-4977-baee-638ee15f2ccf
+#    world: a307b2a8-cc58-4bc1-8ee4-910053ac99d2
   max-owned-stores: 1
   min-dimensions:
     x: 3

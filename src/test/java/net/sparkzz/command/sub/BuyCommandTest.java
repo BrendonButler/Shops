@@ -39,26 +39,27 @@ class BuyCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpBuyCommand() {
-        Store.getDefaultStore().getItems().clear();
-        Store.getDefaultStore().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
 

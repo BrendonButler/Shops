@@ -31,33 +31,34 @@ class SellCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpSellCommand() {
-        Store.getDefaultStore().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-        Store.getDefaultStore().setBalance(100);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(100);
         mrSparkzz.getInventory().addItem(emeralds);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
 
     @AfterEach
     void tearDownShop() {
-        Store.getDefaultStore().getItems().clear();
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
     }
 
     @Test
@@ -76,12 +77,12 @@ class SellCommandTest {
     void testSellCommand() {
         Material material = emeralds.getType();
         int quantity = 1;
-        double price = Store.getDefaultStore().getSellPrice(material);
+        double price = Store.getDefaultStore(mrSparkzz.getWorld()).get().getSellPrice(material);
 
         performCommand(mrSparkzz, "shop sell emerald " + quantity);
         assertEquals(String.format("%sSuccess! You have sold %s%s%s of %s%s%s for %s$%.2f%s.",
                 GREEN, GOLD, quantity, GREEN, GOLD, material, GREEN, GOLD, price * quantity, GREEN), mrSparkzz.nextMessage());
-        assertEquals(25, Store.getDefaultStore().getBalance());
+        assertEquals(25, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test");
     }

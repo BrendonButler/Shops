@@ -33,6 +33,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 
@@ -132,9 +133,19 @@ public class Warehouse {
             for (CommentedConfigurationNode currentNode : storeConfig.node("stores").childrenList())
                 STORES.add(storeMapper.load(currentNode));
 
+            Optional<Store> nullDefaultStore = Config.getDefaultStore(Bukkit.getWorld("null"));
+
+            if (nullDefaultStore.isPresent()) {
+                Store.setDefaultStore(null, nullDefaultStore.get());
+            } else {
+                for (World world : Bukkit.getWorlds()) {
+                    Optional<Store> defaultStoreForWorld = Config.getDefaultStore(world);
+
+                    defaultStoreForWorld.ifPresent(store -> Store.setDefaultStore(world, store));
+                }
+            }
+
             log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop" : "shops"));
-            if (!STORES.isEmpty())
-                Store.setDefaultStore(STORES.get(0)); // TODO: remove once stores are dynamically loaded
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
