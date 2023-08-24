@@ -57,7 +57,6 @@ public class ConfigTest {
         Config.setMaxVolume(1024D);
         Config.setOffLimitsAreas(cuboids);
         Config.setMaxOwnedStores(2);
-        Config.setDefaultStore(null, null);
         unLoadConfig();
         Store.STORES.clear();
         Store.DEFAULT_STORES.clear();
@@ -150,7 +149,9 @@ public class ConfigTest {
         Config.setDefaultStore(world, otherStore);
         Config.setDefaultStore(server.getWorld("null"), store);
         assertTrue(Config.getDefaultStore(null).isPresent());
+        assertTrue(Config.getDefaultStore(world).isPresent());
         assertEquals(store, Config.getDefaultStore(null).get());
+        assertEquals(store, Config.getDefaultStore(world).get());
         printSuccessMessage("setting default store for all world");
     }
 

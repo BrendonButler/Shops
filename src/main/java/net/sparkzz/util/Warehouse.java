@@ -145,7 +145,7 @@ public class Warehouse {
                 }
             }
 
-            log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "shop" : "shops"));
+            log.info(String.format("%d %s loaded", STORES.size(), (STORES.size() == 1) ? "store" : "stores"));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }

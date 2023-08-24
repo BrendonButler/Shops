@@ -168,11 +168,11 @@ public class Config {
 
         CommentedConfigurationNode defaults = rootNode.node("store").node("default");
 
-        if (defaults.hasChild("'null'"))
-            return Store.identifyStore(defaults.node("'null'").getString());
+        if (defaults.hasChild("null"))
+            return Store.identifyStore(defaults.node("null").getString());
 
-        String name = (world == null) ? "'null'" : world.getName();
-        String uuid = (world == null) ? "'null'" : world.getUID().toString();
+        String name = (world == null) ? "null" : world.getName();
+        String uuid = (world == null) ? "null" : world.getUID().toString();
 
         if (defaults.hasChild(uuid)) {
             return Store.identifyStore(defaults.node(uuid).getString());
@@ -226,12 +226,12 @@ public class Config {
             CommentedConfigurationNode defaults = rootNode.node("store", "default");
 
             if (store == null) {
-                defaults.removeChild((world == null) ? "'null'" : world.getName());
+                defaults.removeChild((world == null) ? "null" : world.getName());
                 return;
             }
 
             if (world == null || world.getName().equalsIgnoreCase("null")) {
-                defaults.node("'null'").set(store.getUUID().toString());
+                defaults.node("null").set(store.getUUID().toString());
                 return;
             }
 
