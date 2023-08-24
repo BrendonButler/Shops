@@ -6,7 +6,11 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -19,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.RED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -33,27 +36,30 @@ public class BrowseCommandTest {
     static void setUp() {
         printMessage("==[ TEST BROWSE COMMAND ]==");
         ServerMock server = MockBukkit.getOrCreateMock();
+        World world = server.createWorld(WorldCreator.name("world"));
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
+        mrSparkzz.setLocation(new Location(world, 0, 0, 0));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
     }
 
     @BeforeEach
     void setUpShopItems() {
         Store store;
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
 
         store.addItem(Material.EMERALD, 3, 64, 24.5, 12);
         store.addItem(Material.ACACIA_LOG, 2018, -1, 2, 1);
@@ -79,7 +85,7 @@ public class BrowseCommandTest {
     @Order(1)
     void testBrowseShop_Permissions() {
         performCommand(player2, "shop browse");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("browse command permission check");
     }
 
@@ -109,7 +115,7 @@ public class BrowseCommandTest {
     @DisplayName("Test Browse - main functionality - invalid shop")
     @Order(2)
     void testBrowse_InvalidShop() {
-        Store.setDefaultStore(null);
+        Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop browse");
         assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - invalid shop");

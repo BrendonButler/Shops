@@ -9,6 +9,7 @@ import org.bukkit.inventory.PlayerInventory;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Helper class to manage player and store inventory
@@ -171,12 +172,12 @@ public class InventoryManagementSystem {
      * @param player the player to have its location checked for the current store
      * @return the store the player is currently located in
      */
-    public static Store locateCurrentStore(Player player) {
-        Store store = Store.getDefaultStore();
+    public static Optional<Store> locateCurrentStore(Player player) {
+        Optional<Store> store = Store.getDefaultStore(player.getWorld());
 
         for (Store currentStore : Store.STORES) {
             if (currentStore.getCuboidLocation() != null && currentStore.getCuboidLocation().isPlayerWithin(player)) {
-                store = currentStore;
+                store = Optional.of(currentStore);
                 break;
             }
         }

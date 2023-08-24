@@ -6,11 +6,14 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
+
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -28,30 +31,31 @@ class WithdrawCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
-        Store.STORES.clear();
+        unLoadConfig();
     }
 
     @BeforeEach
     void setUpWithdrawCommand() {
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
-        Store.getDefaultStore().setBalance(125);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(125);
     }
 
     @AfterEach
     void tearDownWithdrawCommand() {
+        Store.DEFAULT_STORES.clear();
+        Store.STORES.clear();
         player2.setOp(false);
     }
 
@@ -60,7 +64,7 @@ class WithdrawCommandTest {
     @Order(1)
     void testWithdrawCommand_Permissions() {
         performCommand(player2, "shop withdraw 100");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("withdraw command permission check");
     }
 
@@ -69,10 +73,8 @@ class WithdrawCommandTest {
     @DisplayName("Test Withdraw - main functionality - withdraw 100")
     @Order(2)
     void testWithdrawCommand() {
-        double amount = 100;
-
-        performCommand(mrSparkzz, "shop withdraw " + amount);
-        assertEquals(String.format("%sYou have successfully withdrawn %s%s%s from the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
+        performCommand(mrSparkzz, "shop withdraw 100");
+        assertEquals(Notifier.compose(WITHDRAW_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
         assertEquals(25, store.getBalance());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("withdraw command test");
@@ -95,7 +97,7 @@ class WithdrawCommandTest {
     void testWithdrawCommand_NotOwner() {
         player2.setOp(true);
         performCommand(player2, "shop withdraw 100");
-        assertEquals("§cYou are not the owner of this store, you cannot perform this command!", player2.nextMessage());
+        assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
         assertEquals(125, store.getBalance());
         printSuccessMessage("withdraw command test - not the owner");
     }
@@ -105,8 +107,18 @@ class WithdrawCommandTest {
     @Order(5)
     void testWithdrawCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop withdraw 200");
-        assertEquals("§cThe store has insufficient funds!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_STORE, null), mrSparkzz.nextMessage());
         assertEquals(125, store.getBalance());
         printSuccessMessage("withdraw command test - insufficient funds");
+    }
+
+    @Test
+    @DisplayName("Test Withdraw - main functionality - no store")
+    @Order(6)
+    void testWithdrawCommand_NoStore() {
+        Store.DEFAULT_STORES.clear();
+        performCommand(mrSparkzz, "shop withdraw all");
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        printSuccessMessage("withdraw command test - no store");
     }
 }

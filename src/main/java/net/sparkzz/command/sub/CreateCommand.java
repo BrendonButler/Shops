@@ -104,7 +104,6 @@ public class CreateCommand extends SubCommand {
             double limitMaxY = (double) setAttribute("limit-max-y", maxDims[1]);
             double limitMaxZ = (double) setAttribute("limit-max-z", maxDims[2]);
 
-            // TODO: make 0 or negative limits ignore check
             if ((maxX - minX) < limitMinX || (maxY - minY) < limitMinY || (maxZ - minZ) < limitMinZ) {
                 Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
                 return true;

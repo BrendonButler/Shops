@@ -6,22 +6,26 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -41,21 +45,30 @@ public class RemoveCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Store.getDefaultStore().getItems().clear();
-        Store.getDefaultStore().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+    }
+
+    @BeforeEach
+    void setUp() {
+        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
+    }
+
+    @AfterEach
+    void tearDownEach() {
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
@@ -64,21 +77,20 @@ public class RemoveCommandTest {
     @Order(1)
     void testRemoveCommand_Permissions() {
         performCommand(player2, "shop remove acacia_log 1");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("remove command permission check");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Remove - main functionality - remove 1")
     @Order(2)
     void testRemoveCommand_RemoveOne() {
         Material material = emeralds.getType();
 
         performCommand(mrSparkzz, "shop remove emerald 1");
-        assertEquals(String.format("%sYou have successfully removed %s%s%s from the shop!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
-        assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
-        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
+        assertEquals(Notifier.compose(REMOVE_SUCCESS_QUANTITY, Map.of("material", Material.EMERALD, "quantity", 1)), mrSparkzz.nextMessage());
+        assertEquals(1, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
+        assertEquals(63, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("remove command test - remove 1 of type from shop");
     }
 
@@ -89,18 +101,17 @@ public class RemoveCommandTest {
         Material material = emeralds.getType();
 
         performCommand(mrSparkzz, "shop remove emerald");
-        assertEquals(String.format("%sYou have successfully removed %s%s%s from the store!", GREEN, GOLD, material, GREEN), mrSparkzz.nextMessage());
-        assertNull(Store.getDefaultStore().getItems().get(material));
+        assertEquals(Notifier.compose(REMOVE_SUCCESS, Collections.singletonMap("material", Material.EMERALD)), mrSparkzz.nextMessage());
+        assertNull(Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material));
         printSuccessMessage("remove command test - remove all of type from shop");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
-    @DisplayName("Test Remove - material not found in shop")
+    @DisplayName("Test Remove - material not found in store")
     @Order(4)
     void testRemoveCommand_NoMaterial() {
-        performCommand(mrSparkzz, "shop remove emerald 1");
-        assertEquals(String.format("%sThis material doesn't currently exist in the shop, use `/shop add %s` to add this item", RED, Material.EMERALD), mrSparkzz.nextMessage());
+        performCommand(mrSparkzz, "shop remove stick 1");
+        assertEquals(Notifier.compose(MATERIAL_MISSING_STORE, Collections.singletonMap("material", Material.STICK)), mrSparkzz.nextMessage());
         printSuccessMessage("remove command test - material doesn't exist");
     }
 
@@ -109,7 +120,37 @@ public class RemoveCommandTest {
     @Order(5)
     void testRemoveCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop remove emeral 1");
-        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
+        assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
         printSuccessMessage("remove command test - invalid material");
+    }
+
+    @Test
+    @DisplayName("Test Remove - main functionality - no store")
+    @Order(6)
+    void testRemoveCommand_NoStore() {
+        Store.DEFAULT_STORES.clear();
+        performCommand(mrSparkzz, "shop remove emerald 1");
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        printSuccessMessage("remove command test - no store");
+    }
+
+    @Test
+    @DisplayName("Test Remove - main functionality - insufficient inventory store")
+    @Order(7)
+    void testRemoveCommand_InsufficientInventoryStore() {
+        performCommand(mrSparkzz, "shop remove emerald 1000");
+        assertEquals(Notifier.compose(INSUFFICIENT_INV_STORE, Collections.singletonMap("material", Material.EMERALD)), mrSparkzz.nextMessage());
+        printSuccessMessage("remove command test - insufficient inventory store");
+    }
+
+    @Test
+    @DisplayName("Test Remove - main functionality - insufficient inventory player")
+    @Order(8)
+    void testRemoveCommand_InsufficientInventoryPlayer() {
+        mrSparkzz.getInventory().addItem(new ItemStack(Material.MILK_BUCKET, 2304));
+        performCommand(mrSparkzz, "shop remove emerald 64");
+        assertEquals(Notifier.compose(REMOVE_INSUFFICIENT_INV_PLAYER, Collections.singletonMap("material", Material.EMERALD)), mrSparkzz.nextMessage());
+        printSuccessMessage("remove command test - insufficient inventory player");
     }
 }

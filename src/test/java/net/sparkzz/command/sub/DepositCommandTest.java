@@ -6,11 +6,14 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
+
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static net.sparkzz.util.Notifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -28,32 +31,32 @@ class DepositCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
-        Store.STORES.clear();
+        unLoadConfig();
     }
 
     @BeforeEach
     void setUpDepositCommand() {
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 150);
-        Store.getDefaultStore().setBalance(25);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(25);
     }
 
     @AfterEach
     void tearDownWithdrawCommand() {
+        Store.DEFAULT_STORES.clear();
+        Store.STORES.clear();
         player2.setOp(false);
-        store.setInfiniteFunds(false);
     }
 
     @Test
@@ -61,7 +64,7 @@ class DepositCommandTest {
     @Order(1)
     void testWithdrawCommand_Permissions() {
         performCommand(player2, "shop deposit 100");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("deposit command permission check");
     }
 
@@ -70,11 +73,9 @@ class DepositCommandTest {
     @DisplayName("Test Deposit - main functionality - deposit 100")
     @Order(2)
     void testDepositCommand() {
-        double amount = 100;
-
-        performCommand(mrSparkzz, "shop deposit " + amount);
-        assertEquals(String.format("%sYou have successfully deposited %s%s%s to the shop!", GREEN, GOLD, amount, GREEN), mrSparkzz.nextMessage());
-        assertEquals(125, Store.getDefaultStore().getBalance());
+        performCommand(mrSparkzz, "shop deposit 100");
+        assertEquals(Notifier.compose(DEPOSIT_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
+        assertEquals(125, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
         assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("deposit command test");
     }
@@ -97,7 +98,7 @@ class DepositCommandTest {
     void testDepositCommand_NotOwner() {
         player2.setOp(true);
         performCommand(player2, "shop deposit 100");
-        assertEquals("§cYou are not the owner of this store, you cannot perform this command!", player2.nextMessage());
+        assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
         // TODO: assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals(25, store.getBalance());
         printSuccessMessage("deposit command test - not the owner");
@@ -109,7 +110,7 @@ class DepositCommandTest {
     @Order(5)
     void testDepositCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop deposit 200");
-        assertEquals("§cYou have insufficient funds!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_PLAYER, null), mrSparkzz.nextMessage());
         assertEquals(125, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals(25, store.getBalance());
         printSuccessMessage("deposit command test - insufficient funds");
@@ -121,9 +122,19 @@ class DepositCommandTest {
     void testDepositCommand_InfiniteFunds() {
         store.setInfiniteFunds(true);
         performCommand(mrSparkzz, "shop deposit 15");
-        assertEquals("§aThis store has infinite funds, depositing funds isn't necessary!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(DEPOSIT_INF_FUNDS, null), mrSparkzz.nextMessage());
         // TODO: assertEquals(125, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals(25, store.getBalance());
         printSuccessMessage("deposit command test - shop has infinite funds");
+    }
+
+    @Test
+    @DisplayName("Test Deposit - main functionality - no store")
+    @Order(7)
+    void testDepositCommand_NoStore() {
+        Store.DEFAULT_STORES.clear();
+        performCommand(mrSparkzz, "shop deposit 100");
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        printSuccessMessage("deposit command test - no store");
     }
 }

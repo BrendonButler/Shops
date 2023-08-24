@@ -11,8 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,15 +36,17 @@ public class TransactionTest {
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player = server.addPlayer();
+        loadConfig();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDownAll() {
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 

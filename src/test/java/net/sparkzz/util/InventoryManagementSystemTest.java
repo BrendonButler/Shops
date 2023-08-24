@@ -8,6 +8,7 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.WorldCreator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
@@ -22,8 +23,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.List;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -44,24 +44,28 @@ public class InventoryManagementSystemTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(store = new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        server.createWorld(WorldCreator.name("world"));
+        server.createWorld(WorldCreator.name("world_nether"));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         secondaryStore = new Store("SecondaryStore", mrSparkzz.getUniqueId(), new Cuboid(server.getWorld("world"), -20D, -20D, -20D, 20D, 20D, 20D));
     }
 
     @AfterAll
     static void tearDown() {
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
     @BeforeEach
     void setUpIMS() {
-        Store.setDefaultStore(store);
+        Store.setDefaultStore(null, store);
         store.addItem(emeralds.getType(), emeralds.getAmount(), 128, 1, 1);
     }
 
@@ -247,9 +251,10 @@ public class InventoryManagementSystemTest {
     @DisplayName("Test IMS - identify store - within secondary store")
     @Order(18)
     void testIdentifyStore_WithinSecondaryStore() {
+        Store.setDefaultStore(null, null);
         mrSparkzz.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
 
-        assertEquals(secondaryStore, InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        assertEquals(secondaryStore, InventoryManagementSystem.locateCurrentStore(mrSparkzz).orElse(null));
         printSuccessMessage("IMS - identify store - within secondary store");
     }
 
@@ -259,7 +264,7 @@ public class InventoryManagementSystemTest {
     void testIdentifyStore_NotWithinSecondaryStore() {
         mrSparkzz.setLocation(new Location(server.getWorld("world"), 21D, 0D, 0D));
 
-        assertEquals(store, InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        assertEquals(store, InventoryManagementSystem.locateCurrentStore(mrSparkzz).orElse(null));
         printSuccessMessage("IMS - identify store - within default store");
     }
 
@@ -268,10 +273,21 @@ public class InventoryManagementSystemTest {
     @Order(20)
     void testIdentifyStore_NotWithinAnyStore() {
         mrSparkzz.setLocation(new Location(server.getWorld("not-a-world"), 0D, 0D, 0D));
-        Store.setDefaultStore(null);
+        Store.DEFAULT_STORES.clear();
 
         System.out.println(mrSparkzz.getWorld());
-        assertNull(InventoryManagementSystem.locateCurrentStore(mrSparkzz));
+        assertNull(InventoryManagementSystem.locateCurrentStore(mrSparkzz).orElse(null));
+        printSuccessMessage("IMS - identify store - not within secondary store");
+    }
+
+    @Test
+    @DisplayName("Test IMS - identify store - inter-global default in another world")
+    @Order(21)
+    void testIdentifyStore_InterGlobalDefaultInAnotherWorld() {
+        mrSparkzz.setLocation(new Location(server.getWorld("world_nether"), 0D, 0D, 0D));
+
+        System.out.println(mrSparkzz.getWorld());
+        assertEquals(store, InventoryManagementSystem.locateCurrentStore(mrSparkzz).orElse(null));
         printSuccessMessage("IMS - identify store - not within secondary store");
     }
 }

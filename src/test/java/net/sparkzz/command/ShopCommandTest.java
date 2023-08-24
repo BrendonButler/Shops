@@ -43,6 +43,7 @@ class ShopCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player = server.addPlayer();
@@ -55,9 +56,9 @@ class ShopCommandTest {
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
@@ -69,14 +70,14 @@ class ShopCommandTest {
 
         @BeforeEach
         void setUpShops() {
-            Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+            Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
             new Store("DiscountPlus", mrSparkzz.getUniqueId());
             new Store("DiscountMinus", mrSparkzz.getUniqueId());
         }
 
         @AfterEach
         void tearDownShops() {
-            Store.setDefaultStore(null);
+            Store.DEFAULT_STORES.clear();
             Store.STORES.clear();
         }
 
@@ -140,7 +141,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - buy tab complete")
         @Order(24)
         void testShopTabComplete_Buy2Args() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).get().getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).toList();
@@ -154,7 +155,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - remove tab complete")
         @Order(25)
         void testShopTabComplete_Remove2Args() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).get().getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).toList();
@@ -168,7 +169,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - update tab complete when op")
         @Order(26)
         void testShopTabComplete_Update2Args_WhenOp() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(mrSparkzz).get().getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
@@ -183,7 +184,7 @@ class ShopCommandTest {
         @DisplayName("Test Shop - 2 args - update tab complete when not op")
         @Order(27)
         void testShopTabComplete_Update2Args_WhenNotOp() {
-            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(player).getItems().keySet();
+            Set<Material> shopItems = InventoryManagementSystem.locateCurrentStore(player).get().getItems().keySet();
 
             List<String> expectedOptions = Arrays.stream(shopItems.toArray())
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());

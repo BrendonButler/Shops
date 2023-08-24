@@ -194,6 +194,7 @@ public class Notifier {
         STORE_DELETE_INSUFFICIENT_INV_PLAYER("§cYou don't have enough inventory space to delete the store, please try removing items first or use the '-f' flag to ignore inventory!"),
         STORE_GOODBYE_MSG("§9We hope to see you again!"),
         STORE_MULTI_MATCH("§cMultiple stores matched, please specify the store's UUID!"),
+        STORE_NO_ITEMS("§cThis store is currently empty!"),
         STORE_NO_STORE_FOUND("§cCould not find a store with the name and/or UUID of: §6{store}§c!"),
         STORE_TRANSFER_FAIL_MAX_STORES("§c{target} can't have any more stores!§f Maximum stores: {max-stores}."),
         STORE_TRANSFER_SUCCESS("§aYou have successfully transferred §6{store}§a to player §6{target}§a!"),
