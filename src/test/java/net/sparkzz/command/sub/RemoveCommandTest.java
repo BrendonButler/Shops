@@ -107,7 +107,7 @@ public class RemoveCommandTest {
     }
 
     @Test
-    @DisplayName("Test Remove - material not found in shop")
+    @DisplayName("Test Remove - material not found in store")
     @Order(4)
     void testRemoveCommand_NoMaterial() {
         performCommand(mrSparkzz, "shop remove stick 1");

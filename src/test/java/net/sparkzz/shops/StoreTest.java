@@ -75,7 +75,7 @@ public class StoreTest {
     void testRemoveFunds_MoreThanStoreBalance() {
         Store.getDefaultStore(null).get().removeFunds(10D);
         assertEquals(0D, Store.getDefaultStore(null).get().getBalance());
-        printSuccessMessage("remove funds - more than stpre balance");
+        printSuccessMessage("remove funds - more than store balance");
     }
 
     @Test

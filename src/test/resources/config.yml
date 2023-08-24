@@ -1,5 +1,4 @@
 store:
-  default: []
   max-owned-stores: 2
   min-dimensions:
     x: 3

@@ -163,15 +163,21 @@ public class Config {
      * @return the default Store for the input world
      */
     public static Optional<Store> getDefaultStore(@Nullable World world) {
+        if (!rootNode.node("store").hasChild("default"))
+            return Optional.empty();
+
         CommentedConfigurationNode defaults = rootNode.node("store").node("default");
 
-        if (defaults.hasChild("null"))
-            return Store.identifyStore(defaults.node("null").getString());
+        if (defaults.hasChild("'null'"))
+            return Store.identifyStore(defaults.node("'null'").getString());
 
-        if (defaults.hasChild(world.getName())) {
-            return Store.identifyStore(defaults.node(world.getName()).getString());
-        } else if (defaults.hasChild(world.getUID())) {
-            return Store.identifyStore(defaults.node(world.getUID()).getString());
+        String name = (world == null) ? "'null'" : world.getName();
+        String uuid = (world == null) ? "'null'" : world.getUID().toString();
+
+        if (defaults.hasChild(uuid)) {
+            return Store.identifyStore(defaults.node(uuid).getString());
+        } else if (defaults.hasChild(name)) {
+            return Store.identifyStore(defaults.node(name).getString());
         }
 
         return Optional.empty();
@@ -196,6 +202,7 @@ public class Config {
         try {
             CommentedConfigurationNode offLimitsNode = rootNode.node("store", "off-limits");
             List<String> offLimitsAreas = offLimitsNode.getList(String.class);
+
             if (offLimitsAreas == null)
                 offLimitsAreas = new ArrayList<>();
 
@@ -223,8 +230,8 @@ public class Config {
                 return;
             }
 
-            if (world == null) {
-                defaults.node("'null'", store.getUUID());
+            if (world == null || world.getName().equalsIgnoreCase("null")) {
+                defaults.node("'null'").set(store.getUUID().toString());
                 return;
             }
 
