@@ -78,9 +78,13 @@ permissions:
     children:
       shops.update.inf-funds: true
       shops.update.inf-stock: true
+      shops.update.location: true
   shops.update.inf-funds:
     description: Allows a player to update the infinite funds flag
     default: op
   shops.update.inf-stock:
     description: Allows a player to update the infinite stock flag
+    default: op
+  shops.update.location:
+    description: Allows a player to update the location of their store
     default: op

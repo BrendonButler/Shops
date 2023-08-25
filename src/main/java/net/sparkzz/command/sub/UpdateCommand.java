@@ -34,6 +34,11 @@ public class UpdateCommand extends SubCommand {
         Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
+            if (!player.hasPermission("shops.update.location")) {
+                Notifier.process(sender, NO_PERMS_LOCATION, getAttributes());
+                return true;
+            }
+
             switch (args.length) {
                 case 8 -> {
                     if (store == null) {
@@ -116,7 +121,7 @@ public class UpdateCommand extends SubCommand {
 
                     store.setInfiniteStock(Boolean.parseBoolean(args[2]));
                 }
-                case "shop-name" -> store.setName(args[2]);
+                case "store-name" -> store.setName(args[2]);
                 default -> {
                     return false;
                 }

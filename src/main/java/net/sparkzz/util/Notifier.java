@@ -169,6 +169,7 @@ public class Notifier {
         NO_PERMS_CREATE_OTHER("§cYou do not have permission to create stores for other players!"),
         NO_PERMS_INF_FUNDS("§cYou do not have permission to set infinite funds in your store!"),
         NO_PERMS_INF_STOCK("§cYou do not have permission to set infinite stock in your store!"),
+        NO_PERMS_LOCATION("§cYou do not have permission to set the location of your store!"),
         NO_STORE_FOUND("§cYou are not currently in a store!"),
         NOT_BUYING("§cThe store is not buying any of these at this time!"),
         NOT_BUYING_ANYMORE("§cThe Store is not buying any more of these at this time!"),

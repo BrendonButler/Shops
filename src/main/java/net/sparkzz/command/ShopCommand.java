@@ -11,8 +11,10 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.WorldInfo;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.bukkit.ChatColor.RED;
 
@@ -34,6 +37,8 @@ import static org.bukkit.ChatColor.RED;
  * @author Brendon Butler
  */
 public class ShopCommand extends CommandManager {
+
+    private final Server server = (Shops.isTest() ? Shops.getMockServer() : Shops.getPlugin(Shops.class).getServer());
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
         put("add", new AddCommand());
@@ -49,6 +54,274 @@ public class ShopCommand extends CommandManager {
         put("withdraw", new WithdrawCommand());
     }};
 
+    private List<String> handleSecondArgs(CommandSender sender, String arg0) {
+        Optional<Store> currentStore = InventoryManagementSystem.locateCurrentStore(((Player) sender));
+        Set<Material> shopItems = (currentStore.map(store -> store.getItems().keySet()).orElse(Collections.emptySet()));
+
+        return switch (arg0) {
+            case "add" -> {
+                Player player = (Player) sender;
+                ItemStack[] inventoryContents = player.getInventory().getContents();
+
+                yield Arrays.stream(inventoryContents)
+                        .filter(Objects::nonNull)
+                        .filter(m -> sender.hasPermission("shops.cmd.add"))
+                        .map(item -> item.getType().toString().toLowerCase())
+                        .toList();
+            }
+            case "browse" -> (sender.hasPermission("shops.cmd.browse") ? Collections.singletonList("<page-number>") : new ArrayList<String>());
+            case "buy", "remove" -> shopItems.stream()
+                    .filter(s -> (sender.hasPermission("shops.cmd." + arg0)))
+                    .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
+            case "create" -> (sender.hasPermission("shops.cmd.create") ? Collections.singletonList("<name>") : new ArrayList<String>());
+            case "delete", "transfer" -> Store.STORES.stream()
+                    .filter(s -> (sender.hasPermission("shops.cmd." + arg0)) &&
+                                 s.getOwner().equals(((Player) sender).getUniqueId()))
+                    .map(s -> String.format("%s~%s", s.getName(), s.getUUID()))
+                    .toList();
+            case "deposit" -> (sender.hasPermission("shops.cmd.deposit") ? Collections.singletonList("<amount>") : new ArrayList<String>());
+            case "withdraw" -> (sender.hasPermission("shops.cmd.withdraw") ? List.of("<amount>", "all") : new ArrayList<String>());
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update"))
+                    yield Collections.emptyList();
+
+                ArrayList<String> tempList = shopItems.stream()
+                        .filter(m -> sender.hasPermission("shops.cmd.update"))
+                        .map(m -> m.toString().toLowerCase())
+                        .collect(Collectors.toCollection(ArrayList::new));
+                if (sender.hasPermission("shops.update.inf-funds")) tempList.add("infinite-funds");
+                if (sender.hasPermission("shops.update.inf-stock")) tempList.add("infinite-stock");
+                if (sender.hasPermission("shops.update.location")) tempList.add("location");
+                tempList.add("store-name");
+
+                yield tempList;
+            }
+            case "sell" -> {
+                Player player = (Player) sender;
+                ItemStack[] inventoryContents = player.getInventory().getContents();
+
+                yield Arrays.stream(inventoryContents)
+                        .filter(Objects::nonNull)
+                        .filter(m -> player.hasPermission("shops.cmd.sell"))
+                        .map(item -> item.getType().toString().toLowerCase())
+                        .toList();
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleThirdArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "add" -> (sender.hasPermission("shops.cmd.add") ? List.of("<customer-buy-price>", "[<quantity>]", "all") : new ArrayList<String>());
+            case "buy" -> (sender.hasPermission("shops.cmd.buy") ? Collections.singletonList("[<quantity>]") : new ArrayList<String>());
+            case "create" -> {
+                List<String> options = server.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+                options.add("<x1>");
+
+                yield options;
+            }
+            case "remove", "sell" -> (sender.hasPermission("shops.cmd." + args[0]) ? List.of("[<quantity>]", "all") : new ArrayList<String>());
+            case "transfer" -> (sender.hasPermission("shops.cmd.transfer") ? server.getOnlinePlayers().stream().map(HumanEntity::getName).toList() : new ArrayList<String>());
+            case "update" -> {
+                List<String> options = new ArrayList<>();
+
+                if (!sender.hasPermission("shops.cmd.update"))
+                    yield options;
+
+                if ((sender.hasPermission("shops.update.inf-funds") && args[1].equals("infinite-funds")) ||
+                    (sender.hasPermission("shops.update.inf-stock")) && args[1].equals("infinite-stock")) {
+                    options = List.of("true", "false");
+                } else if (args[1].equals("store-name")) {
+                    options = Collections.singletonList("<name>");
+                } else if (args[1].equals("location")) {
+                    yield Stream.concat(Store.STORES.stream()
+                                    .filter(s -> s.getOwner().equals(((Player) sender).getUniqueId()))
+                                    .map(s -> String.format("%s~%s", s.getName(), s.getUUID())),
+                            Bukkit.getWorlds().stream().map(WorldInfo::getName)
+                    ).toList();
+                } else {
+                    options = List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
+                }
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleFourthArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "add" -> (sender.hasPermission("shops.cmd.add") ? Collections.singletonList("<customer-sell-price>") : new ArrayList<String>());
+            case "create" -> {
+                if (!sender.hasPermission("shops.cmd.create"))
+                    yield Collections.emptyList();
+
+                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x1>") : Collections.singletonList("<y1>");
+            }
+            case "update" -> {
+                if (args[1].equals("location")) {
+                    if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                        yield Collections.emptyList();
+
+                    List<String> options = Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(Collectors.toList());
+
+                    boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                    boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                    if (containsWorld)
+                        options = Collections.singletonList("<x1>");
+                    else if (!containsStore)
+                        options = Collections.singletonList("<y1>");
+                    else options.add("<x1>");
+
+                    yield options;
+                }
+
+                yield (args[2].equals("infinite-quantity") ? List.of("true", "false") : Collections.singletonList("<value>"));
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleFifthArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "add" -> (sender.hasPermission("shops.cmd.add") ? Collections.singletonList("<max-quantity>") : new ArrayList<String>());
+            case "create" -> {
+                if (!sender.hasPermission("shops.cmd.create"))
+                    yield Collections.emptyList();
+
+                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y1>") : Collections.singletonList("<z1>");
+            }
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
+
+                List<String> options = Collections.singletonList("<x1>");
+
+                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w ->
+                        w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                if (containsWorld && !containsStore)
+                    options = Collections.singletonList("<y1>");
+                else if (!containsWorld && !containsStore)
+                    options = Collections.singletonList("<z1>");
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleSixthArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "add" -> (sender.hasPermission("shops.cmd.add") ? List.of("[<quantity>]", "all") : new ArrayList<String>());
+            case "create" -> {
+                if (!sender.hasPermission("shops.cmd.create"))
+                    yield Collections.emptyList();
+
+                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<z1>") : Collections.singletonList("<x2>");
+            }
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
+
+                List<String> options = Collections.singletonList("<y1>");
+
+                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                if (containsWorld && !containsStore)
+                    options = Collections.singletonList("<z1>");
+                else if (!containsWorld && !containsStore)
+                    options = Collections.singletonList("<x2>");
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleSeventhArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "create" -> {
+                if (!sender.hasPermission("shops.cmd.create"))
+                    yield Collections.emptyList();
+
+                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x2>") : Collections.singletonList("<y2>");
+            }
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
+
+                List<String> options = Collections.singletonList("<z1>");
+
+                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                if (containsWorld && !containsStore)
+                    options = Collections.singletonList("<x2>");
+                else if (!containsWorld && !containsStore)
+                    options = Collections.singletonList("<y2>");
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleEighthArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "create" -> {
+                if (!sender.hasPermission("shops.cmd.create"))
+                    yield Collections.emptyList();
+
+                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y2>") : Collections.singletonList("<z2>");
+            }
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
+
+                List<String> options = Collections.singletonList("<x2>");
+
+                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                if (containsWorld && !containsStore)
+                    options = Collections.singletonList("<y2>");
+                else if (!containsWorld && !containsStore)
+                    options = Collections.singletonList("<z2>");
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
+    private List<String> handleNinthArgs(CommandSender sender, String[] args) {
+        return switch (args[0]) {
+            case "create" -> (sender.hasPermission("shops.cmd.create") && server.getPlayer(args[2]) != null)
+                             ? Collections.singletonList("<z2>") : Collections.emptyList();
+            case "update" -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
+
+                List<String> options = Collections.singletonList("<y2>");
+
+                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
+
+                if (containsWorld && !containsStore)
+                    options = Collections.singletonList("<z2>");
+                else if (!containsWorld && !containsStore)
+                    options = Collections.emptyList();
+
+                yield options;
+            }
+            default -> Collections.emptyList();
+        };
+    }
+
     /**
      * TabCompleter for generating suggestions when a player starts typing the /shop command
      *
@@ -58,7 +331,6 @@ public class ShopCommand extends CommandManager {
      * @param args the arguments following the command
      * @return a list of options for the /shop command arguments
      */
-    // TODO: clean up this mess (reconfigure if-blocks/switches to be more efficient and less clunky
     @Override
     @SuppressWarnings("all")
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -67,260 +339,35 @@ public class ShopCommand extends CommandManager {
             return new ArrayList<>();
         }
 
-        if (args.length == 1)
-            return subCommands.keySet().stream().toList();
+        return switch (args.length) {
+            case 1 -> {
+                List<String> subCommandsFiltered = subCommands.keySet().stream().filter(s -> {
+                    return sender.hasPermission(String.format("shops.cmd.%s", s));
+                }).collect(Collectors.toList());
 
-        if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("browse"))
-                return Collections.singletonList("<page-number>");
-
-            if (args[0].equalsIgnoreCase("deposit"))
-                return Collections.singletonList("<amount>");
-
-            if (args[0].equalsIgnoreCase("withdraw"))
-                return List.of("<amount>", "all");
-
-            // Add command autocomplete item list
-            if (args[0].equalsIgnoreCase("add")) {
-                return Arrays.stream(Material.values())
-                        .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
+                yield subCommandsFiltered;
             }
+            case 2 -> handleSecondArgs(sender, args[0].toLowerCase());
+            case 3 -> handleThirdArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 4 -> handleFourthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 5 -> handleFifthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 6 -> handleSixthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 7 -> handleSeventhArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 8 -> handleEighthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 9 -> handleNinthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
+            case 10 -> {
+                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                    yield Collections.emptyList();
 
-            Optional<Store> currentStore = InventoryManagementSystem.locateCurrentStore(((Player) sender));
-            Set<Material> shopItems = (currentStore.isPresent() ? currentStore.get().getItems().keySet() : Collections.emptySet());
-
-            // Buy/Remove command autocomplete item list
-            if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("remove"))
-                return shopItems.stream().map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
-
-            // provide a list of items witin the shop, along with some additional items based on permissions
-            if (args[0].equalsIgnoreCase("update")) {
-                ArrayList<String> tempList = shopItems.stream().map(m -> m.toString().toLowerCase()).collect(Collectors.toCollection(ArrayList::new));
-                if (((Player) sender).hasPermission("shops.update.inf-funds")) tempList.add("infinite-funds");
-                if (((Player) sender).hasPermission("shops.update.inf-stock")) tempList.add("infinite-stock");
-                tempList.add("shop-name");
-
-                return tempList;
-            }
-
-            // Sell command autocomplete item list
-            if (args[0].equalsIgnoreCase("sell"))
-                return Arrays.stream(((Player) sender).getInventory().getContents())
-                        .filter(Objects::nonNull).map(i -> i.getType().toString().toLowerCase())
-                        .collect(Collectors.toList());
-
-            if (args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<name>");
-
-            // Only display a list of shops that are owned by the player, and provide a list of "ShopName~UUID"
-            if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("transfer"))
-                return Store.STORES.stream().filter(s -> s.getOwner().equals(((Player) sender).getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
-        }
-
-        Server server = (Shops.isTest() ? Shops.getMockServer() : Shops.getPlugin(Shops.class).getServer());
-
-        if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("sell"))
-                return List.of("[<quantity>]", "all");
-
-            if (args[0].equalsIgnoreCase("add"))
-                return List.of("<customer-buy-price>", "[<quantity>]", "all");
-
-            if (args[0].equalsIgnoreCase("buy"))
-                return Collections.singletonList("[<quantity>]");
-
-            if (args[0].equalsIgnoreCase("update")) {
-                List<String> options;
-
-                switch (args[1].toLowerCase()) {
-                    case "infinite-funds", "infinite-stock" -> options = List.of("true", "false");
-                    case "shop-name" -> options = Collections.singletonList("<name>");
-                    case "location" -> {
-                        options = Store.STORES.stream().filter(s -> s.getOwner().equals(((Player) sender).getUniqueId())).map(s -> String.format("%s~%s", s.getName(), s.getUUID())).collect(Collectors.toCollection(ArrayList::new));
-                        options.addAll(Bukkit.getWorlds().stream().map(WorldInfo::getName).toList());
-                    }
-                    default -> options = List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
-                };
-
-                return options;
-            }
-
-            if (args[0].equalsIgnoreCase("transfer"))
-                return server.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
-
-            if (args[0].equalsIgnoreCase("create")) {
-                List<String> options = server.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList());
-                options.add("<x1>");
-
-                return options;
-            }
-        }
-
-        if (args.length == 4) {
-            if (args[0].equalsIgnoreCase("add")) {
-                return Collections.singletonList("<customer-sell-price>");
-            }
-
-            if (args[0].equalsIgnoreCase("update")) {
-                if (args[1].equalsIgnoreCase("location")) {
-                    List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                    List<String> options = Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(Collectors.toList());
-
-                    boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                    boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-                    if (containsWorld)
-                        options = Collections.singletonList("x1");
-                    else if (!containsWorld && !containsStore)
-                        options = Collections.singletonList("y1");
-                    else if (!containsStore)
-                        options.add("x1");
-
-                    return options;
-                }
-
-                return switch (args[2].toLowerCase()) {
-                    case "infinite-quantity" -> List.of("true", "false");
-                    default -> Collections.singletonList("<value>");
-                };
-            }
-
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<x1>");
-            else if (args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<y1>");
-        }
-
-        if (args.length == 5 ) {
-            if (args[0].equalsIgnoreCase("add")) {
-                return Collections.singletonList("<max-quantity>");
-            }
-
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<y1>");
-            else if (args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<z1>");
-
-            if (args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-                List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                List<String> options = Collections.singletonList("x1");
+                List<String> options = Collections.singletonList("<z2>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
+                boolean containsStore = Store.identifyStore(args[2]).isPresent();
 
-                if (containsWorld && !containsStore)
-                    options = Collections.singletonList("y1");
-                else if (!containsWorld && !containsStore)
-                    options = Collections.singletonList("z1");
-
-                return options;
+                yield ((containsWorld && !containsStore) || (!containsWorld && !containsStore)) ? Collections.emptyList() : options;
             }
-        }
-
-        if (args.length == 6) {
-            if (args[0].equalsIgnoreCase("add")) {
-                return List.of("[<quantity>]", "all");
-            }
-
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<z1>");
-            else if (args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<x2>");
-
-            if (args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-                List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                List<String> options = Collections.singletonList("y1");
-
-                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-                if (containsWorld && !containsStore)
-                    options = Collections.singletonList("z1");
-                else if (!containsWorld && !containsStore)
-                    options = Collections.singletonList("x2");
-
-                return options;
-            }
-        }
-
-        if (args.length == 7) {
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<x2>");
-            else if (args.length == 7 && args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<y2>");
-
-            if (args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-                List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                List<String> options = Collections.singletonList("z1");
-
-                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-                if (containsWorld && !containsStore)
-                    options = Collections.singletonList("x2");
-                else if (!containsWorld && !containsStore)
-                    options = Collections.singletonList("y2");
-
-                return options;
-            }
-        }
-
-        if (args.length == 8) {
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<y2>");
-            else if (args[0].equalsIgnoreCase("create"))
-                return Collections.singletonList("<z2>");
-
-            if (args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-                List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                List<String> options = Collections.singletonList("x2");
-
-                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-                if (containsWorld && !containsStore)
-                    options = Collections.singletonList("y2");
-                else if (!containsWorld && !containsStore)
-                    options = Collections.singletonList("z2");
-
-                return options;
-            }
-        }
-
-        if (args.length == 9) {
-            if (args[0].equalsIgnoreCase("create") && server.getPlayer(args[2]) != null)
-                return Collections.singletonList("<z2>");
-
-            if (args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-                List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-                List<String> options = Collections.singletonList("y2");
-
-                boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-                boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-                if (containsWorld && !containsStore)
-                    options = Collections.singletonList("z2");
-                else if (!containsWorld && !containsStore)
-                    options = Collections.emptyList();
-
-                return options;
-            }
-        }
-
-        if (args.length == 10 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("location")) {
-            List<String> stores = Store.STORES.stream().map(Store::getName).collect(Collectors.toList());
-            List<String> options = Collections.singletonList("z2");
-
-            boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
-            boolean containsStore = stores.stream().anyMatch(s -> s.equalsIgnoreCase(args[2]));
-
-            if ((containsWorld && !containsStore) || (!containsWorld && !containsStore))
-                options = Collections.emptyList();
-
-            return options;
-        }
-
-        return new ArrayList<>();
+            default -> Collections.emptyList();
+        };
     }
 
     /**
