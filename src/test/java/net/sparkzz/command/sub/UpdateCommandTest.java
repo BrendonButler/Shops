@@ -133,8 +133,8 @@ class UpdateCommandTest {
     @DisplayName("Test Update - main functionality - shop name")
     @Order(7)
     void testUpdateCommand_ShopName() {
-        performCommand(mrSparkzz, "shop update shop-name TestShop99");
-        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
+        performCommand(mrSparkzz, "shop update store-name TestShop99");
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "store-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
         assertEquals("TestShop99", store.getName());
         printSuccessMessage("update command test - update shop name");
     }
