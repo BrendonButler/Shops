@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -40,6 +39,7 @@ public class EntranceListenerTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
         World world = server.createWorld(WorldCreator.name("main-world"));
         otherWorld = server.createWorld(WorldCreator.name("other-world"));
         home = new Location(world, 0D, 0D, 0D);
@@ -49,15 +49,15 @@ public class EntranceListenerTest {
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setLocation(new Location(world, 0D, 0D, 0D));
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(world, 10D, 10D, 10D, 20D, 20D, 20D)));
-        Store.setDefaultStore(new Store("WorstBuy", mrSparkzz.getUniqueId(), new Cuboid(null, 10D, 10D, 10D, 20D, 20D, 20D)));
+        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(world, 10D, 10D, 10D, 20D, 20D, 20D)));
+        new Store("WorstBuy", mrSparkzz.getUniqueId(), new Cuboid(null, 10D, 10D, 10D, 20D, 20D, 20D));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 

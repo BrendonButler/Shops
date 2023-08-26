@@ -6,14 +6,18 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
+import static net.sparkzz.util.Notifier.CipherKey.INVALID_MATERIAL;
+import static net.sparkzz.util.Notifier.CipherKey.MATERIAL_MISSING_STORE;
 import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,22 +37,23 @@ class AddCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Store.getDefaultStore().getItems().clear();
-        Store.getDefaultStore().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
-        Store.getDefaultStore().addFunds(100);
+        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addFunds(100);
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
     }
 
     @BeforeEach
@@ -82,7 +87,7 @@ class AddCommandTest {
         performCommand(mrSparkzz, "shop add emerald 1");
         assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
         assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
-        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add 1");
     }
 
@@ -97,18 +102,17 @@ class AddCommandTest {
         performCommand(mrSparkzz, "shop add emerald all");
         assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
         assertFalse(mrSparkzz.getInventory().contains(material));
-        assertEquals(11, Store.getDefaultStore().getItems().get(material).get("quantity").intValue());
+        assertEquals(11, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add all");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Add - material not found in shop")
     @Order(4)
     void testAddCommand_NoMaterial() {
-        mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 64));
-        performCommand(mrSparkzz, "shop add emerald 1");
-        assertEquals("§cThis material doesn't currently exist in the shop, use `/shop add emerald` to add this item", mrSparkzz.nextMessage());
+        mrSparkzz.getInventory().addItem(new ItemStack(Material.STICK, 64));
+        performCommand(mrSparkzz, "shop add stick 1");
+        assertEquals(Notifier.compose(MATERIAL_MISSING_STORE, Collections.singletonMap("material", Material.STICK)), mrSparkzz.nextMessage());
         printSuccessMessage("add command - material doesn't exist");
     }
 
@@ -117,7 +121,18 @@ class AddCommandTest {
     @Order(5)
     void testRemoveCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop add emeral 1");
-        assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
+        assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
         printSuccessMessage("remove command test - invalid material");
+    }
+
+    @Test
+    @DisplayName("Test Add - main functionality - no store")
+    @Order(6)
+    void testDepositCommand_NoStore() {
+        Store.DEFAULT_STORES.clear();
+        performCommand(mrSparkzz, "shop add emerald 1");
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        printSuccessMessage("add command test - no store");
     }
 }

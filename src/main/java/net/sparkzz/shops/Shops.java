@@ -143,4 +143,13 @@ public class Shops extends JavaPlugin {
     public static void setMockServer(Server mockServer) {
         server = mockServer;
     }
+
+    /**
+     * Exception for matching multiple Stores when expecting a single Store
+     */
+    public static class MultipleStoresMatchedException extends RuntimeException {
+        public MultipleStoresMatchedException(String message) {
+            super(message);
+        }
+    }
 }

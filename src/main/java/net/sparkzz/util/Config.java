@@ -1,13 +1,16 @@
 package net.sparkzz.util;
 
 import net.sparkzz.shops.Shops;
+import net.sparkzz.shops.Store;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -154,6 +157,33 @@ public class Config {
     }
 
     /**
+     * Gets the default Store for the input world
+     *
+     * @param world the world to get the default Store from
+     * @return the default Store for the input world
+     */
+    public static Optional<Store> getDefaultStore(@Nullable World world) {
+        if (!rootNode.node("store").hasChild("default"))
+            return Optional.empty();
+
+        CommentedConfigurationNode defaults = rootNode.node("store").node("default");
+
+        if (defaults.hasChild("null"))
+            return Store.identifyStore(defaults.node("null").getString());
+
+        String name = (world == null) ? "null" : world.getName();
+        String uuid = (world == null) ? "null" : world.getUID().toString();
+
+        if (defaults.hasChild(uuid)) {
+            return Store.identifyStore(defaults.node(uuid).getString());
+        } else if (defaults.hasChild(name)) {
+            return Store.identifyStore(defaults.node(name).getString());
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Gets the custom response message to be sent to the player in place of the defaults
      *
      * @param key the CipherKey to be used as the map key
@@ -172,6 +202,7 @@ public class Config {
         try {
             CommentedConfigurationNode offLimitsNode = rootNode.node("store", "off-limits");
             List<String> offLimitsAreas = offLimitsNode.getList(String.class);
+
             if (offLimitsAreas == null)
                 offLimitsAreas = new ArrayList<>();
 
@@ -181,6 +212,32 @@ public class Config {
             offLimitsNode.setList(String.class, offLimitsAreas);
         } catch (SerializationException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets the default Store for a selected world
+     *
+     * @param world the world to have the Store associated with
+     * @param store the Store to be associated with the input world
+     */
+    public static void setDefaultStore(@Nullable World world, @Nullable Store store) {
+        try {
+            CommentedConfigurationNode defaults = rootNode.node("store", "default");
+
+            if (store == null) {
+                defaults.removeChild((world == null) ? "null" : world.getName());
+                return;
+            }
+
+            if (world == null || world.getName().equalsIgnoreCase("null")) {
+                defaults.node("null").set(store.getUUID().toString());
+                return;
+            }
+
+            defaults.node(world.getName()).set(store.getUUID());
+        } catch (SerializationException exception) {
+            log.warning(String.format("Unable to set default store: (World: %s, Store: %s)", world, store));
         }
     }
 

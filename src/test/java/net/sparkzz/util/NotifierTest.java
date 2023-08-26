@@ -46,7 +46,7 @@ class NotifierTest {
     @AfterAll
     static void tearDown() {
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        Store.DEFAULT_STORES.clear();
         unLoadConfig();
     }
 

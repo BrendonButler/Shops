@@ -7,6 +7,7 @@ import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.util.Cuboid;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GREEN;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -36,6 +38,7 @@ class UpdateCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         mrSparkzz.setOp(true);
@@ -48,9 +51,9 @@ class UpdateCommandTest {
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
     }
 
     @BeforeEach
@@ -130,8 +133,8 @@ class UpdateCommandTest {
     @DisplayName("Test Update - main functionality - shop name")
     @Order(7)
     void testUpdateCommand_ShopName() {
-        performCommand(mrSparkzz, "shop update shop-name TestShop99");
-        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "shop-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
+        performCommand(mrSparkzz, "shop update store-name TestShop99");
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "store-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
         assertEquals("TestShop99", store.getName());
         printSuccessMessage("update command test - update shop name");
     }
@@ -341,7 +344,7 @@ class UpdateCommandTest {
         void testUpdateCommand_Permissions() {
             cmdUse = false;
             performCommand(player, "shop update shop-name TestShop99");
-            assertEquals(String.format("%sYou do not have permission to use this command!", RED), player.nextMessage());
+            assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player.nextMessage());
             printSuccessMessage("update command permission check");
         }
 

@@ -36,6 +36,7 @@ class TransferCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         Shops.setMockServer(server);
         mrSparkzz = server.addPlayer("MrSparkzz");
@@ -46,14 +47,14 @@ class TransferCommandTest {
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
     }
 
     @BeforeEach
     void setUpShop() {
-        Store.setDefaultStore((store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterEach

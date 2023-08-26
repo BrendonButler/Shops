@@ -6,6 +6,7 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.inventory.ItemStack;
@@ -35,19 +36,20 @@ class DeleteCommandTest {
 
         MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
         MockBukkit.load(Shops.class);
+        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(new Store("BetterBuy", mrSparkzz.getUniqueId()));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
     static void tearDown() {
-        // Stop the mock server
         MockBukkit.unmock();
-        Store.setDefaultStore(null);
+        unLoadConfig();
+        Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
@@ -67,7 +69,7 @@ class DeleteCommandTest {
     @Order(1)
     void testDeleteShop_Permissions() {
         performCommand(player2, "shop delete DollHairStore");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("delete command permission check");
     }
 

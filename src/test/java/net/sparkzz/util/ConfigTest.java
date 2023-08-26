@@ -3,9 +3,11 @@ package net.sparkzz.util;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import net.sparkzz.shops.Shops;
+import net.sparkzz.shops.Store;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -17,22 +19,27 @@ import java.util.List;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Config Test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConfigTest {
 
+    private static ServerMock server;
+    private static Store store, otherStore;
     private static World world, world_nether, world_the_end;
 
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST CONFIG ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        server = MockBukkit.getOrCreateMock();
         MockBukkit.load(Shops.class);
         loadConfig();
         world = server.createWorld(WorldCreator.name("world"));
         world_nether = server.createWorld(WorldCreator.name("world_nether"));
         world_the_end = server.createWorld(WorldCreator.name("world_the_end"));
+        store = new Store("TestStore");
+        otherStore = new Store("TestStore2");
     }
 
     @AfterAll
@@ -51,6 +58,13 @@ public class ConfigTest {
         Config.setOffLimitsAreas(cuboids);
         Config.setMaxOwnedStores(2);
         unLoadConfig();
+        Store.STORES.clear();
+        Store.DEFAULT_STORES.clear();
+    }
+
+    @AfterEach
+    void resetConfig() {
+        Config.setDefaultStore(null, null);
     }
 
     @Test
@@ -126,5 +140,31 @@ public class ConfigTest {
         Config.setMaxOwnedStores(5);
         assertEquals(5, Config.getMaxOwnedStores());
         printSuccessMessage("setting maximum owned stores");
+    }
+
+    @Test
+    @DisplayName("Test set default store for all worlds")
+    @Order(8)
+    void testGlobalDefaultStore() {
+        Config.setDefaultStore(world, otherStore);
+        Config.setDefaultStore(server.getWorld("null"), store);
+        assertTrue(Config.getDefaultStore(null).isPresent());
+        assertTrue(Config.getDefaultStore(world).isPresent());
+        assertEquals(store, Config.getDefaultStore(null).get());
+        assertEquals(store, Config.getDefaultStore(world).get());
+        printSuccessMessage("setting default store for all world");
+    }
+
+    @Test
+    @DisplayName("Test set default store for specific worlds")
+    @Order(9)
+    void testDefaultStore_PerWorld() {
+        Config.setDefaultStore(world, store);
+        Config.setDefaultStore(world_nether, otherStore);
+        assertTrue(Config.getDefaultStore(world).isPresent());
+        assertTrue(Config.getDefaultStore(world_nether).isPresent());
+        assertEquals(store, Config.getDefaultStore(world).get());
+        assertEquals(otherStore, Config.getDefaultStore(world_nether).get());
+        printSuccessMessage("setting default store for specific world");
     }
 }

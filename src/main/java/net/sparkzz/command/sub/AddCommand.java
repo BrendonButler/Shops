@@ -26,7 +26,7 @@ public class AddCommand extends SubCommand {
         setArgsAsAttributes(args);
         Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
         int quantity = (Integer) setAttribute("quantity", 0);
         String message = "";
 

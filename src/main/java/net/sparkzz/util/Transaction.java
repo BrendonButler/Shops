@@ -40,7 +40,7 @@ public class Transaction extends Notifiable {
         setAttribute("material", itemStack.getType());
         setAttribute("quantity", itemStack.getAmount());
 
-        store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player));
+        store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
         cost = (double) setAttribute("cost", switch (type) {
             case PURCHASE -> (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
             case SALE -> (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());

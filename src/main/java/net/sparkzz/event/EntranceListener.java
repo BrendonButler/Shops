@@ -46,8 +46,9 @@ public class EntranceListener extends Notifiable implements Listener {
             playerStoreStatus.put(player, true);
             Notifier.process(player, Notifier.CipherKey.STORE_WELCOME_MSG, getAttributes());
         } else if (!isInShop && playerStoreStatus.getOrDefault(player, true)) {
+            if (playerStoreStatus.containsKey(player))
+                Notifier.process(player, Notifier.CipherKey.STORE_GOODBYE_MSG, getAttributes());
             playerStoreStatus.put(player, false);
-            Notifier.process(player, Notifier.CipherKey.STORE_GOODBYE_MSG, getAttributes());
         }
     }
 }
