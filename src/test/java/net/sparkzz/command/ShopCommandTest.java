@@ -9,6 +9,7 @@ import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.util.InventoryManagementSystem;
+import net.sparkzz.util.Notifier;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.generator.WorldInfo;
@@ -62,6 +63,7 @@ class ShopCommandTest {
         Store.STORES.clear();
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Order(1)
     @Nested
     @DisplayName("OnTabComplete Tests")
@@ -763,6 +765,106 @@ class ShopCommandTest {
             assertEquals(expectedOptions, actualOptions);
             printSuccessMessage("tab complete - \"shop update location DiscountMinus world 10 20 30 40 50\"");
         }
+
+        @Test
+        @DisplayName("Test Shop - 2 args - invalid option")
+        @Order(151)
+        void testShopTabComplete_2Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 3 args - invalid option")
+        @Order(152)
+        void testShopTabComplete_3Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 4 args - invalid option")
+        @Order(153)
+        void testShopTabComplete_4Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 5 args - invalid option")
+        @Order(154)
+        void testShopTabComplete_5Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 6 args - invalid option")
+        @Order(155)
+        void testShopTabComplete_6Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 7 args - invalid option")
+        @Order(156)
+        void testShopTabComplete_7Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 6 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 8 args - invalid option")
+        @Order(157)
+        void testShopTabComplete_8Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 6 7 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6 7\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 9 args - invalid option")
+        @Order(158)
+        void testShopTabComplete_9Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 6 7 8 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6 7 8\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 10 args - invalid option")
+        @Order(159)
+        void testShopTabComplete_10Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 6 7 8 9 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6 7 8 9\"");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 11 args - invalid option")
+        @Order(160)
+        void testShopTabComplete_11Args_InvalidOption() {
+            List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shop invalid 2 3 4 5 6 7 8 9 10 ");
+
+            assertEquals(Collections.emptyList(), actualOptions);
+            printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6 7 8 9 10\"");
+        }
     }
 
     @Order(2)
@@ -776,7 +878,7 @@ class ShopCommandTest {
         @Order(1)
         void testShopCommand_ConsoleSender() {
             performCommand(console, "shop");
-            assertEquals("§cOnly players can use this command!", console.nextMessage());
+            assertEquals(Notifier.compose(Notifier.CipherKey.ONLY_PLAYERS_CMD, null), console.nextMessage());
             printSuccessMessage("shop command - console sender");
         }
 
@@ -785,7 +887,7 @@ class ShopCommandTest {
         @Order(2)
         void testShopCommand_InvalidArgumentCount() {
             performCommand(mrSparkzz, "shop");
-            assertEquals("§cInvalid number of arguments!", mrSparkzz.nextMessage());
+            assertEquals(Notifier.compose(Notifier.CipherKey.INVALID_ARG_CNT, null), mrSparkzz.nextMessage());
             assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
             printSuccessMessage("shop command - invalid argument count");
         }
@@ -795,7 +897,7 @@ class ShopCommandTest {
         @Order(3)
         void testShopCommand_InvalidArgumentCountOneArg() {
             performCommand(mrSparkzz, "shop test");
-            assertEquals("§cInvalid number of arguments!", mrSparkzz.nextMessage());
+            assertEquals(Notifier.compose(Notifier.CipherKey.INVALID_ARG_CNT, null), mrSparkzz.nextMessage());
             assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
             printSuccessMessage("shop command - invalid argument count (1 arg)");
         }
