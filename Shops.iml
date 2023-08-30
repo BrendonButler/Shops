@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
       <excludeFolder url="file://$MODULE_DIR$/server/CraftBukkit" />
       <excludeFolder url="file://$MODULE_DIR$/server/logs" />
       <excludeFolder url="file://$MODULE_DIR$/server/plugins" />
@@ -14,6 +14,8 @@
       <excludeFolder url="file://$MODULE_DIR$/server/world_the_end" />
       <excludeFolder url="file://$MODULE_DIR$/server/Spigot" />
       <excludeFolder url="file://$MODULE_DIR$/server/work" />
+      <excludeFolder url="file://$MODULE_DIR$/paper-server" />
+      <excludeFolder url="file://$MODULE_DIR$/server" />
     </content>
   </component>
 </module>

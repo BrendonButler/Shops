@@ -58,7 +58,7 @@ public class Shops extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        if (!isTest) Warehouse.saveConfig();
+        if (!isTest && econ != null) Warehouse.saveConfig();
 
         log.info("Shops has been disabled!");
     }
