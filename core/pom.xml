@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>net.sparkzz</groupId>
+        <artifactId>shops</artifactId>
+        <version>0.3-BETA</version>
+    </parent>
+
+    <name>Shops (Core)</name>
+    <artifactId>core</artifactId>
+    <url>https://shops.sparkzz.net/</url>
+
+    <dependencies>
+        <!-- Spigot Minecraft API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SnakeYAML (override vulnerable transitive dependency) -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Guava (override vulnerable transitive dependency -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MockBukkit Test Mocking Tool -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault plugin -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>Vault</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SpongePowered Configurate HOCON (configuration management) -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-hocon</artifactId>
+        </dependency>
+
+        <!-- SpongePowered Configurate YAML (configuration management) -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-yaml</artifactId>
+        </dependency>
+
+        <!-- Jackson Databind (expanded serialization and deserialization) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- JetBrains Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Maven Project Info Reports Plugin -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

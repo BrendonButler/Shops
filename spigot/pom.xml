@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sparkzz</groupId>
+        <artifactId>shops</artifactId>
+        <version>0.3-BETA</version>
+    </parent>
+
+    <name>Shops (Spigot)</name>
+    <artifactId>shops-spigot</artifactId>
+    <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
+
+    <build>
+        <plugins>
+            <!-- Shade Plugin TODO: FIGURE THE MAVEN SHADE PLUGIN OUT -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.version}</version>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>net.sparkzz.shops.Shops</mainClass>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>net.sparkzz.core.shops.Shops</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>*.html</exclude>
+                                <exclude>module-info.class</exclude>
+                                <exclude>META-INF/versions/9/module-info.class</exclude>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.MF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                                <exclude>META-INF/DEPENDENCIES</exclude>
+                                <exclude>META-INF/LICENSE</exclude>
+                                <exclude>META-INF/LICENSE.txt</exclude>
+                                <exclude>META-INF/NOTICE</exclude>
+                                <exclude>META-INF/NOTICE.txt</exclude>
+                                <exclude>META-INF/sisu/javax.inject.Named</exclude>
+                                <exclude>META-INF/plexus/components.xml</exclude>
+                            </excludes>
+                        </filter>
+                        <filter>
+                            <artifact>net.sparkzz:core</artifact>
+                            <includes>
+                                <include>net/sparkzz/**</include>
+                                <include>config.yml</include>
+                            </includes>
+                        </filter>
+                    </filters>
+                    <minimizeJar>true</minimizeJar>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>essentials-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Shops Core -->
+        <dependency>
+            <groupId>net.sparkzz</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Spigot Minecraft API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- MockBukkit Test Mocking Tool -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Vault (Hooking Plugin) -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>Vault</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- EssentialsX (Economy Plugin) -->
+        <dependency>
+            <groupId>net.essentialsx</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>${essentialsx.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
