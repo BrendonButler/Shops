@@ -6,8 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="shops" />
+        <module name="shops-spigot" />
+        <module name="shops-sponge" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="spigot" target="19" />
+      <module name="sponge" target="19" />
+    </bytecodeTargetLevel>
   </component>
 </project>
