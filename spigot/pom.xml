@@ -27,7 +27,7 @@
                             <mainClass>net.sparkzz.shops.Shops</mainClass>
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>net.sparkzz.core.shops.Shops</mainClass>
+                            <mainClass>net.sparkzz.shops.Shops</mainClass>
                         </transformer>
                     </transformers>
                     <filters>
@@ -121,6 +121,13 @@
             <groupId>net.essentialsx</groupId>
             <artifactId>EssentialsX</artifactId>
             <version>${essentialsx.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JetBrains Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

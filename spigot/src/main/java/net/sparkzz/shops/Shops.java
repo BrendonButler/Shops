@@ -1,31 +1,38 @@
 package net.sparkzz.shops;
 
 import net.milkbowl.vault.economy.Economy;
-import net.sparkzz.core.command.CommandManager;
-import net.sparkzz.core.event.EntranceListener;
-import net.sparkzz.core.util.Notifier;
-import net.sparkzz.core.util.Warehouse;
+import net.sparkzz.shops.command.CommandManager;
+import net.sparkzz.shops.event.EntranceListener;
+import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Warehouse;
+import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.File;
-import java.util.logging.Logger;
+
+import static net.sparkzz.shops.Core.*;
 
 /**
- * Location based shop plugin for bukkit
+ * Location based shop plugin for Spigot/Bukkit
  *
  * @author Brendon Butler
  */
-public class Shops extends net.sparkzz.core.shops.Shops {
+public class Shops extends JavaPlugin {
 
-    private final Logger log = getLogger();
+    private static PluginDescriptionFile description;
+    private static Server server;
+
 
     /**
      * Default constructor for Spigot plugin
      */
     public Shops() {
         super();
+        description = getDescription();
+        Core.setLogger(getLogger());
     }
 
     /**
@@ -36,12 +43,41 @@ public class Shops extends net.sparkzz.core.shops.Shops {
      * @param dataFolder the data folder containing the plugin data
      * @param file the file of the plugin
      */
-    protected Shops(
-            JavaPluginLoader loader,
-            PluginDescriptionFile description,
-            File dataFolder,
-            File file) {
+    protected Shops(JavaPluginLoader loader,
+                    PluginDescriptionFile description,
+                    File dataFolder,
+                    File file) {
         super(loader, description, dataFolder, file);
+        Core.setTest();
+        Core.setLogger(getLogger());
+        Shops.description = description;
+    }
+
+    /**
+     * Gets the plugin description
+     *
+     * @return the plugin description
+     */
+    public static PluginDescriptionFile getDesc() {
+        return description;
+    }
+
+    /**
+     * Gets the server, this is necessary for the MockBukkit configuration
+     *
+     * @return the server instance
+     */
+    public static Server getServerInstance() {
+        return (server == null) ? Shops.getPlugin(Shops.class).getServer() : server;
+    }
+
+    /**
+     * Sets the server, this is necessary for the MockBukkit configuration
+     *
+     * @param server the server instance to be set
+     */
+    public static void setServerInstance(Server server) {
+        Shops.server = server;
     }
 
     /**
@@ -51,7 +87,7 @@ public class Shops extends net.sparkzz.core.shops.Shops {
     public void onDisable() {
         if (!isTest() && getEconomy() != null) Warehouse.saveConfig();
 
-        log.info("Shops has been disabled!");
+        Core.getLogger().info("Shops has been disabled!");
     }
 
     /**
@@ -60,11 +96,12 @@ public class Shops extends net.sparkzz.core.shops.Shops {
     @Override
     public void onEnable() {
         if (!setupEconomy()) {
-            log.severe("Disabled due to missing economy dependency (see README)!");
+            Core.getLogger().severe("Disabled due to missing economy dependency (see README)!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
+        server = getServer();
         CommandManager.registerCommands(this);
         getServer().getPluginManager().registerEvents(new EntranceListener(), this);
 
@@ -73,7 +110,7 @@ public class Shops extends net.sparkzz.core.shops.Shops {
 
         Notifier.loadCustomMessages();
 
-        log.info("Shops has been enabled!");
+        Core.getLogger().info("Shops has been enabled!");
     }
 
     private boolean setupEconomy() {
