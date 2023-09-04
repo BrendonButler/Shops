@@ -280,6 +280,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- TODO: FIX REPORTING -->
     <reporting>
         <plugins>
             <!-- Generates a Javadoc report -->
@@ -289,7 +290,6 @@
                 <version>${maven.javadoc.version}</version>
                 <configuration>
                     <encoding>${project.build.encoding}</encoding>
-                    <excludePackageNames>net.sparkzz.command.sub</excludePackageNames>
                     <doclint>all,-missing</doclint>
                 </configuration>
                 <reportSets>
@@ -307,8 +307,9 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <reportSets>
                     <reportSet>
+                        <inherited>false</inherited>
                         <reports>
-                            <report>report</report>
+                            <report>report-aggregate</report>
                         </reports>
                     </reportSet>
                 </reportSets>
@@ -324,6 +325,7 @@
                 </configuration>
                 <reportSets>
                     <reportSet>
+                        <inherited>false</inherited>
                         <reports>
                             <report>aggregate</report>
                         </reports>

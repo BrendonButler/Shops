@@ -11,6 +11,10 @@
         <version>0.3-BETA</version>
     </parent>
 
+    <properties>
+        <maven.compiler.compileOrder>core,spigot</maven.compiler.compileOrder>
+    </properties>
+
     <name>Shops (Core)</name>
     <artifactId>core</artifactId>
     <url>https://shops.sparkzz.net/</url>

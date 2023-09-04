@@ -3,6 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>net.sparkzz</groupId>
         <artifactId>shops</artifactId>
@@ -37,7 +38,7 @@
                             <mainClass>net.sparkzz.shops.Shops</mainClass>
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>net.sparkzz.core.shops.Shops</mainClass>
+                            <mainClass>net.sparkzz.shops.Shops</mainClass>
                         </transformer>
                     </transformers>
                     <filters>
@@ -83,6 +84,13 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>essentials-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>net.sparkzz</groupId>
@@ -99,11 +107,33 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- MockBukkit Test Mocking Tool -->
         <dependency>
             <groupId>com.github.seeseemelk</groupId>
             <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
-            <version>${mockbukkit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Vault (Hooking Plugin) -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>Vault</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- EssentialsX (Economy Plugin) -->
+        <dependency>
+            <groupId>net.essentialsx</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>${essentialsx.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -2,9 +2,8 @@ package net.sparkzz.shops;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import net.sparkzz.core.shops.Store;
-import net.sparkzz.core.util.Cuboid;
-import net.sparkzz.mocks.MockVault;
+import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.shops.util.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -37,7 +36,7 @@ public class StoreTest {
         MockBukkit.load(Shops.class);
         loadConfig();
 
-        Shops.setMockServer(server);
+        Shops.setServerInstance(server);
 
         Store.setDefaultStore(null, new Store("BetterBuy"));
     }
