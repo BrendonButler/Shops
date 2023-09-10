@@ -13,30 +13,36 @@
     <name>Shops (Sponge)</name>
     <artifactId>shops-sponge</artifactId>
     <description>Location based shops plugin for Sponge ${sponge-api.version}</description>
+    <packaging>jar</packaging>
 
     <build>
-        <plugins>
-            <!-- Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
+        <defaultGoal>clean install</defaultGoal>
+        <sourceDirectory>src/main/java</sourceDirectory>
 
-            <!-- Shade Plugin -->
+        <resources>
+            <resource>
+                <directory>../</directory>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+                <targetPath>.</targetPath>
+            </resource>
+
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- Maven Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven.shade.version}</version>
                 <configuration>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>net.sparkzz.shops.Shops</mainClass>
-                        </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>net.sparkzz.shops.Shops</mainClass>
                         </transformer>
@@ -58,14 +64,23 @@
                                 <exclude>META-INF/NOTICE</exclude>
                                 <exclude>META-INF/NOTICE.txt</exclude>
                                 <exclude>META-INF/sisu/javax.inject.Named</exclude>
-                                <exclude>META-INF/plexus/components.xml</exclude>
                             </excludes>
                         </filter>
+
                         <filter>
                             <artifact>net.sparkzz:core</artifact>
                             <includes>
                                 <include>net/sparkzz/**</include>
                                 <include>config.yml</include>
+                            </includes>
+                        </filter>
+
+                        <filter>
+                            <artifact>net.sparkzz:shops-sponge</artifact>
+                            <includes>
+                                <include>net/sparkzz/**</include>
+                                <include>META-INF/**</include>
+                                <include>LICENSE</include>
                             </includes>
                         </filter>
                     </filters>
@@ -81,59 +96,150 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependency>net.essentialsx:EssentialsX</dependency>
+                        <dependency>com.github.MilkBowl:Vault</dependency>
+                    </dependenciesToScan>
+                </configuration>
+            </plugin>
+
+            <!-- JaCoCo Plugin -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Site Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
+                <configuration>
+                    <outputEncoding>${project.build.encoding}</outputEncoding>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-xhtml</artifactId>
+                        <version>2.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
+        <!-- Shops Core -->
         <dependency>
             <groupId>net.sparkzz</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Sponge Minecraft API -->
+        <!-- Sponge API -->
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>8.0.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
+            <version>${sponge-api.version}</version>
         </dependency>
 
-        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
+        <!-- Maven Project Info Reports Plugin -->
         <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- MockBukkit Test Mocking Tool -->
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Vault (Hooking Plugin) -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>Vault</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- EssentialsX (Economy Plugin) -->
-        <dependency>
-            <groupId>net.essentialsx</groupId>
-            <artifactId>EssentialsX</artifactId>
-            <version>${essentialsx.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
+
+    <reporting>
+        <plugins>
+            <!-- Generates a Javadoc report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <doclint>all,-missing</doclint>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a JaCoCo coverage report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a Dependency Analysis report -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${maven.dependency-check.version}</version>
+                <configuration>
+                    <name>Dependency Analysis</name>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Generates a SpotBugs Java bug report -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

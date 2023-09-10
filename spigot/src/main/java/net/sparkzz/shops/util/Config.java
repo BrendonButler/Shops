@@ -1,7 +1,7 @@
 package net.sparkzz.shops.util;
 
 import net.sparkzz.shops.AbstractStore;
-import net.sparkzz.shops.Core;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  */
 public class Config {
 
-    private static final Logger log = Core.getLogger();
+    private static final Logger log = Shops.getLog();
 
     private static CommentedConfigurationNode rootNode;
 
