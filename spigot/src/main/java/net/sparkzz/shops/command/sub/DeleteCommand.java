@@ -2,6 +2,7 @@ package net.sparkzz.shops.command.sub;
 
 import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Core;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
@@ -73,7 +74,7 @@ public class DeleteCommand extends SubCommand {
             }
 
             if (!ignoreFunds) {
-                Core.getEconomy().depositPlayer(player, store.getBalance());
+                Shops.getEconomy().depositPlayer(player, store.getBalance());
                 store.setBalance(0);
             }
 

@@ -1,0 +1,33 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.11"
+  },
+  "license": "GPL-2.0",
+  "plugins": [
+    {
+      "id": "shops",
+      "entrypoint": "net.sparkzz.shops.Shops",
+      "name": "Shops",
+      "version": "${project.version}",
+      "branding": {},
+      "links": {
+        "homepage": "https://ore.spongepowered.org/MrSparkzz/Shops"
+      },
+      "contributors": [
+        {
+          "name": "BrendonButler",
+          "description": "Author"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "8.0.0",
+          "load-order": "after",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

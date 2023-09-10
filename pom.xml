@@ -3,7 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
 
     <modules>
         <module>core</module>
@@ -34,7 +33,7 @@
         <mockbukkit.version>2.85.2</mockbukkit.version>
         <minecraft.server.version>1.18</minecraft.server.version>
         <spigot-api.version>${minecraft.server.version}.2-R0.1-SNAPSHOT</spigot-api.version>
-        <sponge-api.version>${minecraft.server.version}.2-R0.1-SNAPSHOT</sponge-api.version>
+        <sponge-api.version>10.0.0</sponge-api.version>
 
         <!-- Other Properties -->
         <maven.compiler.source>16</maven.compiler.source>
@@ -51,6 +50,7 @@
     <artifactId>shops</artifactId>
     <version>0.3-BETA</version>
     <url>https://shops.sparkzz.net/</url>
+    <packaging>pom</packaging>
 
     <licenses>
         <license>
@@ -85,73 +85,6 @@
         <system>GitHub</system>
         <url>https://github.com/MrSparkzz/Shops/issues</url>
     </issueManagement>
-
-    <build>
-        <plugins>
-            <!-- Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-
-            <!-- Surefire Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <configuration>
-                    <dependenciesToScan>
-                        <dependency>net.essentialsx:EssentialsX</dependency>
-                        <dependency>com.github.MilkBowl:Vault</dependency>
-                    </dependenciesToScan>
-                </configuration>
-            </plugin>
-
-            <!-- Jacoco Plugin -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Site Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>${maven.site.version}</version>
-                <configuration>
-                    <outputEncoding>${project.build.encoding}</outputEncoding>
-                </configuration>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.doxia</groupId>
-                        <artifactId>doxia-module-xhtml</artifactId>
-                        <version>2.0.0-M3</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
 
     <repositories>
         <repository>
@@ -192,6 +125,44 @@
         </repository>
     </repositories>
 
+    <!-- TODO: Finish configuring plugins -->
+    <build>
+        <plugins>
+            <!-- Site Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
+                <configuration>
+                    <outputEncoding>${project.build.encoding}</outputEncoding>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-xhtml</artifactId>
+                        <version>2.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Generates an aggregated JaCoCo coverage report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencyManagement>
         <dependencies>
             <!-- Spigot Minecraft API -->
@@ -199,6 +170,15 @@
                 <groupId>org.spigotmc</groupId>
                 <artifactId>spigot-api</artifactId>
                 <version>${spigot-api.version}</version>
+            </dependency>
+
+            <!-- Sponge Minecraft API -->
+            <dependency>
+                <groupId>org.spongepowered</groupId>
+                <artifactId>spongeapi</artifactId>
+                <version>${sponge-api.version}</version>
+                <type>jar</type>
+                <scope>provided</scope>
             </dependency>
 
             <!-- JUnit Jupiter API -->
@@ -280,34 +260,14 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- TODO: FIX REPORTING -->
     <reporting>
         <plugins>
-            <!-- Generates a Javadoc report -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.version}</version>
-                <configuration>
-                    <encoding>${project.build.encoding}</encoding>
-                    <doclint>all,-missing</doclint>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>javadoc</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-            <!-- Generates a Jacoco coverage report -->
+            <!-- Generates a JaCoCo coverage report -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <inherited>false</inherited>
                         <reports>
                             <report>report-aggregate</report>
                         </reports>
@@ -331,17 +291,6 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-            </plugin>
-
-            <!-- Generates a SpotBugs Java bug report -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.version}</version>
-                <configuration>
-                    <encoding>${project.build.encoding}</encoding>
-                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
-                </configuration>
             </plugin>
         </plugins>
     </reporting>

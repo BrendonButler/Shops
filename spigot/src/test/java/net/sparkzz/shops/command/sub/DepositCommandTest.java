@@ -3,7 +3,6 @@ package net.sparkzz.shops.command.sub;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -77,7 +76,7 @@ class DepositCommandTest {
         performCommand(mrSparkzz, "shop deposit 100");
         assertEquals(Notifier.compose(DEPOSIT_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
         assertEquals(125, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
-        assertEquals(50, Core.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("deposit command test");
     }
 
@@ -112,7 +111,7 @@ class DepositCommandTest {
     void testDepositCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop deposit 200");
         assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_PLAYER, null), mrSparkzz.nextMessage());
-        assertEquals(125, Core.getEconomy().getBalance(mrSparkzz));
+        assertEquals(125, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals(25, store.getBalance());
         printSuccessMessage("deposit command test - insufficient funds");
     }

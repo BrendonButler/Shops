@@ -1,6 +1,6 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Core;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
@@ -45,7 +45,7 @@ public class WithdrawCommand extends SubCommand {
         }
 
         store.removeFunds(amount);
-        Core.getEconomy().depositPlayer(player, amount);
+        Shops.getEconomy().depositPlayer(player, amount);
         Notifier.process(sender, WITHDRAW_SUCCESS, getAttributes());
         return true;
     }

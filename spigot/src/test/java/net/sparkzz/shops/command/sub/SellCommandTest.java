@@ -3,7 +3,6 @@ package net.sparkzz.shops.command.sub;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -84,7 +83,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emerald 1");
         assertEquals(Notifier.compose(SELL_SUCCESS, Map.of("quantity", 1, "material", Material.EMERALD, "cost", 1.5D)), mrSparkzz.nextMessage());
         assertEquals(25, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
-        assertEquals(150, Core.getEconomy().getBalance(mrSparkzz));
+        assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test");
     }
 

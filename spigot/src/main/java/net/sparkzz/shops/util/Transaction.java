@@ -1,7 +1,7 @@
 package net.sparkzz.shops.util;
 
 import net.milkbowl.vault.economy.Economy;
-import net.sparkzz.shops.Core;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Transaction extends Notifiable {
 
-    private static final Economy econ = Core.getEconomy();
+    private static final Economy econ = Shops.getEconomy();
     private final ItemStack itemStack;
     private final TransactionType type;
     private final Player player;

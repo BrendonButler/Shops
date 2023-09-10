@@ -3,7 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
 
     <parent>
         <groupId>net.sparkzz</groupId>
@@ -12,86 +11,142 @@
     </parent>
 
     <properties>
-        <maven.compiler.compileOrder>core,spigot</maven.compiler.compileOrder>
+        <maven.compiler.compileOrder>core,spigot,sponge</maven.compiler.compileOrder>
     </properties>
 
     <name>Shops (Core)</name>
     <artifactId>core</artifactId>
     <url>https://shops.sparkzz.net/</url>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <!-- Spigot Minecraft API -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
+    <build>
+        <plugins>
+            <!-- Site Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
+                <configuration>
+                    <outputEncoding>${project.build.encoding}</outputEncoding>
+                </configuration>
 
-        <!-- SnakeYAML (override vulnerable transitive dependency) -->
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <scope>test</scope>
-        </dependency>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-xhtml</artifactId>
+                        <version>2.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 
-        <!-- Guava (override vulnerable transitive dependency -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
+            <!-- Javadoc Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                    <finalName>combined-javadoc</finalName>
+                    <!--<doclint>all,-missing</doclint>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-javadoc</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-        <!-- MockBukkit Test Mocking Tool -->
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
-            <scope>test</scope>
-        </dependency>
+            <!-- JaCoCo Plugin -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-        <!-- Vault API (Economy/Permissions/etc. plugin management) -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <scope>provided</scope>
-        </dependency>
+    <reporting>
+        <plugins>
+            <!-- Generates a Javadoc report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                    <!--<doclint>all,-missing</doclint>-->
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 
-        <!-- Vault plugin -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>Vault</artifactId>
-            <scope>provided</scope>
-        </dependency>
+            <!-- Generates a JaCoCo coverage report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 
-        <!-- SpongePowered Configurate HOCON (configuration management) -->
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>configurate-hocon</artifactId>
-        </dependency>
+            <!-- Generates a Dependency Analysis report -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${maven.dependency-check.version}</version>
+                <configuration>
+                    <name>Dependency Analysis</name>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>check</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 
-        <!-- SpongePowered Configurate YAML (configuration management) -->
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>configurate-yaml</artifactId>
-        </dependency>
-
-        <!-- Jackson Databind (expanded serialization and deserialization) -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- JetBrains Annotations -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Maven Project Info Reports Plugin -->
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-project-info-reports-plugin</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+            <!-- Generates a SpotBugs Java bug report -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <encoding>${project.build.encoding}</encoding>
+                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

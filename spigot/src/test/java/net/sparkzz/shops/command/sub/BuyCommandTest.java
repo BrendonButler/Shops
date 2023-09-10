@@ -3,7 +3,6 @@ package net.sparkzz.shops.command.sub;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -82,7 +81,7 @@ class BuyCommandTest {
         performCommand(mrSparkzz, "shop buy emerald 12");
         assertEquals(Notifier.compose(BUY_SUCCESS, Map.of("quantity", 12, "material", Material.EMERALD, "cost", 24)), mrSparkzz.nextMessage());
         assertEquals(24, store.getBalance());
-        assertEquals(26, Core.getEconomy().getBalance(mrSparkzz));
+        assertEquals(26, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test");
     }
 

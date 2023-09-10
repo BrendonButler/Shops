@@ -3,7 +3,6 @@ package net.sparkzz.shops.command.sub;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -77,7 +76,7 @@ class WithdrawCommandTest {
         performCommand(mrSparkzz, "shop withdraw 100");
         assertEquals(Notifier.compose(WITHDRAW_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
         assertEquals(25, store.getBalance());
-        assertEquals(150, Core.getEconomy().getBalance(mrSparkzz));
+        assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("withdraw command test");
     }
 

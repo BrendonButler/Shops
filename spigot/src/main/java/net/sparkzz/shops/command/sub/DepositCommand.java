@@ -1,6 +1,6 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Core;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
@@ -44,12 +44,12 @@ public class DepositCommand extends SubCommand {
             return true;
         }
 
-        if (amount > Core.getEconomy().getBalance(player)) {
+        if (amount > Shops.getEconomy().getBalance(player)) {
             Notifier.process(sender, INSUFFICIENT_FUNDS_PLAYER, getAttributes());
             return true;
         }
 
-        Core.getEconomy().withdrawPlayer(player, amount);
+        Shops.getEconomy().withdrawPlayer(player, amount);
         store.addFunds(amount);
         Notifier.process(sender, DEPOSIT_SUCCESS, getAttributes());
         return true;
