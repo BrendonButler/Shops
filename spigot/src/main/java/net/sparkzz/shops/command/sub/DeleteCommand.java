@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
@@ -15,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Delete subcommand used for deleting a shop
@@ -30,7 +29,7 @@ public class DeleteCommand extends SubCommand {
         try {
             resetAttributes();
             setArgsAsAttributes(args);
-            Optional<AbstractStore> foundStore = identifyStore(args[1]);
+            Optional<Store> foundStore = identifyStore(args[1]);
             setAttribute("sender", sender);
             setAttribute("store", (foundStore.isPresent() ? foundStore.get() : args[1]));
 
@@ -58,7 +57,7 @@ public class DeleteCommand extends SubCommand {
             }
 
             boolean canInsertAll = false;
-            Store store = (Store) foundStore.get();
+            Store store = foundStore.get();
             Player player = (Player) sender;
 
             setAttribute("store", store.getName());

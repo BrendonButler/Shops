@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command;
 
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.util.Notifiable;
@@ -41,7 +40,7 @@ public abstract class SubCommand extends Notifiable {
      * @param nameOrUUID input name or UUID
      * @return the optional store if found or optional empty if not found or duplicates are found
      */
-    protected Optional<AbstractStore> identifyStore(String nameOrUUID) throws Core.MultipleStoresMatchedException {
+    protected Optional<Store> identifyStore(String nameOrUUID) throws Core.MultipleStoresMatchedException {
         return Store.identifyStore(nameOrUUID);
     }
 }

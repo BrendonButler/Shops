@@ -2,10 +2,10 @@ package net.sparkzz.shops;
 
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -31,12 +31,12 @@ public class Store extends AbstractStore {
     /**
      * This Map contains all default stores per world
      */
-    public static final Map<@Nullable World, Store> DEFAULT_STORES = new HashMap<>();
+    public static final Map<@Nullable ServerWorld, Store> DEFAULT_STORES = new HashMap<>();
 
     // TODO: Create a map of Worlds to Cuboids to allow for multiple locations for the same store
     @Setting("location") private Cuboid cuboidLocation;
     // item : attribute, value (block_dirt : quantity, 550)
-    @Setting private Map<Material, Map<String, Number>> items;
+    @Setting private Map<ItemType, Map<String, Number>> items;
 
     /**
      * This constructor is required for the deserializer
@@ -101,7 +101,7 @@ public class Store extends AbstractStore {
      * @param world the world to check for the default store
      * @return the default store based on the world
      */
-    public static Optional<Store> getDefaultStore(@Nullable World world) {
+    public static Optional<Store> getDefaultStore(@Nullable ServerWorld world) {
         Optional<Store> nullDefaultStore = Optional.ofNullable(DEFAULT_STORES.get(null));
 
         return nullDefaultStore.isPresent() ? nullDefaultStore : Optional.ofNullable(DEFAULT_STORES.get(world));
@@ -112,7 +112,7 @@ public class Store extends AbstractStore {
      *
      * @param store the default store to be set
      */
-    public static void setDefaultStore(World world, Store store) {
+    public static void setDefaultStore(ServerWorld world, Store store) {
         DEFAULT_STORES.put(world, store);
         Config.setDefaultStore(world, store);
     }
@@ -149,7 +149,7 @@ public class Store extends AbstractStore {
      * @param material the material to be identified within the store
      * @return whether the store contains the provided material
      */
-    public boolean containsMaterial(Material material) {
+    public boolean containsItemType(ItemType material) {
         return items.containsKey(material);
     }
 
@@ -159,7 +159,7 @@ public class Store extends AbstractStore {
      * @param material the material to be queried for its buy price
      * @return the buy price of the provided material
      */
-    public double getBuyPrice(Material material) {
+    public double getBuyPrice(ItemType material) {
         return (items.containsKey(material) ? items.get(material).get("buy").doubleValue() : -1D);
     }
 
@@ -178,7 +178,7 @@ public class Store extends AbstractStore {
      * @param material the material to be queried for its sell price
      * @return the sell price of the provided material
      */
-    public double getSellPrice(Material material) {
+    public double getSellPrice(ItemType material) {
         return (items.containsKey(material) ? items.get(material).get("sell").doubleValue() : -1D);
     }
 
@@ -187,7 +187,7 @@ public class Store extends AbstractStore {
      *
      * @return the items and attributes within the store
      */
-    public Map<Material, Map<String, Number>> getItems() {
+    public Map<ItemType, Map<String, Number>> getItems() {
         return items;
     }
 
@@ -197,7 +197,7 @@ public class Store extends AbstractStore {
      * @param material the material to be queried for its attributes
      * @return the attributes of the provided material
      */
-    public Map<String, Number> getAttributes(Material material) {
+    public Map<String, Number> getAttributes(ItemType material) {
         return items.get(material);
     }
 
@@ -207,7 +207,7 @@ public class Store extends AbstractStore {
      * @param itemStack the item stack to be added to the store
      */
     public void addItem(ItemStack itemStack) {
-        addItem(itemStack.getType(), itemStack.getAmount());
+        addItem(itemStack.type(), itemStack.quantity());
     }
 
     /**
@@ -216,7 +216,7 @@ public class Store extends AbstractStore {
      * @param material the material to be added to the store
      * @param quantity the quantity of the provided material to be added to the store
      */
-    public void addItem(Material material, int quantity) {
+    public void addItem(ItemType material, int quantity) {
         if (items.containsKey(material)) {
             int currentQuantity = items.get(material).get("quantity").intValue();
             items.get(material).put("quantity", currentQuantity + quantity);
@@ -241,7 +241,7 @@ public class Store extends AbstractStore {
      * @param buyValue the buy value of the provided material
      * @param sellValue the sell value of the provided material
      */
-    public void addItem(Material material, int quantity, int maxQuantity, double buyValue, double sellValue) {
+    public void addItem(ItemType material, int quantity, int maxQuantity, double buyValue, double sellValue) {
         addItem(material, quantity);
 
         items.get(material).put("max_quantity", maxQuantity);
@@ -255,7 +255,7 @@ public class Store extends AbstractStore {
      * @param itemStack the item stack to be removed from the store
      */
     public void removeItem(ItemStack itemStack) {
-        removeItem(itemStack.getType(), itemStack.getAmount());
+        removeItem(itemStack.type(), itemStack.quantity());
     }
 
     /**
@@ -263,7 +263,7 @@ public class Store extends AbstractStore {
      *
      * @param material the material to be removed from the store
      */
-    public void removeItem(Material material) {
+    public void removeItem(ItemType material) {
         items.remove(material);
     }
 
@@ -273,7 +273,7 @@ public class Store extends AbstractStore {
      * @param material the material to be removed from the store
      * @param quantity the quantity of the provided material to be removed from the store
      */
-    public void removeItem(Material material, int quantity) {
+    public void removeItem(ItemType material, int quantity) {
         Map<String, Number> attributes = items.get(material);
         int newQuantity = attributes.get("quantity").intValue() - quantity;
 

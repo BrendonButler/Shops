@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
@@ -15,7 +14,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Optional;
 import java.util.UUID;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Transfer subcommand used for transferring a shop from one player to another
@@ -31,7 +30,7 @@ public class TransferCommand extends SubCommand {
             resetAttributes();
             setArgsAsAttributes(args);
             setAttribute("sender", sender);
-            Optional<AbstractStore> foundStore;
+            Optional<Store> foundStore;
                 foundStore = identifyStore(args[1]);
             setAttribute("store", (foundStore.isPresent() ? foundStore.get() : args[1]));
 
@@ -52,7 +51,7 @@ public class TransferCommand extends SubCommand {
                 return true;
             }
 
-            Store store = (Store) foundStore.get();
+            Store store = foundStore.get();
 
             setAttribute("target", targetPlayer.getName());
 
@@ -65,7 +64,7 @@ public class TransferCommand extends SubCommand {
                     }
 
                 if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
-                    Notifier.process(sender, Notifier.CipherKey.STORE_TRANSFER_FAIL_MAX_STORES, getAttributes());
+                    Notifier.process(sender, STORE_TRANSFER_FAIL_MAX_STORES, getAttributes());
                     return true;
                 }
             }

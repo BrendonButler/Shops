@@ -16,8 +16,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static net.sparkzz.shops.util.Notifier.CipherKey.INVALID_MATERIAL;
-import static net.sparkzz.shops.util.Notifier.CipherKey.MATERIAL_MISSING_STORE;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -132,7 +131,7 @@ class AddCommandTest {
     void testDepositCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop add emerald 1");
-        assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(NO_STORE_FOUND, null), mrSparkzz.nextMessage());
         printSuccessMessage("add command test - no store");
     }
 }

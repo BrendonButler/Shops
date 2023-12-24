@@ -3,7 +3,6 @@ package net.sparkzz.shops.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.leangen.geantyref.TypeToken;
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Store;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -133,15 +132,15 @@ public class Warehouse {
             for (CommentedConfigurationNode currentNode : storeConfig.node("stores").childrenList())
                 Store.STORES.add(storeMapper.load(currentNode));
 
-            Optional<AbstractStore> nullDefaultStore = Config.getDefaultStore(Bukkit.getWorld("null"));
+            Optional<Store> nullDefaultStore = Config.getDefaultStore(Bukkit.getWorld("null"));
 
             if (nullDefaultStore.isPresent()) {
-                Store.setDefaultStore(null, (Store) nullDefaultStore.get());
+                Store.setDefaultStore(null, nullDefaultStore.get());
             } else {
                 for (World world : Bukkit.getWorlds()) {
-                    Optional<AbstractStore> defaultStoreForWorld = Config.getDefaultStore(world);
+                    Optional<Store> defaultStoreForWorld = Config.getDefaultStore(world);
 
-                    defaultStoreForWorld.ifPresent(store -> Store.setDefaultStore(world, (Store) store));
+                    defaultStoreForWorld.ifPresent(store -> Store.setDefaultStore(world, store));
                 }
             }
 

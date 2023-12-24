@@ -3,22 +3,13 @@ package net.sparkzz.shops;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * The Store class is instantiable and serialized/deserialized around the data.shops file
  */
 @ConfigSerializable
 public abstract class AbstractStore {
-
-    /**
-     * This List contains all stores that have been created
-     */
-    public static final ArrayList<AbstractStore> STORES = new ArrayList<>();
 
     @Setting private boolean infFunds = false;
     @Setting private boolean infStock = false;
@@ -44,8 +35,6 @@ public abstract class AbstractStore {
     public AbstractStore(String name) {
         uuid = UUID.randomUUID();
         this.name = name;
-
-        STORES.add(this);
     }
 
     /**
@@ -57,32 +46,6 @@ public abstract class AbstractStore {
     public AbstractStore(String name, UUID owner) {
         this(name);
         this.owner = owner;
-    }
-
-    /**
-     * The identifyStore method is a common method for identifying a store based on a string name, UUID or a combination
-     * using the format name~UUID
-     *
-     * @param nameOrUUID input name or UUID
-     * @return the optional store if found or optional empty if not found or duplicates are found
-     */
-    public static Optional<AbstractStore> identifyStore(String nameOrUUID) throws Core.MultipleStoresMatchedException {
-        List<AbstractStore> identifiedStores;
-        Optional<AbstractStore> store = Optional.empty();
-
-        if (nameOrUUID.contains("~")) {
-            String[] input = nameOrUUID.split("~");
-
-            identifiedStores = STORES.stream().filter(s -> s.getName().equalsIgnoreCase(input[0]) && s.getUUID().toString().equalsIgnoreCase(input[1])).collect(Collectors.toCollection(ArrayList::new));
-        } else {
-            identifiedStores = STORES.stream().filter(s -> s.getName().equalsIgnoreCase(nameOrUUID) || s.getUUID().toString().equalsIgnoreCase(nameOrUUID)).collect(Collectors.toCollection(ArrayList::new));
-        }
-
-        if (identifiedStores.size() == 1)
-            store = Optional.of(identifiedStores.get(0));
-        else if (identifiedStores.size() > 1) throw new Core.MultipleStoresMatchedException("Multiple Stores matched");
-
-        return store;
     }
 
     /**
