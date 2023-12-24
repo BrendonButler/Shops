@@ -40,7 +40,7 @@
         <maven.compiler.target>16</maven.compiler.target>
         <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
-        <maven.reports.version>3.4.5</maven.reports.version>
+        <maven.reports.version>3.5.0</maven.reports.version>
         <maven.site.version>4.0.0-M8</maven.site.version>
         <project.build.encoding>UTF-8</project.build.encoding>
     </properties>
@@ -259,6 +259,27 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!-- JetBrains Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SpongePowered Configurate HOCON (configuration management) -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-hocon</artifactId>
+        </dependency>
+
+        <!-- SpongePowered Configurate YAML (configuration management) -->
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-yaml</artifactId>
+        </dependency>
+    </dependencies>
 
     <reporting>
         <plugins>

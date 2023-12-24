@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
@@ -16,7 +15,7 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 import java.util.stream.DoubleStream;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.PLAYER_NOT_FOUND;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Create subcommand used for creating a shop
@@ -34,12 +33,12 @@ public class CreateCommand extends SubCommand {
         // TODO: new permission to limit a player to a number of shops (shops.create.<quantity>)
         int shopsOwned = 0;
 
-        for (AbstractStore store : Store.STORES)
+        for (Store store : Store.STORES)
             if (store.getOwner().equals(((Player) sender).getUniqueId()))
                 shopsOwned++;
 
         if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
-            Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_STORES, getAttributes());
+            Notifier.process(sender, STORE_CREATE_FAIL_MAX_STORES, getAttributes());
             return true;
         }
 
@@ -48,7 +47,7 @@ public class CreateCommand extends SubCommand {
 
         if (args.length == 3 || args.length == 9) {
             if (!sender.hasPermission("shops.create.other-player")) {
-                Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CREATE_OTHER, getAttributes());
+                Notifier.process(sender, NO_PERMS_CREATE_OTHER, getAttributes());
                 return true;
             }
 
@@ -106,12 +105,12 @@ public class CreateCommand extends SubCommand {
             double limitMaxZ = (double) setAttribute("limit-max-z", maxDims[2]);
 
             if ((maxX - minX) < limitMinX || (maxY - minY) < limitMinY || (maxZ - minZ) < limitMinZ) {
-                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
+                Notifier.process(sender, STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
                 return true;
             }
 
             if ((limitMaxX > 0 && (maxX - minX) > limitMaxX) || (limitMaxY > 0 && (maxY - minY) > limitMaxY) || (limitMaxZ > 0 && (maxZ - minZ) > limitMaxZ)) {
-                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_DIMS, getAttributes());
+                Notifier.process(sender, STORE_CREATE_FAIL_MAX_DIMS, getAttributes());
                 return true;
             }
 
@@ -120,12 +119,12 @@ public class CreateCommand extends SubCommand {
             double maxVolume = (double) setAttribute("limit-max-vol", Config.getMaxVolume());
 
             if (volume < minVolume) {
-                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MIN_VOL, getAttributes());
+                Notifier.process(sender, STORE_CREATE_FAIL_MIN_VOL, getAttributes());
                 return true;
             }
 
             if (maxVolume > 0 && volume > maxVolume) {
-                Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_MAX_VOL, getAttributes());
+                Notifier.process(sender, STORE_CREATE_FAIL_MAX_VOL, getAttributes());
                 return true;
             }
 
@@ -133,14 +132,14 @@ public class CreateCommand extends SubCommand {
 
             for (Cuboid currentCuboid : Config.getOffLimitsCuboids()) {
                 if (cuboid.intersects(currentCuboid) || currentCuboid.intersects(cuboid)) {
-                    Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_OFFLIMITS, getAttributes());
+                    Notifier.process(sender, STORE_CREATE_FAIL_OFFLIMITS, getAttributes());
                     return true;
                 }
             }
 
             for (Cuboid currentCuboid : Store.getStores().stream().map(Store::getCuboidLocation).toList()) {
                 if (cuboid.intersects(currentCuboid) || currentCuboid.intersects(cuboid)) {
-                    Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_FAIL_OVERLAPS, getAttributes());
+                    Notifier.process(sender, STORE_CREATE_FAIL_OVERLAPS, getAttributes());
                     return true;
                 }
             }
@@ -151,8 +150,8 @@ public class CreateCommand extends SubCommand {
         setAttribute("store", store.getName());
 
         if (owner.getUniqueId().equals(((Player) sender).getUniqueId()))
-            Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_SUCCESS, getAttributes());
-        else Notifier.process(sender, Notifier.CipherKey.STORE_CREATE_SUCCESS_OTHER_PLAYER, getAttributes());
+            Notifier.process(sender, STORE_CREATE_SUCCESS, getAttributes());
+        else Notifier.process(sender, STORE_CREATE_SUCCESS_OTHER_PLAYER, getAttributes());
         return true;
     }
 }

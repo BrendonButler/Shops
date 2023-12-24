@@ -8,7 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Browse subcommand used for browsing items to a shop

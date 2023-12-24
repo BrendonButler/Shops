@@ -3,7 +3,6 @@ package net.sparkzz.shops.command.sub;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -129,7 +128,7 @@ class DeleteCommandTest {
         // Override identifyStore to return a store that's not within the list
         DeleteCommand deleteCommand = new DeleteCommand() {
             @Override
-            protected Optional<AbstractStore> identifyStore(String nameOrUUID) {
+            protected Optional<Store> identifyStore(String nameOrUUID) {
                 return Optional.of(store);
             }
         };

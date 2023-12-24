@@ -244,18 +244,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- SpongePowered Configurate HOCON (configuration management) -->
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>configurate-hocon</artifactId>
-        </dependency>
-
-        <!-- SpongePowered Configurate YAML (configuration management) -->
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>configurate-yaml</artifactId>
-        </dependency>
-
         <!-- Jackson Databind (expanded serialization and deserialization) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -267,13 +255,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-project-info-reports-plugin</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- JetBrains Annotations -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

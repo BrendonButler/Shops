@@ -1,10 +1,10 @@
 package net.sparkzz.shops.util;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.awt.geom.Point2D;
@@ -16,7 +16,7 @@ import java.util.List;
 @ConfigSerializable
 public class Cuboid extends AbstractCuboid {
 
-    private World world;
+    private ServerWorld world;
 
     /**
      * This constructor is required for the deserializer
@@ -37,7 +37,7 @@ public class Cuboid extends AbstractCuboid {
      * @param y2 the ending 'y' position in the world
      * @param z2 the ending 'z' position in the world
      */
-    public Cuboid(@Nullable final World world, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2) {
+    public Cuboid(@Nullable final ServerWorld world, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2) {
         super(x1, y1, z1, x2, y2, z2);
         this.world = world;
     }
@@ -109,9 +109,9 @@ public class Cuboid extends AbstractCuboid {
      * @return whether the player is within the bounds of the cuboid
      */
     public boolean isPlayerWithin(Player player) {
-        Location playerLocation = player.getLocation();
+        ServerLocation playerLocation = (ServerLocation) player.location();
 
-        return world == playerLocation.getWorld() && super.isPointWithin(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ());
+        return world == playerLocation.world() && super.isPointWithin(playerLocation.x(), playerLocation.y(), playerLocation.z());
     }
 
     /**
@@ -120,7 +120,7 @@ public class Cuboid extends AbstractCuboid {
      * @return the world that the Cuboid is contained within
      */
     @Nullable
-    public World getWorld() {
+    public ServerWorld getWorld() {
         if (this.world == null)
             return null;
 
@@ -132,7 +132,7 @@ public class Cuboid extends AbstractCuboid {
      *
      * @param world the world to be associated with the Cuboid
      */
-    public void setWorld(@NotNull World world) {
+    public void setWorld(@NotNull ServerWorld world) {
         this.world = world;
     }
 
@@ -168,7 +168,7 @@ public class Cuboid extends AbstractCuboid {
     @Override
     public String toString() {
         return String.format("%s(%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f)",
-                ((world != null) ? world.getName() + ", " : ""),
+                ((world != null) ? world.properties().name() + ", " : ""),
                 super.getX1(), super.getY1(), super.getZ1(), super.getX2(), super.getY2(), super.getZ2());
     }
 }

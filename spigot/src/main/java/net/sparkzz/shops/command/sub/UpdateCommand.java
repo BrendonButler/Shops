@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Cuboid;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Update subcommand used for updating items in a shop
@@ -52,7 +51,7 @@ public class UpdateCommand extends SubCommand {
                     store.setCuboidLocation(generateCuboid(world, args[2], args[3], args[4], args[5], args[6], args[7]));
                 }
                 case 9 -> {
-                    Optional<AbstractStore> foundStore = identifyStore((String) setAttribute("store", args[2]));
+                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
                     World world = Bukkit.getWorld((String) setAttribute("world", args[2]));
                     store = (Store) setAttribute("store", foundStore.orElse(store));
 
@@ -70,7 +69,7 @@ public class UpdateCommand extends SubCommand {
                     store.setCuboidLocation(generateCuboid(world, args[3], args[4], args[5], args[6], args[7], args[8]));
                 }
                 case 10 -> {
-                    Optional<AbstractStore> foundStore = identifyStore((String) setAttribute("store", args[2]));
+                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
                     World world = Bukkit.getWorld((String) setAttribute("world", args[3]));
 
                     if (foundStore.isEmpty()) {
@@ -78,7 +77,7 @@ public class UpdateCommand extends SubCommand {
                         return true;
                     }
 
-                    store = (Store) foundStore.get();
+                    store = foundStore.get();
                     setAttribute("store", store.getName());
 
                     if (world == null) {

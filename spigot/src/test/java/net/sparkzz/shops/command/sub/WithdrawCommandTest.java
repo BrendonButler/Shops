@@ -13,7 +13,7 @@ import org.junit.jupiter.api.*;
 import java.util.Collections;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")

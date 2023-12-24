@@ -5,7 +5,6 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.*;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
-import net.sparkzz.shops.util.Notifier.CipherKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -29,6 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.bukkit.ChatColor.RED;
 
 /**
@@ -386,7 +386,7 @@ public class ShopCommand extends CommandManager {
         setArgsAsAttributes(args);
 
         if (!(sender instanceof Player)) {
-            Notifier.process(sender, CipherKey.ONLY_PLAYERS_CMD, getAttributes());
+            Notifier.process(sender, ONLY_PLAYERS_CMD, getAttributes());
             return true;
         }
 
@@ -396,7 +396,7 @@ public class ShopCommand extends CommandManager {
             String subCommand = args[0].toLowerCase();
 
             if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
-                Notifier.process(sender, CipherKey.NO_PERMS_CMD, getAttributes());
+                Notifier.process(sender, NO_PERMS_CMD, getAttributes());
                 return true;
             }
 
@@ -405,7 +405,7 @@ public class ShopCommand extends CommandManager {
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {
-            Notifier.process(sender, CipherKey.INVALID_ARG_CNT, getAttributes());
+            Notifier.process(sender, INVALID_ARG_CNT, getAttributes());
         }
 
         // send the CommandSender a usage message based on the subcommand instead of the default

@@ -3,7 +3,6 @@ package net.sparkzz.shops.command;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.AbstractStore;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.mocks.MockVault;
@@ -59,7 +58,7 @@ class SubCommandTest {
     @DisplayName("Test identify store - name")
     @Order(1)
     void testIdentifyStore_Name() {
-        Optional<AbstractStore> identifiedStore = testClass.identifyStore(store.getName());
+        Optional<Store> identifiedStore = testClass.identifyStore(store.getName());
         assertEquals(store, identifiedStore.orElse(null));
         printSuccessMessage("identify store - name");
     }
@@ -68,7 +67,7 @@ class SubCommandTest {
     @DisplayName("Test identify store - UUID")
     @Order(2)
     void testIdentifyStore_UUID() {
-        Optional<AbstractStore> identifiedStore = testClass.identifyStore(store.getUUID().toString());
+        Optional<Store> identifiedStore = testClass.identifyStore(store.getUUID().toString());
         assertEquals(store, identifiedStore.orElse(null));
         printSuccessMessage("identify store - UUID");
     }
@@ -77,7 +76,7 @@ class SubCommandTest {
     @DisplayName("Test identify store - name~UUID")
     @Order(3)
     void testIdentifyStore_NameAndUUID() {
-        Optional<AbstractStore> identifiedStore = testClass.identifyStore(String.format("%s~%s", store.getName(), store.getUUID()));
+        Optional<Store> identifiedStore = testClass.identifyStore(String.format("%s~%s", store.getName(), store.getUUID()));
         assertEquals(store, identifiedStore.orElse(null));
         printSuccessMessage("identify store - UUID");
     }
@@ -90,7 +89,7 @@ class SubCommandTest {
         }
 
         @Override
-        public Optional<AbstractStore> identifyStore(String name) {
+        public Optional<Store> identifyStore(String name) {
             return super.identifyStore(name);
         }
     }

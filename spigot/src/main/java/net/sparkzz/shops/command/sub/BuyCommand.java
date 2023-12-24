@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
  * Buy subcommand used for processing buy transactions

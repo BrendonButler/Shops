@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")

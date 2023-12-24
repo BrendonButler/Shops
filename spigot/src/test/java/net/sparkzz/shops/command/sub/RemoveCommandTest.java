@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static net.sparkzz.shops.util.Notifier.CipherKey.*;
+import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
