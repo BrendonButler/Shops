@@ -32,8 +32,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.DoubleStream;
@@ -58,7 +60,6 @@ public class Warehouse {
      * @return whether the configuration(s) were loaded successfully
      */
     public static boolean loadConfig() {
-
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder()
                 .register(new TypeToken<>() {}, new ItemTypeMapSerializer())
                 .register(TypeToken.get(Cuboid.class), new CuboidSerializer())
@@ -86,7 +87,10 @@ public class Warehouse {
                 .source(() ->
                     new BufferedReader(
                             new InputStreamReader(
-                                    new FileInputStream(configFile)
+                                    (configFile.exists()) ?
+                                    new FileInputStream(configFile) :
+                                    Objects.requireNonNull(Sponge.pluginManager().plugin("shops").orElseThrow()
+                                            .openResource(new URI("config.yml")).orElseThrow())
                             )
                     )
                 )
