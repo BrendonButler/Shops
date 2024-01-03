@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.sparkzz.shops.Store;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 
 import java.util.Collections;
@@ -49,6 +50,17 @@ public class Notifier extends AbstractNotifier {
      * @param attributes attributes that can be added to the message
      */
     public static void process(CommandCause target, CipherKey cipherKey, Map<String, Object> attributes) {
+        target.sendMessage(Component.text(compose(cipherKey, attributes)));
+    }
+
+    /**
+     * Composes the message and sends it to the target
+     *
+     * @param target the target user to send a message to
+     * @param cipherKey the key for determining the message value
+     * @param attributes attributes that can be added to the message
+     */
+    public static void process(Player target, CipherKey cipherKey, Map<String, Object> attributes) {
         target.sendMessage(Component.text(compose(cipherKey, attributes)));
     }
 
@@ -102,11 +114,32 @@ public class Notifier extends AbstractNotifier {
         }
 
         /**
+         * Completes the process and sends the message to the target
+         *
+         * @param target the target user to send a message to
+         */
+        public void process(Player target) {
+            target.sendMessage(Component.text(build()));
+        }
+
+        /**
          * Completes the process and sends each new line as an individual message
          *
          * @param target the target user to send a message to
          */
         public void processIndividual(CommandCause target) {
+            String[] messages = finalMessage.toString().split(lineSeparator);
+
+            for (String message : messages)
+                target.sendMessage(Component.text(message));
+        }
+
+        /**
+         * Completes the process and sends each new line as an individual message
+         *
+         * @param target the target user to send a message to
+         */
+        public void processIndividual(Player target) {
             String[] messages = finalMessage.toString().split(lineSeparator);
 
             for (String message : messages)

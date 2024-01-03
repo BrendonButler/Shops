@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
+
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
 /**
@@ -48,7 +50,7 @@ public class BuyCommand extends SubCommand {
             Transaction transaction = new Transaction((Player) sender, new ItemStack(material, quantity), Transaction.TransactionType.PURCHASE);
             setAttribute("cost", transaction.getTotalCost());
 
-            if (args.length == 2 && transaction.getTotalCost() != -1) {
+            if (args.length == 2 && transaction.getTotalCost().compareTo(BigDecimal.valueOf(-1)) != 0) {
                 Notifier.process(sender, PRICE, getAttributes());
                 return true;
             }

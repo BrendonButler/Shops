@@ -1,13 +1,17 @@
 package net.sparkzz.shops.util;
 
-import net.milkbowl.vault.economy.Economy;
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.spongepowered.api.item.inventory.query.QueryTypes.ITEM_TYPE;
 
 /**
  * This helper class provides a transaction handler so that transactions can be built and verified before being
@@ -15,14 +19,14 @@ import java.math.BigDecimal;
  */
 public class Transaction extends Notifiable {
 
-    private static final Economy econ = Shops.getEconomy();
-    private final BigDecimal cost;
+    private static final EconomyService econ = Sponge.server().serviceProvider().economyService().orElseThrow();
     private final ItemStack itemStack;
     private final TransactionType type;
     private final Player player;
     private final Store store;
     private final Notifier.MultilineBuilder transactionMessage;
     private boolean transactionReady = false, financesReady = false, inventoryReady = false;
+    private final BigDecimal cost;
 
     /**
      * Constructs the transaction with the player, item stack, and transaction type
@@ -37,21 +41,23 @@ public class Transaction extends Notifiable {
         this.type = (TransactionType) setAttribute("type", type);
         this.transactionMessage = new Notifier.MultilineBuilder(getAttributes());
 
-        setAttribute("material", itemStack.getType());
-        setAttribute("quantity", itemStack.getAmount());
+        setAttribute("material", itemStack.type());
+        setAttribute("quantity", itemStack.quantity());
 
         store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        cost = BigDecimal.valueOf((Double) setAttribute("cost", switch (type) {
-            case PURCHASE -> (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
-            case SALE -> (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
-        }));
+        cost = (BigDecimal) setAttribute("cost", switch (type) {
+            case PURCHASE -> (store.getBuyPrice(itemStack.type()).multiply(BigDecimal.valueOf(itemStack.quantity())));
+            case SALE -> (store.getSellPrice(itemStack.type()).multiply(BigDecimal.valueOf(itemStack.quantity())));
+        });
 
     }
 
     private void validateFinances() {
+        Optional<UniqueAccount> account = econ.findOrCreateAccount(player.uniqueId());
+
         switch (type) {
             case PURCHASE -> {
-                if (cost.compareTo(BigDecimal.valueOf(econ.getBalance(player))) >= 0)
+                if (account.orElseThrow().balance(econ.defaultCurrency()).compareTo(cost) >= 0)
                     financesReady = true;
 
                 if (!financesReady) transactionMessage.append(Notifier.CipherKey.INSUFFICIENT_FUNDS_PLAYER);
@@ -67,14 +73,14 @@ public class Transaction extends Notifiable {
     }
 
     private void validateInventory() {
-        Material material = itemStack.getType();
-        int itemQuantity = itemStack.getAmount();
+        ItemType material = itemStack.type();
+        int itemQuantity = itemStack.quantity();
 
         switch (type) {
             case PURCHASE -> {
                 boolean canInsertPlayer = InventoryManagementSystem.canInsert(player, material, itemQuantity);
-                boolean canWithdrawStore = store.containsMaterial(material) && InventoryManagementSystem.containsAtLeast(store, itemStack);
-                boolean storeIsSelling = store.containsMaterial(material) && store.getAttributes(material).get("buy").doubleValue() >= 0;
+                boolean canWithdrawStore = store.containsItemType(material) && InventoryManagementSystem.containsAtLeast(store, itemStack);
+                boolean storeIsSelling = store.containsItemType(material) && store.getAttributes(material).get("buy").doubleValue() >= 0;
 
                 if (!storeIsSelling) transactionMessage.append(Notifier.CipherKey.NOT_SELLING);
                 else if (!canInsertPlayer) transactionMessage.append(Notifier.CipherKey.INSUFFICIENT_INV_PLAYER);
@@ -84,8 +90,8 @@ public class Transaction extends Notifiable {
                     inventoryReady = true;
             }
             case SALE -> {
-                boolean canWithdrawPlayer = player.getInventory().containsAtLeast(itemStack, itemQuantity);
-                boolean storeIsBuying = store.containsMaterial(material) && store.getAttributes(material).get("sell").doubleValue() >= 0;
+                boolean canWithdrawPlayer = player.inventory().contains(itemStack);
+                boolean storeIsBuying = store.containsItemType(material) && store.getAttributes(material).get("sell").doubleValue() >= 0;
                 boolean storeIsBuyingMore = storeIsBuying && InventoryManagementSystem.getAvailableSpace(store, material) >= itemQuantity;
 
                 if (!storeIsBuying) transactionMessage.append(Notifier.CipherKey.NOT_BUYING);
@@ -137,7 +143,7 @@ public class Transaction extends Notifiable {
      *
      * @return the transaction type
      */
-    public TransactionType getType() {
+    public TransactionType type() {
         return type;
     }
 
@@ -145,23 +151,25 @@ public class Transaction extends Notifiable {
      * Processes the transaction for the player and store
      */
     public void process() {
+        Optional<UniqueAccount> account = econ.findOrCreateAccount(player.uniqueId());
+
         switch (type) {
             case PURCHASE -> {
-                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
+                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.type()).get("quantity").intValue() >= 0)
                     store.removeItem(itemStack);
 
                 store.addFunds(cost);
-                player.getInventory().addItem(itemStack);
-                econ.withdrawPlayer(player, cost.doubleValue());
+                player.inventory().offer(itemStack);
+                account.orElseThrow().withdraw(econ.defaultCurrency(), cost);
             }
             case SALE -> {
-                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
+                if (!store.hasInfiniteStock() && store.getAttributes(itemStack.type()).get("quantity").intValue() >= 0)
                     store.addItem(itemStack);
                 if (!store.hasInfiniteFunds())
                     store.removeFunds(cost);
 
-                player.getInventory().removeItem(itemStack);
-                econ.depositPlayer(player, cost.doubleValue());
+                player.inventory().query(ITEM_TYPE.get().of(itemStack.type())).poll(itemStack.quantity());
+                account.orElseThrow().deposit(econ.defaultCurrency(), cost);
             }
             default -> {}
         }

@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ class SellCommandTest {
     void setUpSellCommand() {
         Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
         Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(100);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(100));
         mrSparkzz.getInventory().addItem(emeralds);
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
     }
@@ -93,7 +94,7 @@ class SellCommandTest {
     void testSellCommand_BelowMinimum() {
         performCommand(mrSparkzz, "shop sell emerald -1");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
-        assertEquals(100, store.getBalance());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
         // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - below minimum amount");
     }
@@ -104,7 +105,7 @@ class SellCommandTest {
     void testSellCommand_AboveMaximum() {
         performCommand(mrSparkzz, "shop sell emerald 2305");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
-        assertEquals(100, store.getBalance());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
         // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - above maximum amount");
     }
@@ -116,7 +117,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emeral 1");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
-        assertEquals(100, store.getBalance());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
         // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - above maximum amount");
     }
@@ -127,7 +128,7 @@ class SellCommandTest {
     void testSellCommand_QueryPrice() {
         performCommand(mrSparkzz, "shop sell emerald");
         assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 1.5D)), mrSparkzz.nextMessage());
-        assertEquals(100, store.getBalance());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
         // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - query price");
     }
@@ -139,7 +140,7 @@ class SellCommandTest {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop sell emerald 2");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
-        assertEquals(100, store.getBalance());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
         // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - no store");
     }

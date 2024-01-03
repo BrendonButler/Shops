@@ -3,6 +3,7 @@ package net.sparkzz.shops;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -11,10 +12,9 @@ import java.util.UUID;
 @ConfigSerializable
 public abstract class AbstractStore {
 
+    @Setting private BigDecimal balance = BigDecimal.ZERO;
     @Setting private boolean infFunds = false;
     @Setting private boolean infStock = false;
-
-    @Setting private double balance;
     @Setting private String name;
     @Setting private UUID owner;
     @Setting private UUID uuid;
@@ -71,7 +71,7 @@ public abstract class AbstractStore {
      *
      * @return the balance of the store
      */
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
@@ -107,8 +107,8 @@ public abstract class AbstractStore {
      *
      * @param amount the amount of funds to be added to the store
      */
-    public void addFunds(double amount) {
-        balance += amount;
+    public void addFunds(BigDecimal amount) {
+        balance = balance.add(amount);
     }
 
     /**
@@ -116,10 +116,10 @@ public abstract class AbstractStore {
      *
      * @param amount the amount of funds to be removed from the store
      */
-    public void removeFunds(double amount) {
-        if (balance <= amount)
-            balance = 0;
-        else balance -= amount;
+    public void removeFunds(BigDecimal amount) {
+        if (balance.compareTo(amount) <= 0)
+            balance = BigDecimal.ZERO;
+        else balance = balance.subtract(amount);
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class AbstractStore {
      *
      * @param balance the amount to set the stores balance to
      */
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

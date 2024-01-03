@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -73,8 +74,8 @@ public class DeleteCommand extends SubCommand {
             }
 
             if (!ignoreFunds) {
-                Shops.getEconomy().depositPlayer(player, store.getBalance());
-                store.setBalance(0);
+                Shops.getEconomy().depositPlayer(player, store.getBalance().doubleValue());
+                store.setBalance(BigDecimal.ZERO);
             }
 
             boolean success = Store.STORES.remove(store);

@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ class AddCommandTest {
         Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
         Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
         Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().addFunds(100);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().addFunds(BigDecimal.valueOf(100));
     }
 
     @AfterAll

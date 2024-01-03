@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.math.BigDecimal;
+
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,8 +75,8 @@ public class StoreTest {
     @DisplayName("Test removing funds - more than store balance")
     @Order(3)
     void testRemoveFunds_MoreThanStoreBalance() {
-        Store.getDefaultStore(null).get().removeFunds(10D);
-        assertEquals(0D, Store.getDefaultStore(null).get().getBalance());
+        Store.getDefaultStore(null).get().removeFunds(BigDecimal.valueOf(10D));
+        assertEquals(BigDecimal.ZERO, Store.getDefaultStore(null).get().getBalance());
         printSuccessMessage("remove funds - more than store balance");
     }
 
@@ -82,9 +84,9 @@ public class StoreTest {
     @DisplayName("Test removing funds")
     @Order(4)
     void testRemoveFunds() {
-        Store.getDefaultStore(null).get().setBalance(15.52D);
-        Store.getDefaultStore(null).get().removeFunds(10D);
-        assertEquals(5.52D, Store.getDefaultStore(null).get().getBalance());
+        Store.getDefaultStore(null).get().setBalance(BigDecimal.valueOf(15.52D));
+        Store.getDefaultStore(null).get().removeFunds(BigDecimal.valueOf(10D));
+        assertEquals(BigDecimal.valueOf(5.52D), Store.getDefaultStore(null).get().getBalance());
         printSuccessMessage("remove funds");
     }
 

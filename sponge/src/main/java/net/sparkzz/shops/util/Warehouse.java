@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.leangen.geantyref.TypeToken;
 import net.sparkzz.shops.Store;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
@@ -33,9 +34,8 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.DoubleStream;
 
 /**
@@ -45,9 +45,9 @@ import java.util.stream.DoubleStream;
  */
 public class Warehouse {
 
+    protected static final Logger log = Sponge.pluginManager().plugin("shops").orElseThrow().logger();
     private static CommentedConfigurationNode config, storeConfig;
     private static ConfigurationLoader<CommentedConfigurationNode> configLoader, storeLoader;
-    private static Logger log;
     private static ObjectMapper<Store> storeMapper;
     private static final String configName = "config.yml";
     private static final String storeConfigName = "data.shops";
@@ -55,26 +55,25 @@ public class Warehouse {
     /**
      * Loads the configuration(s)
      *
-     * @param shops the Shops plugin instance to be loaded
      * @return whether the configuration(s) were loaded successfully
      */
-    public static boolean loadConfig(JavaPlugin shops) {
-        log = JavaPlugin.getPlugin(shops.getClass()).getLogger();
+    public static boolean loadConfig() {
+
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder()
-                .register(new TypeToken<>() {}, new MaterialMapSerializer())
+                .register(new TypeToken<>() {}, new ItemTypeMapSerializer())
                 .register(TypeToken.get(Cuboid.class), new CuboidSerializer())
-                .register(TypeToken.get(World.class), new WorldSerializer())
+                .register(TypeToken.get(ServerWorld.class), new WorldSerializer())
                 .register(TypeToken.get(BigDecimal.class), new BigDecimalSerializer())
                 .build();
         ConfigurationOptions options = ConfigurationOptions.defaults().serializers(serializers);
 
-        File dataFolder = shops.getDataFolder();
+        File dataFolder = Sponge.configManager().pluginConfig(Sponge.pluginManager().plugin("shops").orElseThrow()).directory().toFile();
         boolean dirExists = dataFolder.exists();
 
         if (!dirExists) dirExists = dataFolder.mkdirs();
 
         if (!dirExists) {
-            log.severe("Error loading or creating data folder");
+            log.error("Error loading or creating data folder");
             return false;
         }
 
@@ -87,7 +86,7 @@ public class Warehouse {
                 .source(() ->
                     new BufferedReader(
                             new InputStreamReader(
-                                    (configFile.exists()) ? new FileInputStream(configFile) : Objects.requireNonNull(shops.getResource("config.yml"))
+                                    new FileInputStream(configFile)
                             )
                     )
                 )
@@ -99,7 +98,7 @@ public class Warehouse {
 
             if (config == null || storeConfig == null) throw new IOException();
         } catch (IOException exception) {
-            log.severe("Error loading config file(s), disabling Shops plugin");
+            log.error("Error loading config file(s), disabling Shops plugin");
             return false;
         }
 
@@ -120,7 +119,7 @@ public class Warehouse {
             storeLoader.save(storeConfig);
             log.info("Config saved successfully");
         } catch (IOException exception) {
-            log.severe("Error saving configuration");
+            log.error("Error saving configuration");
         }
     }
 
@@ -134,12 +133,12 @@ public class Warehouse {
             for (CommentedConfigurationNode currentNode : storeConfig.node("stores").childrenList())
                 Store.STORES.add(storeMapper.load(currentNode));
 
-            Optional<Store> nullDefaultStore = Config.getDefaultStore(Bukkit.getWorld("null"));
+            Optional<Store> nullDefaultStore = Config.getDefaultStore(null);
 
             if (nullDefaultStore.isPresent()) {
                 Store.setDefaultStore(null, nullDefaultStore.get());
             } else {
-                for (World world : Bukkit.getWorlds()) {
+                for (ServerWorld world : Sponge.server().worldManager().worlds()) {
                     Optional<Store> defaultStoreForWorld = Config.getDefaultStore(world);
 
                     defaultStoreForWorld.ifPresent(store -> Store.setDefaultStore(world, store));
@@ -194,7 +193,7 @@ public class Warehouse {
          */
         @Override
         public @Nullable Cuboid deserialize(Type type, ConfigurationNode node) throws SerializationException {
-            World world = node.node("world").get(TypeToken.get(World.class));
+            ServerWorld world = node.node("world").get(TypeToken.get(ServerWorld.class));
             double x1 = node.node("x1").getDouble();
             double x2 = node.node("x2").getDouble();
             double y1 = node.node("y1").getDouble();
@@ -250,7 +249,7 @@ public class Warehouse {
     /**
      * Helper class to map materials based on their attributes and configure serialization/deserialization
      */
-    static class MaterialMapSerializer implements TypeSerializer<Map<Material, Map<String, Number>>> {
+    static class ItemTypeMapSerializer implements TypeSerializer<Map<ItemType, Map<String, Number>>> {
 
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
@@ -262,12 +261,12 @@ public class Warehouse {
          * @return the deserialized store item data
          */
         @Override
-        public Map<Material, Map<String, Number>> deserialize(Type type, ConfigurationNode node) {
+        public Map<ItemType, Map<String, Number>> deserialize(Type type, ConfigurationNode node) {
             try {
                 String json = node.getString("items");
                 return mapper.readValue(json, new TypeReference<>() {});
             } catch (JsonProcessingException e) {
-                log.severe("Failed to deserialize material map");
+                log.error("Failed to deserialize material map");
             }
             return new HashMap<>();
         }
@@ -280,14 +279,14 @@ public class Warehouse {
          * @param node the provided base node for stores
          */
         @Override
-        public void serialize(Type type, @Nullable Map<Material, Map<String, Number>> obj, ConfigurationNode node) throws SerializationException {
+        public void serialize(Type type, @Nullable Map<ItemType, Map<String, Number>> obj, ConfigurationNode node) throws SerializationException {
             try {
                 if (obj != null && !obj.isEmpty()) {
                     String json = mapper.writeValueAsString(obj);
                     node.set(json);
                 }
             } catch (JsonProcessingException e) {
-                log.severe("Failed to serialize material map");
+                log.error("Failed to serialize material map");
             }
         }
 
@@ -299,7 +298,7 @@ public class Warehouse {
          * @return an empty map
          */
         @Override
-        public @Nullable Map<Material, Map<String, Number>> emptyValue(Type specificType, ConfigurationOptions options) {
+        public @Nullable Map<ItemType, Map<String, Number>> emptyValue(Type specificType, ConfigurationOptions options) {
             return new HashMap<>();
         }
     }
@@ -307,7 +306,7 @@ public class Warehouse {
     /**
      * Helper class to serialize and deserialized worlds
      */
-    static class WorldSerializer implements TypeSerializer<World> {
+    static class WorldSerializer implements TypeSerializer<ServerWorld> {
 
         /**
          * Configures the deserializer to properly map and deserialize store item data
@@ -317,12 +316,17 @@ public class Warehouse {
          * @return the deserialized store item data
          */
         @Override
-        public @Nullable World deserialize(Type type, ConfigurationNode node) {
-            String worldString = node.node("location").getString("world");
-            World world = null;
+        public @Nullable ServerWorld deserialize(Type type, ConfigurationNode node) {
+            String worldKey = node.getString();
+            ServerWorld world = null;
 
-            if (worldString != null && !worldString.isEmpty())
-                world = Bukkit.getWorld(worldString);
+            if (worldKey != null && !worldKey.isEmpty()) {
+                try {
+                    world = Sponge.server().worldManager().loadWorld(ResourceKey.resolve(worldKey)).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    log.error("Unable to load store ({}) for world: {}", node.node("name"), worldKey);
+                }
+            }
 
             return world;
         }
@@ -335,9 +339,9 @@ public class Warehouse {
          * @param node the provided base node for stores
          */
         @Override
-        public void serialize(Type type, @Nullable World world, ConfigurationNode node) throws SerializationException {
+        public void serialize(Type type, @Nullable ServerWorld world, ConfigurationNode node) throws SerializationException {
             if (world != null)
-                node.set(world.getName());
+                node.set(world.properties().key().toString());
         }
 
         /**
@@ -348,7 +352,7 @@ public class Warehouse {
          * @return an empty map
          */
         @Override
-        public @Nullable World emptyValue(Type specificType, ConfigurationOptions options) {
+        public @Nullable ServerWorld emptyValue(Type specificType, ConfigurationOptions options) {
             return null;
         }
     }

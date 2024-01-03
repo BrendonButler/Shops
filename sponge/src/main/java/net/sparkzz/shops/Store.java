@@ -9,6 +9,7 @@ import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,8 +160,8 @@ public class Store extends AbstractStore {
      * @param material the material to be queried for its buy price
      * @return the buy price of the provided material
      */
-    public double getBuyPrice(ItemType material) {
-        return (items.containsKey(material) ? items.get(material).get("buy").doubleValue() : -1D);
+    public BigDecimal getBuyPrice(ItemType material) {
+        return (items.containsKey(material) ? BigDecimal.valueOf(items.get(material).get("buy").doubleValue()) : BigDecimal.valueOf(-1D));
     }
 
     /**
@@ -178,8 +179,8 @@ public class Store extends AbstractStore {
      * @param material the material to be queried for its sell price
      * @return the sell price of the provided material
      */
-    public double getSellPrice(ItemType material) {
-        return (items.containsKey(material) ? items.get(material).get("sell").doubleValue() : -1D);
+    public BigDecimal getSellPrice(ItemType material) {
+        return (items.containsKey(material) ? BigDecimal.valueOf(items.get(material).get("sell").doubleValue()) : BigDecimal.valueOf(-1D));
     }
 
     /**
@@ -241,7 +242,7 @@ public class Store extends AbstractStore {
      * @param buyValue the buy value of the provided material
      * @param sellValue the sell value of the provided material
      */
-    public void addItem(ItemType material, int quantity, int maxQuantity, double buyValue, double sellValue) {
+    public void addItem(ItemType material, int quantity, int maxQuantity, BigDecimal buyValue, BigDecimal sellValue) {
         addItem(material, quantity);
 
         items.get(material).put("max_quantity", maxQuantity);
