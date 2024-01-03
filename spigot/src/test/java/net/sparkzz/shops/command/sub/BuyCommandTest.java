@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ class BuyCommandTest {
     void testBuyCommand_BelowMinimum() {
         performCommand(mrSparkzz, "shop buy emerald -1");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
-        assertEquals(0, store.getBalance());
+        assertEquals(BigDecimal.ZERO, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - below minimum amount");
     }
@@ -102,7 +103,7 @@ class BuyCommandTest {
     void testBuyCommand_AboveMaximum() {
         performCommand(mrSparkzz, "shop buy emerald 2305");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
-        assertEquals(0, store.getBalance());
+        assertEquals(BigDecimal.ZERO, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - above maximum amount");
     }
@@ -114,7 +115,7 @@ class BuyCommandTest {
         performCommand(mrSparkzz, "shop buy emeral 10");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
-        assertEquals(0, store.getBalance());
+        assertEquals(BigDecimal.ZERO, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - above maximum amount");
     }
@@ -125,7 +126,7 @@ class BuyCommandTest {
     void testBuyCommand_QueryPrice() {
         performCommand(mrSparkzz, "shop buy emerald");
         assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 2D)), mrSparkzz.nextMessage());
-        assertEquals(0, store.getBalance());
+        assertEquals(BigDecimal.ZERO, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - query price");
     }
@@ -137,7 +138,7 @@ class BuyCommandTest {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop buy emerald 2");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
-        assertEquals(0, store.getBalance());
+        assertEquals(BigDecimal.ZERO, store.getBalance());
         // TODO: assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("buy command test - no store");
     }

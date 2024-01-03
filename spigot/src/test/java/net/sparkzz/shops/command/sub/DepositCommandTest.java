@@ -10,6 +10,7 @@ import net.sparkzz.shops.util.Notifier;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 
 import static net.sparkzz.shops.TestHelper.*;
@@ -49,7 +50,7 @@ class DepositCommandTest {
     void setUpDepositCommand() {
         Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 150);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(25);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(25));
     }
 
     @AfterEach
@@ -88,7 +89,7 @@ class DepositCommandTest {
         assertEquals("§cInvalid numerical value (fail)!", mrSparkzz.nextMessage());
         assertEquals("/shop deposit <amount>", mrSparkzz.nextMessage());
         // TODO: assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
-        assertEquals(25, store.getBalance());
+        assertEquals(BigDecimal.valueOf(25), store.getBalance());
         printSuccessMessage("deposit command test - invalid amount");
     }
 
@@ -100,7 +101,7 @@ class DepositCommandTest {
         performCommand(player2, "shop deposit 100");
         assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
         // TODO: assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
-        assertEquals(25, store.getBalance());
+        assertEquals(BigDecimal.valueOf(25), store.getBalance());
         printSuccessMessage("deposit command test - not the owner");
     }
 
@@ -124,7 +125,7 @@ class DepositCommandTest {
         performCommand(mrSparkzz, "shop deposit 15");
         assertEquals(Notifier.compose(DEPOSIT_INF_FUNDS, null), mrSparkzz.nextMessage());
         // TODO: assertEquals(125, Shops.getEconomy().getBalance(mrSparkzz));
-        assertEquals(25, store.getBalance());
+        assertEquals(BigDecimal.valueOf(25), store.getBalance());
         printSuccessMessage("deposit command test - shop has infinite funds");
     }
 

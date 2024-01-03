@@ -10,6 +10,7 @@ import net.sparkzz.shops.util.Notifier;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 
 import static net.sparkzz.shops.TestHelper.*;
@@ -49,7 +50,7 @@ class WithdrawCommandTest {
     void setUpWithdrawCommand() {
         Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
         // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(125);
+        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(125));
     }
 
     @AfterEach
@@ -87,7 +88,7 @@ class WithdrawCommandTest {
         performCommand(mrSparkzz, "shop withdraw fail");
         assertEquals("§cInvalid numerical value (fail)!", mrSparkzz.nextMessage());
         assertEquals("/shop withdraw <amount>", mrSparkzz.nextMessage());
-        assertEquals(125, store.getBalance());
+        assertEquals(BigDecimal.valueOf(125), store.getBalance());
         printSuccessMessage("withdraw command test - invalid amount");
     }
 
@@ -98,7 +99,7 @@ class WithdrawCommandTest {
         player2.setOp(true);
         performCommand(player2, "shop withdraw 100");
         assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
-        assertEquals(125, store.getBalance());
+        assertEquals(BigDecimal.valueOf(125), store.getBalance());
         printSuccessMessage("withdraw command test - not the owner");
     }
 
@@ -108,7 +109,7 @@ class WithdrawCommandTest {
     void testWithdrawCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop withdraw 200");
         assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_STORE, null), mrSparkzz.nextMessage());
-        assertEquals(125, store.getBalance());
+        assertEquals(BigDecimal.valueOf(125), store.getBalance());
         printSuccessMessage("withdraw command test - insufficient funds");
     }
 

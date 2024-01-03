@@ -1,8 +1,12 @@
 package net.sparkzz.shops;
 
 import com.google.inject.Inject;
+import net.sparkzz.shops.event.EntranceListener;
+import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Warehouse;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RefreshGameEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
@@ -23,11 +27,17 @@ public class Shops {
 
     @Listener
     public void onServerStart(final StartedEngineEvent<Server> event) {
+        Sponge.eventManager().registerListeners(this.container, new EntranceListener());
+        Warehouse.loadConfig();
+        Notifier.loadCustomMessages();
+
         logger.info("Shops has been enabled!");
     }
 
     @Listener
     public void onServerStop(final StoppingEngineEvent<Server> event) {
+        Warehouse.saveConfig();
+
         logger.info("Shops has been disabled!");
     }
 

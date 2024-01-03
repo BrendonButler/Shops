@@ -3,6 +3,7 @@ package net.sparkzz.shops.util;
 import net.sparkzz.shops.Store;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -11,13 +12,15 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Configuration class for accessing and updating shop data
  */
 public class Config extends AbstractConfig {
 
-    private static final Logger log = Sponge.pluginManager().plugin("shops").get().logger();
+    private static final Logger log = Sponge.pluginManager().plugin("shops").orElseThrow().logger();
     
     /**
      * Gets the list of off-limits cuboids to prevent players from creating stores within "off-limits" zones
@@ -39,13 +42,13 @@ public class Config extends AbstractConfig {
 
                 area = area.replace(" ", "");
 
-                Optional<ServerWorld> world;
+                CompletableFuture<ServerWorld> world;
                 double x1, y1, z1, x2, y2, z2;
                 int currIndex;
 
-                String worldName = area.substring(currIndex = area.indexOf("world(") + 6, area.indexOf(")", currIndex));
+                String worldKey = area.substring(currIndex = area.indexOf("world(") + 6, area.indexOf(")", currIndex));
 
-                world = Sponge.server().worldManager().worlds().stream().filter(w -> w.properties().name().equals(worldName)).findFirst();
+                world = Sponge.server().worldManager().loadWorld(ResourceKey.resolve(worldKey));
 
                 String[] startCoordinate = area.substring(
                         currIndex = area.indexOf("start(") + 6, area.indexOf(")", currIndex)
@@ -62,14 +65,14 @@ public class Config extends AbstractConfig {
                 y2 = Double.parseDouble(endCoordinate[1]);
                 z2 = Double.parseDouble(endCoordinate[2]);
 
-                Cuboid cuboid = new Cuboid(world.orElseThrow(() -> new SerializationException("Unable to deserialize off-limits cuboid for world: " + worldName)), x1, y1, z1, x2, y2, z2);
-
-                cuboids.add(cuboid);
+                cuboids.add(new Cuboid(world.get(), x1, y1, z1, x2, y2, z2));
             }
         } catch (SerializationException exception) {
             log.error("Unable to load off-limits areas: " + exception.getMessage());
         } catch (NumberFormatException exception) {
             log.error(exception.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("Unable to deserialize off-limits cuboid");
         }
 
         return cuboids;

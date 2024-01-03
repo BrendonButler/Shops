@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static net.sparkzz.shops.TestHelper.*;
@@ -145,7 +146,7 @@ class DeleteCommandTest {
     void testDeleteShop_IgnoreStock() {
         tempStore.addItem(new ItemStack(Material.EMERALD, 128));
         tempStore.addItem(new ItemStack(Material.BUCKET, 14));
-        tempStore.setBalance(100);
+        tempStore.setBalance(BigDecimal.valueOf(100));
 
         performCommand(mrSparkzz, "shop delete DollHairStore -f");
         assertTrue(mrSparkzz.getInventory().isEmpty());
@@ -160,7 +161,7 @@ class DeleteCommandTest {
     void testDeleteShop_IgnoreStockAndFunds() {
         tempStore.addItem(new ItemStack(Material.EMERALD, 128));
         tempStore.addItem(new ItemStack(Material.BUCKET, 14));
-        tempStore.setBalance(100);
+        tempStore.setBalance(BigDecimal.valueOf(100));
 
         performCommand(mrSparkzz, "shop delete DollHairStore -F");
         assertTrue(mrSparkzz.getInventory().isEmpty());

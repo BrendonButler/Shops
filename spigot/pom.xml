@@ -69,18 +69,11 @@
                         </filter>
 
                         <filter>
-                            <artifact>net.sparkzz:core</artifact>
-                            <includes>
-                                <include>net/sparkzz/**</include>
-                                <include>config.yml</include>
-                            </includes>
-                        </filter>
-
-                        <filter>
                             <artifact>net.sparkzz:shops-spigot</artifact>
                             <includes>
                                 <include>net/sparkzz/**</include>
                                 <include>META-INF/**</include>
+                                <include>config.yml</include>
                                 <include>plugin.yml</include>
                                 <include>LICENSE</include>
                             </includes>
