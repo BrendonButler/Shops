@@ -25,10 +25,18 @@ public class Shops {
     @Inject
     private Logger logger;
 
+    private boolean pluginLoaded = false;
+
     @Listener
     public void onServerStart(final StartedEngineEvent<Server> event) {
+        pluginLoaded = Warehouse.loadConfig();
+
+        if (!pluginLoaded) {
+            logger.info("Shops failed to load properly!");
+            return;
+        }
+
         Sponge.eventManager().registerListeners(this.container, new EntranceListener());
-        Warehouse.loadConfig();
         Notifier.loadCustomMessages();
 
         logger.info("Shops has been enabled!");
@@ -36,6 +44,8 @@ public class Shops {
 
     @Listener
     public void onServerStop(final StoppingEngineEvent<Server> event) {
+        if (!pluginLoaded) return;
+
         Warehouse.saveConfig();
 
         logger.info("Shops has been disabled!");
@@ -43,6 +53,10 @@ public class Shops {
 
     @Listener
     public void onPluginRefresh(final RefreshGameEvent event) {
+        pluginLoaded = Warehouse.loadConfig();
+
+        if (!pluginLoaded) return;
+
         logger.info("Shops configuration has been reloaded!");
     }
 
