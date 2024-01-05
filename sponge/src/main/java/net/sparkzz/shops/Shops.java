@@ -1,14 +1,18 @@
 package net.sparkzz.shops;
 
 import com.google.inject.Inject;
+import net.sparkzz.shops.command.InfoCommand;
+import net.sparkzz.shops.command.ShopCommand;
 import net.sparkzz.shops.event.EntranceListener;
 import net.sparkzz.shops.util.Notifier;
 import net.sparkzz.shops.util.Warehouse;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RefreshGameEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.plugin.PluginContainer;
@@ -25,7 +29,14 @@ public class Shops {
     @Inject
     private Logger logger;
 
+    @Inject
+    PluginContainer container;
+
     private boolean pluginLoaded = false;
+
+    public PluginContainer getPluginContainer() {
+        return container;
+    }
 
     @Listener
     public void onServerStart(final StartedEngineEvent<Server> event) {
@@ -60,6 +71,9 @@ public class Shops {
         logger.info("Shops configuration has been reloaded!");
     }
 
-    @Inject
-    PluginContainer container;
+    @Listener
+    public void onRegisterCommands(final RegisterCommandEvent<Command.Parameterized> event){
+        event.register(this.container, InfoCommand.build(), "shops");
+        event.register(this.container, ShopCommand.build(), "shop");
+    }
 }

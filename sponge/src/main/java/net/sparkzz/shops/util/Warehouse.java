@@ -35,9 +35,9 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.DoubleStream;
 
 /**
@@ -322,13 +322,14 @@ public class Warehouse {
         @Override
         public @Nullable ServerWorld deserialize(Type type, ConfigurationNode node) {
             String worldKey = node.getString();
+            ResourceKey key = ResourceKey.resolve(worldKey);
             ServerWorld world = null;
 
-            if (worldKey != null && !worldKey.isEmpty()) {
+            if (!key.asString().isEmpty()) {
                 try {
-                    world = Sponge.server().worldManager().loadWorld(ResourceKey.resolve(worldKey)).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    log.error("Unable to load store ({}) for world: {}", node.node("name"), worldKey);
+                    world = Sponge.server().worldManager().world(key).orElseThrow();
+                } catch (NoSuchElementException exception) {
+                    log.error("Unable to load store ({}) for world: {}", Objects.requireNonNull(Objects.requireNonNull(node.parent()).parent()).node("name").getString(), worldKey);
                 }
             }
 
