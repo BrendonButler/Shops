@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -160,7 +161,7 @@ public class Warehouse {
             CommentedConfigurationNode storesNode = storeConfig.node("stores");
 
             // Clear the existing stores before saving the updated list
-            storesNode.childrenMap().keySet().forEach(storesNode::removeChild);
+            storesNode.set(new ArrayList<Store>());
 
             int i = 0;
 

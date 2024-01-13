@@ -3,6 +3,7 @@ package net.sparkzz.shops.command;
 import net.kyori.adventure.text.Component;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.CreateCommand;
+import net.sparkzz.shops.command.sub.DeleteCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifiable;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +45,7 @@ public class ShopCommand extends Notifiable implements CommandExecutor {
 //        put(Collections.singletonList("browse"), BrowseCommand.build());
 //        put(Collections.singletonList("buy"), BuyCommand.build());
         put(Collections.singletonList("create"), CreateCommand.build());
-//        put(Collections.singletonList("delete"), DeleteCommand.build());
+        put(Collections.singletonList("delete"), DeleteCommand.build());
 //        put(Collections.singletonList("deposit"), DepositCommand.build());
 //        put(Collections.singletonList("sell"), SellCommand.build());
 //        put(Collections.singletonList("transfer"), TransferCommand.build());

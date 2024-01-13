@@ -7,7 +7,6 @@ import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
@@ -25,7 +24,7 @@ import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
  *
  * @author Brendon Butler
  */
-public class CreateCommand extends SubCommand implements CommandExecutor {
+public class CreateCommand extends SubCommand {
 
     private static final Parameter.Value<String> name = Parameter.string().key("name").build();
     private static final Parameter.Value<ServerPlayer> target = Parameter.player().key("owner").optional().build();
@@ -160,7 +159,8 @@ public class CreateCommand extends SubCommand implements CommandExecutor {
     /**
      * Build the Command structure to be registered
      */
-    public static Command.Parameterized build() {final Command.Parameterized customizeStoreBuild = Command.builder()
+    public static Command.Parameterized build() {
+        final Command.Parameterized customizeStoreBuild = Command.builder()
                 .executor(new CreateCommand())
                 .permission("shops.create.other-player")
                 .addParameters(target, world, startingPoint, endingPoint)
@@ -169,8 +169,8 @@ public class CreateCommand extends SubCommand implements CommandExecutor {
         return Command.builder()
                 .executor(new CreateCommand())
                 .permission("shops.cmd.create")
-                .shortDescription(Component.text("Allows a player to create shops"))
-                .extendedDescription(Component.text("Create a shop for players"))
+                .shortDescription(Component.text("Allows a player to create stores"))
+                .extendedDescription(Component.text("Create a store for players"))
                 .executionRequirements(context -> context.cause().root() instanceof ServerPlayer)
                 .addParameters(name)
                 .addChild(customizeStoreBuild, "name")
