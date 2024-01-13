@@ -44,7 +44,7 @@ public class InventoryManagementSystem {
     public static boolean canInsertAll(Player player, List<ItemStack> items) {
         PlayerInventory inventory = player.inventory();
 
-        return items.stream().anyMatch(inventory::canFit);
+        return items.stream().allMatch(inventory::canFit);
     }
 
     /**

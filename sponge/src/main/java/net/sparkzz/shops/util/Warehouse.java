@@ -33,6 +33,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -163,7 +164,7 @@ public class Warehouse {
             CommentedConfigurationNode storesNode = storeConfig.node("stores");
 
             // Clear the existing stores before saving the updated list
-            storesNode.childrenMap().keySet().forEach(storesNode::removeChild);
+            storesNode.set(new ArrayList<Store>());
 
             int i = 0;
 
