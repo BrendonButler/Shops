@@ -1,7 +1,5 @@
 package net.sparkzz.shops.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.leangen.geantyref.TypeToken;
 import net.sparkzz.shops.Store;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -33,12 +32,15 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 /**
@@ -256,8 +258,6 @@ public class Warehouse {
      */
     static class ItemTypeMapSerializer implements TypeSerializer<Map<ItemType, Map<String, Number>>> {
 
-        private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-
         /**
          * Configures the deserializer to properly map and deserialize store item data
          *
@@ -266,14 +266,37 @@ public class Warehouse {
          * @return the deserialized store item data
          */
         @Override
-        public Map<ItemType, Map<String, Number>> deserialize(Type type, ConfigurationNode node) {
-            try {
-                String json = node.getString("items");
-                return mapper.readValue(json, new TypeReference<>() {});
-            } catch (JsonProcessingException e) {
-                log.error("Failed to deserialize material map");
+        public Map<ItemType, Map<String, Number>> deserialize(Type type, ConfigurationNode node) throws SerializationException {
+            Map<ItemType, Map<String, Number>> deserializedMap = new HashMap<>();
+
+            for (Map.Entry<Object, ? extends ConfigurationNode> entry : node.childrenMap().entrySet()) {
+                String keyString = (String) entry.getKey();
+                ResourceKey resourceKey = ResourceKey.resolve(keyString);
+
+                ItemType itemType = ItemTypes.registry().findValue(resourceKey).orElse(null);
+
+                if (itemType != null) {
+                    Map<String, Number> deserializedInnerMap = new HashMap<>();
+                    for (Map.Entry<Object, ? extends ConfigurationNode> innerEntry : entry.getValue().childrenMap().entrySet()) {
+                        String attributeKey = innerEntry.getKey().toString();
+                        Optional<Number> attributeValue;
+
+                        try {
+                            attributeValue = Optional.of(NumberFormat.getInstance().parse(innerEntry.getValue().getString()));
+                        } catch (ParseException exception) {
+                            throw new RuntimeException(exception);
+                        }
+
+                        attributeValue.ifPresent(value -> deserializedInnerMap.put(attributeKey, value));
+                    }
+
+                    deserializedMap.put(itemType, deserializedInnerMap);
+                } else {
+                    log.warn("Warning: Unable to resolve ItemType for key " + keyString);
+                }
             }
-            return new HashMap<>();
+
+            return deserializedMap;
         }
 
         /**
@@ -285,13 +308,13 @@ public class Warehouse {
          */
         @Override
         public void serialize(Type type, @Nullable Map<ItemType, Map<String, Number>> obj, ConfigurationNode node) throws SerializationException {
-            try {
-                if (obj != null && !obj.isEmpty()) {
-                    String json = mapper.writeValueAsString(obj);
-                    node.set(json);
-                }
-            } catch (JsonProcessingException e) {
-                log.error("Failed to serialize material map");
+            if (obj != null && !obj.isEmpty()) {
+                Map<ResourceKey, Map<String, Number>> serializedObj = obj.entrySet().stream().collect(Collectors.toMap(
+                        entry -> entry.getKey().key(entry.getKey().registryType()),
+                        Map.Entry::getValue
+                ));
+
+                node.set(serializedObj);
             }
         }
 

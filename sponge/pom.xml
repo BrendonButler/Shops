@@ -175,12 +175,6 @@
             <version>${sponge-api.version}</version>
         </dependency>
 
-        <!-- Jackson Databind (expanded serialization and deserialization) -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
         <!-- Maven Project Info Reports Plugin -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
