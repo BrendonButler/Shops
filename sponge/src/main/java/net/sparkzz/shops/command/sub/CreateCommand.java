@@ -34,9 +34,8 @@ public class CreateCommand extends SubCommand {
 
     public CommandResult execute(CommandContext context) throws NumberFormatException {
         resetAttributes();
-        setAttribute("sender", context.subject());
         // TODO: new permission to limit a player to a number of shops (shops.create.<quantity>)
-        ServerPlayer player = (ServerPlayer) context.subject();
+        ServerPlayer player = (ServerPlayer) setAttribute("sender", context.subject());
         String storeName = context.requireOne(name);
 
         int shopsOwned = (int) Store.STORES.stream().filter(s -> player.uniqueId().equals(s.getOwner())).count();
@@ -65,7 +64,7 @@ public class CreateCommand extends SubCommand {
             return CommandResult.success();
         }
 
-        if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
+        if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
             Notifier.process(context.cause(), STORE_CREATE_FAIL_MAX_STORES, getAttributes());
             return CommandResult.success();
         }
@@ -90,20 +89,20 @@ public class CreateCommand extends SubCommand {
         if (DoubleStream.of(x1, y1, z1, x2, y2, z2).allMatch(value -> value == 0D))
             store = new Store(storeName, owner.orElseThrow().uniqueId());
         else {
-            double minX = (double) setAttribute("min-x", Math.min(x1, x2));
-            double maxX = (double) setAttribute("max-x", Math.max(x1, x2));
-            double minY = (double) setAttribute("min-y", Math.min(y1, y2));
-            double maxY = (double) setAttribute("max-y", Math.max(y1, y2));
-            double minZ = (double) setAttribute("min-z", Math.min(z1, z2));
-            double maxZ = (double) setAttribute("max-z", Math.max(z1, z2));
+            double minX = setAttribute("min-x", Math.min(x1, x2));
+            double maxX = setAttribute("max-x", Math.max(x1, x2));
+            double minY = setAttribute("min-y", Math.min(y1, y2));
+            double maxY = setAttribute("max-y", Math.max(y1, y2));
+            double minZ = setAttribute("min-z", Math.min(z1, z2));
+            double maxZ = setAttribute("max-z", Math.max(z1, z2));
             double[] minDims = Config.getMinDimensions();
             double[] maxDims = Config.getMaxDimensions();
-            double limitMinX = (double) setAttribute("limit-min-x", minDims[0]);
-            double limitMinY = (double) setAttribute("limit-min-y", minDims[1]);
-            double limitMinZ = (double) setAttribute("limit-min-z", minDims[2]);
-            double limitMaxX = (double) setAttribute("limit-max-x", maxDims[0]);
-            double limitMaxY = (double) setAttribute("limit-max-y", maxDims[1]);
-            double limitMaxZ = (double) setAttribute("limit-max-z", maxDims[2]);
+            double limitMinX = setAttribute("limit-min-x", minDims[0]);
+            double limitMinY = setAttribute("limit-min-y", minDims[1]);
+            double limitMinZ = setAttribute("limit-min-z", minDims[2]);
+            double limitMaxX = setAttribute("limit-max-x", maxDims[0]);
+            double limitMaxY = setAttribute("limit-max-y", maxDims[1]);
+            double limitMaxZ = setAttribute("limit-max-z", maxDims[2]);
 
             if ((maxX - minX) < limitMinX || (maxY - minY) < limitMinY || (maxZ - minZ) < limitMinZ) {
                 Notifier.process(context.cause(), STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
@@ -115,9 +114,9 @@ public class CreateCommand extends SubCommand {
                 return CommandResult.success();
             }
 
-            double volume = (double) setAttribute("volume", (maxX - minX) * (maxY - minY) * (maxZ - minZ));
-            double minVolume = (double) setAttribute("limit-min-vol", Config.getMinVolume());
-            double maxVolume = (double) setAttribute("limit-max-vol", Config.getMaxVolume());
+            double volume = setAttribute("volume", (maxX - minX) * (maxY - minY) * (maxZ - minZ));
+            double minVolume = setAttribute("limit-min-vol", Config.getMinVolume());
+            double maxVolume = setAttribute("limit-max-vol", Config.getMaxVolume());
 
             if (volume < minVolume) {
                 Notifier.process(context.cause(), STORE_CREATE_FAIL_MIN_VOL, getAttributes());
@@ -162,7 +161,6 @@ public class CreateCommand extends SubCommand {
     public static Command.Parameterized build() {
         final Command.Parameterized customizeStoreBuild = Command.builder()
                 .executor(new CreateCommand())
-                .permission("shops.create.other-player")
                 .addParameters(target, world, startingPoint, endingPoint)
                 .build();
 

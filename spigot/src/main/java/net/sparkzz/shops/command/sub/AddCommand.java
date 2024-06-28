@@ -24,10 +24,10 @@ public class AddCommand extends SubCommand {
             throws NumberFormatException {
         resetAttributes();
         setArgsAsAttributes(args);
-        Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
+        Material material = setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        int quantity = (Integer) setAttribute("quantity", 0);
+        Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        int quantity = setAttribute("quantity", 0);
         String message = "";
 
         if (store == null) {
@@ -37,7 +37,7 @@ public class AddCommand extends SubCommand {
 
         if (material != null) {
             if (args.length == 3) {
-                quantity = (int) setAttribute("quantity", args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
+                quantity = setAttribute("quantity", args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
 
                 if (!store.containsMaterial(material)) {
                     Notifier.process(sender, MATERIAL_MISSING_STORE, getAttributes());
@@ -59,11 +59,11 @@ public class AddCommand extends SubCommand {
             }
 
             if (args.length == 6) {
-                quantity = (int) setAttribute("quantity", args[5].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[5]));
+                quantity = setAttribute("quantity", args[5].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[5]));
 
-                double buyPrice = (double) setAttribute("buy-price", Double.parseDouble(args[2]));
-                double sellPrice = (double) setAttribute("sell-price", Double.parseDouble(args[3]));
-                int maxQuantity = (int) setAttribute("max-quantity", Integer.parseInt(args[4]));
+                double buyPrice = setAttribute("buy-price", Double.parseDouble(args[2]));
+                double sellPrice = setAttribute("sell-price", Double.parseDouble(args[3]));
+                int maxQuantity = setAttribute("max-quantity", Integer.parseInt(args[4]));
 
                 if (store.containsMaterial(material)) {
                     Notifier.process(sender, MATERIAL_EXISTS_STORE, getAttributes());
