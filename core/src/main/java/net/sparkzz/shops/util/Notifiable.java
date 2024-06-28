@@ -53,7 +53,7 @@ public abstract class Notifiable {
      * @param value the attribute value to be mapped to the provided key
      * @return the provided value back to the calling method
      */
-    public Object setAttribute(String key, @Nullable Object value) {
+    public <T> T setAttribute(String key, @Nullable T value) {
         attributes.put(key, value);
         return value;
     }

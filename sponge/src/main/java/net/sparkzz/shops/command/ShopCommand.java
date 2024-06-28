@@ -2,6 +2,7 @@ package net.sparkzz.shops.command;
 
 import net.kyori.adventure.text.Component;
 import net.sparkzz.shops.Store;
+import net.sparkzz.shops.command.sub.AddCommand;
 import net.sparkzz.shops.command.sub.CreateCommand;
 import net.sparkzz.shops.command.sub.DeleteCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
@@ -12,7 +13,6 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 public class ShopCommand extends Notifiable implements CommandExecutor {
 
     private static final Map<Iterable<String>, Command.Parameterized> subCommands = new HashMap<>() {{
-//        put(Collections.singletonList("add"), AddCommand.build());
+        put(Collections.singletonList("add"), AddCommand.build());
 //        put(Collections.singletonList("browse"), BrowseCommand.build());
 //        put(Collections.singletonList("buy"), BuyCommand.build());
         put(Collections.singletonList("create"), CreateCommand.build());
@@ -387,7 +387,7 @@ public class ShopCommand extends Notifiable implements CommandExecutor {
      * @param context the CommandContext
      * @return the command result
      */
-    public CommandResult execute(CommandContext context) throws CommandException {
+    public CommandResult execute(CommandContext context) {
         List<Parameter> parameters = (context.executedCommand().isPresent() && !context.executedCommand().get().parameters().isEmpty()) ? context.executedCommand().get().parameters() : Collections.emptyList();
         resetAttributes();
         setAttribute("sender", context.cause());
