@@ -1,6 +1,7 @@
 package net.sparkzz.shops.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.sparkzz.shops.Store;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandResult;
@@ -8,15 +9,14 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static java.awt.font.TextAttribute.UNDERLINE;
-import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.sparkzz.shops.util.AbstractNotifier.Paginator.calcPriceColWidth;
 
 /**
@@ -157,7 +157,7 @@ public class Notifier extends AbstractNotifier {
             int materialColWidth = 9;
 
             for (ItemType material : materials) {
-                int materialWidth = material.toString().length();
+                int materialWidth = PlainTextComponentSerializer.plainText().serializeOr(material.asComponent(), "").length();
                 if (materialWidth > materialColWidth) {
                     materialColWidth = materialWidth;
                 }
@@ -174,7 +174,7 @@ public class Notifier extends AbstractNotifier {
                 return Collections.emptySet();
             }
 
-            return new TreeSet<>(materials.subList(startIndex, endIndex));
+            return new HashSet<>(materials.subList(startIndex, endIndex));
         }
 
         /**
@@ -185,7 +185,7 @@ public class Notifier extends AbstractNotifier {
          * @return the page built containing the items in the store with the buy and sell price
          */
         public static String buildBrowsePage(Store store, int pageNumber) {
-            List<ItemType> materials = store.getItems().keySet().stream().sorted().toList();
+            List<ItemType> materials = store.getItems().keySet().stream().sorted(Comparator.comparing(item -> PlainTextComponentSerializer.plainText().serializeOr(item.asComponent(), ""))).collect(Collectors.toList());
             Set<ItemType> valuesForPage = getValuesForPage(materials, pageNumber);
 
             if (valuesForPage.isEmpty()) return null;
@@ -195,22 +195,23 @@ public class Notifier extends AbstractNotifier {
             int buyColWidth = calcPriceColWidth(valuesForPage.stream().map(m -> String.valueOf(store.getAttributes(m).get("buy").doubleValue())).collect(Collectors.toSet()));
 
             MultilineBuilder builder = new MultilineBuilder();
-            builder.appendf("%s==[ %s%s%s ]==", GRAY, DARK_AQUA, store.getName(), GRAY)
-                    .appendf("%s%s| %s | %s", UNDERLINE, ("ITEM" + " ".repeat(materialColWidth - 2)), ("BUY PRICE" + " ".repeat(buyColWidth - 9)), "SELL PRICE");
+            builder.appendf("§7==[ §b%s§7 ]==", store.getName())
+                    .appendf("§n%s| %s | %s", ("ITEM" + " ".repeat(materialColWidth - 2)), ("BUY PRICE" + " ".repeat(buyColWidth - 9)), "SELL PRICE");
 
             for (ItemType material : valuesForPage) {
+                String materialResourceKey = PlainTextComponentSerializer.plainText().serializeOr(material.asComponent(), "");
                 double buyPrice = store.getAttributes(material).get("buy").doubleValue();
                 double sellPrice = store.getAttributes(material).get("sell").doubleValue();
-                int materialPadding = materialColWidth - material.toString().length();
+                int materialPadding = materialColWidth - materialResourceKey.length();
                 int buyPadding = buyColWidth - String.format("%.2f", buyPrice).length();
 
-                builder.appendf("%s%s%s: %s%s%s| %s%s",
-                        DARK_GREEN, (material + " ".repeat(materialPadding + 2)), WHITE,
-                        GOLD, (String.format("%.2f", buyPrice) + " ".repeat(buyPadding + 1)), WHITE,
-                        GOLD, String.format("%.2f", sellPrice));
+                builder.appendf("§2%s§f: §6%s§f| §6%s",
+                        (materialResourceKey + " ".repeat(materialPadding + 2)),
+                        (String.format("%.2f", buyPrice) + " ".repeat(buyPadding + 1)),
+                        String.format("%.2f", sellPrice));
             }
 
-            builder.appendf("Page %d of %d", pageNumber, lastPage);
+            builder.appendf("§fPage %d of %d", pageNumber, lastPage);
             return builder.build();
         }
     }
