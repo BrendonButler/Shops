@@ -24,9 +24,9 @@ public class RemoveCommand extends SubCommand {
             throws NumberFormatException {
         resetAttributes();
         setArgsAsAttributes(args);
-        Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
+        Material material = setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (store == null) {
             Notifier.process(player, NO_STORE_FOUND, getAttributes());
@@ -44,7 +44,7 @@ public class RemoveCommand extends SubCommand {
                 return true;
             }
 
-            int moveQuantity = (Integer) setAttribute("quantity", (quantity <= 0) ? store.getAttributes(material).get("quantity").intValue() : quantity);
+            int moveQuantity = setAttribute("quantity", (quantity <= 0) ? store.getAttributes(material).get("quantity").intValue() : quantity);
 
             if (!InventoryManagementSystem.containsAtLeast(store, new ItemStack(material, moveQuantity))) {
                 Notifier.process(sender, INSUFFICIENT_INV_STORE, getAttributes());

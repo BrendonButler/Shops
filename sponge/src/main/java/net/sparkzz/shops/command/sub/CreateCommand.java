@@ -6,6 +6,7 @@ import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -32,7 +33,7 @@ public class CreateCommand extends SubCommand {
     private static final Parameter.Value<Vector3d> startingPoint = Parameter.vector3d().key("start-point").optional().build();
     private static final Parameter.Value<Vector3d> endingPoint = Parameter.vector3d().key("end-point").optional().build();
 
-    public CommandResult execute(CommandContext context) throws NumberFormatException {
+    public CommandResult execute(@NotNull CommandContext context) throws NumberFormatException {
         resetAttributes();
         // TODO: new permission to limit a player to a number of shops (shops.create.<quantity>)
         ServerPlayer player = (ServerPlayer) setAttribute("sender", context.subject());

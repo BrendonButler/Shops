@@ -6,21 +6,16 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.parameter.ArgumentReader;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.parameter.managed.Flag;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.economy.EconomyService;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 
@@ -31,44 +26,7 @@ import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
  */
 public class DeleteCommand extends SubCommand {
 
-    private static final Parameter.Value<Store> inputStore = Parameter
-            .builder(Store.class)
-            .addParser((Parameter.Key<? super Store> parameterKey,
-                    ArgumentReader.Mutable reader,
-                    CommandContext.Builder context) -> {
-                Optional<Store> store = Optional.empty();
-
-                String storeName = reader.parseString();
-
-                try {
-                    store = identifyStore((storeName.contains("-") ? storeName.replaceFirst("-", "~") : storeName));
-                } catch (Core.MultipleStoresMatchedException exception) {
-                    Notifier.process(context.cause(), STORE_MULTI_MATCH, null);
-                }
-
-                return store;
-            })
-            .completer((context, input) -> Store.STORES.stream()
-                        .filter(s -> {
-                            Optional<ServerPlayer> player = (context.subject() instanceof ServerPlayer) ? Optional.of((ServerPlayer) context.subject()) : Optional.empty();
-
-                            List<Store> identifiedStores = (!input.isEmpty() ? identifyStores(input) : Store.STORES).stream().filter(i ->
-                                    (context.hasPermission("shop.delete.all"))
-                                    || (player.isPresent()) && i.getOwner().equals(player.get().uniqueId())
-                                    || (player.isEmpty())
-                            ).toList();
-
-                            return identifiedStores.contains(s);
-                        })
-                        .map(s -> CommandCompletion.of(String.format("%s-%s", s.getName(), s.getUUID())))
-                        .toList())
-            .key("store")
-            .build();
-
-    private static final Flag force = Flag.builder().alias("f").build();
-    private static final Flag forceHard = Flag.builder().alias("FORCE").build();
-
-    public CommandResult execute(CommandContext context) {
+    public CommandResult execute(@NotNull CommandContext context) {
         ServerPlayer player = (ServerPlayer) context.subject();
 
         try {

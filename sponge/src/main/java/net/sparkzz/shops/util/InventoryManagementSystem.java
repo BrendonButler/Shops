@@ -8,6 +8,7 @@ import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.entity.PlayerInventory;
 import org.spongepowered.api.world.server.ServerWorld;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -125,13 +126,13 @@ public class InventoryManagementSystem {
     private static int getAvailableSpace(PlayerInventory inventory, ItemType material) {
         int availableSpace = 0;
 
-        for (int i = 0; i <= 35; i++) {
-            Optional<ItemStack> stack = inventory.peekAt(i);
+        ArrayList<Slot> slots = new ArrayList<>();
+        slots.addAll(inventory.storage().slots());
+        slots.addAll(inventory.hotbar().slots());
 
-            if (stack.isEmpty())
-                availableSpace += material.maxStackQuantity();
-            else if (stack.get().type().equals(material))
-                availableSpace += (stack.get().maxStackQuantity() - stack.get().quantity());
+        for (Slot slot : slots) {
+            if (slot.peek().type().equals(material) || slot.peek().isEmpty())
+                availableSpace += slot.freeCapacity();
         }
 
         return availableSpace;
