@@ -5,28 +5,20 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.parameter.ArgumentReader;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.spongepowered.api.item.inventory.query.QueryTypes.ITEM_TYPE;
@@ -38,86 +30,14 @@ import static org.spongepowered.api.item.inventory.query.QueryTypes.ITEM_TYPE;
  */
 public class AddCommand extends SubCommand {
 
-    private static final Parameter.Value<ResourceKey> itemResource = Parameter.resourceKey().key("item")
-            .addParser((Parameter.Key<? super ResourceKey> parameterKey,
-                        ArgumentReader.Mutable reader,
-                        CommandContext.Builder context) -> {
-                String input = reader.parseString();
-                ResourceKey resourceKey = ResourceKey.resolve(input);
-
-                if (resourceKey != null && Sponge.game().registry(ItemTypes.registry().type()).findValue(resourceKey).isPresent()) {
-                    return Optional.of(resourceKey);
-                } else {
-                    throw reader.createException(Component.text("Invalid item: " + input));
-                }
-            })
-            .completer((context, input) -> {
-                Player player = context.cause().first(Player.class).orElse(null);
-                if (player != null && !context.hasPermission("shops.add.any")) {
-                    return player.inventory().slots().stream()
-                            .filter(slot -> !slot.peek().isEmpty())
-                            .map(slot -> slot.peek().type())
-                            .filter(itemType -> itemType.key(itemType.registryType()).asString().startsWith(input))
-                            .map(itemType -> CommandCompletion.of(itemType.key(itemType.registryType()).asString()))
-                            .toList();
-                } else {
-                    return Sponge.game().registry(ItemTypes.registry().type()).stream()
-                            .filter(i -> i.key(i.registryType()).asString().startsWith(input))
-                            .map(i -> CommandCompletion.of(i.key(i.registryType()).asString()))
-                            .toList();
-                }
-            })
-            .build();
-
-
-
-    private static final Parameter.Value.Builder<BigDecimal> priceParameter = Parameter.bigDecimal();
-
-    private static final Parameter.Value.Builder<Integer> quantityParameter = Parameter.integerNumber()
-            .addParser((Parameter.Key<? super Integer> parameterKey,
-                        ArgumentReader.Mutable reader,
-                        CommandContext.Builder context) -> {
-                ItemType itemType = ItemTypes.registry().value(context.requireOne(itemResource));
-                String input = reader.parseString();
-                int quantity = 0;
-
-                if (input.isEmpty()) return Optional.of(quantity);
-
-                if (input.equalsIgnoreCase("all")) {
-                    quantity = ((ServerPlayer) context.subject()).inventory().query(
-                            ITEM_TYPE.get().of(itemType)
-                    ).totalQuantity();
-                } else {
-                    try {
-                        quantity = Integer.parseInt(input);
-                    } catch (NumberFormatException ignored) {}
-                }
-
-                return Optional.of(quantity);
-            })
-            .completer((context, input) -> {
-                if (input.isEmpty()) {
-                    return List.of(CommandCompletion.of("quantity"), CommandCompletion.of("all"));
-                } else {
-                    return Stream.of(CommandCompletion.of(input), CommandCompletion.of("all"))
-                            .filter(i -> {
-                                try {
-                                    return ("all".startsWith(input) || NumberFormat.getInstance().parse(input) instanceof Integer);
-                                } catch (ParseException ignore) {}
-                                return true;
-                            })
-                            .collect(Collectors.toList());
-                }
-            });
-
-    public CommandResult execute(CommandContext context) throws NumberFormatException {
+    public CommandResult execute(@NotNull CommandContext context) throws NumberFormatException {
         resetAttributes();
         ResourceKey itemResourceKey = context.requireOne(itemResource);
         Optional<ItemType> optionalItemType = Sponge.game().registry(ItemTypes.registry().type()).findValue(itemResourceKey);
         setAttribute("material", itemResourceKey);
         ServerPlayer player = (ServerPlayer) setAttribute("sender", context.subject());
         Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        int quantity = setAttribute("quantity", context.one(quantityParameter.key("quantity").build()).orElse(0));
+        int quantity = setAttribute("quantity", context.one(quantityWithAllParameter.key("quantity").build()).orElse(0));
 
         if (store == null)
             return CommandResult.error(Component.text(Notifier.compose(NO_STORE_FOUND, getAttributes())));
@@ -176,7 +96,7 @@ public class AddCommand extends SubCommand {
                 .extendedDescription(Component.text("Add items to your store"))
                 .executionRequirements(context -> context.cause().root() instanceof ServerPlayer)
                 .addParameter(itemResource)
-                .addParameter(quantityParameter.key("quantity").optional().build())
+                .addParameter(quantityWithAllParameter.key("quantity").optional().build())
                 .addParameter(priceParameter.key("customer-buy-price").optional().build())
                 .addParameter(priceParameter.key("customer-sell-price").optional().build())
                 .addParameter(quantityParameter.key("max-quantity").optional().build())

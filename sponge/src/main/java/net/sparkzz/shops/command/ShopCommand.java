@@ -5,6 +5,7 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.AddCommand;
 import net.sparkzz.shops.command.sub.CreateCommand;
 import net.sparkzz.shops.command.sub.DeleteCommand;
+import net.sparkzz.shops.command.sub.RemoveCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifiable;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,7 @@ public class ShopCommand extends Notifiable implements CommandExecutor {
 //        put(Collections.singletonList("deposit"), DepositCommand.build());
 //        put(Collections.singletonList("sell"), SellCommand.build());
 //        put(Collections.singletonList("transfer"), TransferCommand.build());
-//        put(Collections.singletonList("remove"), RemoveCommand.build());
+        put(Collections.singletonList("remove"), RemoveCommand.build());
 //        put(Collections.singletonList("update"), UpdateCommand.build());
 //        put(Collections.singletonList("withdraw"), WithdrawCommand.build());
     }};
