@@ -6,6 +6,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.math.vector.Vector3d;
 
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -40,6 +41,17 @@ public class Cuboid extends AbstractCuboid {
     public Cuboid(@Nullable final ServerWorld world, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2) {
         super(x1, y1, z1, x2, y2, z2);
         this.world = world;
+    }
+
+    /**
+     * Constructor for creating a Cuboid within the world
+     *
+     * @param startingLocation the starting location of the cuboid
+     * @param endingLocation the ending location of the cuboid
+     */
+    public Cuboid(@NotNull final ServerLocation startingLocation, @NotNull final Vector3d endingLocation) {
+        super(startingLocation.x(), startingLocation.y(), startingLocation.z(), endingLocation.x(), endingLocation.y(), endingLocation.z());
+        this.world = startingLocation.world();
     }
 
     /**

@@ -31,7 +31,7 @@ public class UpdateCommand extends SubCommand {
         resetAttributes();
         setArgsAsAttributes(args);
         Player player = (Player) setAttribute("sender", sender);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
             if (!player.hasPermission("shops.update.location")) {
@@ -46,14 +46,14 @@ public class UpdateCommand extends SubCommand {
                         return true;
                     }
 
-                    World world = Bukkit.getWorld((String) setAttribute("world", store.getCuboidLocation().getWorld().getName()));
+                    World world = Bukkit.getWorld(setAttribute("world", store.getCuboidLocation().getWorld().getName()));
 
                     store.setCuboidLocation(generateCuboid(world, args[2], args[3], args[4], args[5], args[6], args[7]));
                 }
                 case 9 -> {
-                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
-                    World world = Bukkit.getWorld((String) setAttribute("world", args[2]));
-                    store = (Store) setAttribute("store", foundStore.orElse(store));
+                    Optional<Store> foundStore = identifyStore(setAttribute("store", args[2]));
+                    World world = Bukkit.getWorld(setAttribute("world", args[2]));
+                    store = setAttribute("store", foundStore.orElse(store));
 
                     if (store == null) {
                         Notifier.process(player, NO_STORE_FOUND, getAttributes());
@@ -64,13 +64,13 @@ public class UpdateCommand extends SubCommand {
                         Notifier.process(sender, Notifier.CipherKey.WORLD_NOT_FOUND, getAttributes());
                         return true;
                     } else if (foundStore.isPresent())
-                        world = Bukkit.getWorld((String) setAttribute("world", store.getCuboidLocation().getWorld().getName()));
+                        world = Bukkit.getWorld(setAttribute("world", store.getCuboidLocation().getWorld().getName()));
 
                     store.setCuboidLocation(generateCuboid(world, args[3], args[4], args[5], args[6], args[7], args[8]));
                 }
                 case 10 -> {
-                    Optional<Store> foundStore = identifyStore((String) setAttribute("store", args[2]));
-                    World world = Bukkit.getWorld((String) setAttribute("world", args[3]));
+                    Optional<Store> foundStore = identifyStore(setAttribute("store", args[2]));
+                    World world = Bukkit.getWorld(setAttribute("world", args[3]));
 
                     if (foundStore.isEmpty()) {
                         Notifier.process(sender, STORE_NO_STORE_FOUND, getAttributes());
@@ -178,12 +178,12 @@ public class UpdateCommand extends SubCommand {
     }
 
     private Cuboid generateCuboid(World world, String x1String, String y1String, String z1String, String x2String, String y2String, String z2String) {
-        double x1 = (double) setAttribute("x1", Double.parseDouble(x1String));
-        double y1 = (double) setAttribute("y1", Double.parseDouble(y1String));
-        double z1 = (double) setAttribute("z1", Double.parseDouble(z1String));
-        double x2 = (double) setAttribute("x2", Double.parseDouble(x2String));
-        double y2 = (double) setAttribute("y2", Double.parseDouble(y2String));
-        double z2 = (double) setAttribute("z2", Double.parseDouble(z2String));
+        double x1 = setAttribute("x1", Double.parseDouble(x1String));
+        double y1 = setAttribute("y1", Double.parseDouble(y1String));
+        double z1 = setAttribute("z1", Double.parseDouble(z1String));
+        double x2 = setAttribute("x2", Double.parseDouble(x2String));
+        double y2 = setAttribute("y2", Double.parseDouble(y2String));
+        double z2 = setAttribute("z2", Double.parseDouble(z2String));
 
         return new Cuboid(world, x1, y1, z1, x2, y2, z2);
     }

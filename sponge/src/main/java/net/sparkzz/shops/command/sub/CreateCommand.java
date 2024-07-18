@@ -12,6 +12,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -29,8 +30,7 @@ public class CreateCommand extends SubCommand {
 
     private static final Parameter.Value<String> name = Parameter.string().key("name").build();
     private static final Parameter.Value<ServerPlayer> target = Parameter.player().key("owner").optional().build();
-    private static final Parameter.Value<ServerWorld> world = Parameter.world().key("world").optional().build();
-    private static final Parameter.Value<Vector3d> startingPoint = Parameter.vector3d().key("start-point").optional().build();
+    private static final Parameter.Value<ServerLocation> startingPoint = Parameter.location().key("start-point").optional().build();
     private static final Parameter.Value<Vector3d> endingPoint = Parameter.vector3d().key("end-point").optional().build();
 
     public CommandResult execute(@NotNull CommandContext context) throws NumberFormatException {
@@ -44,8 +44,8 @@ public class CreateCommand extends SubCommand {
         Optional<ServerPlayer> storeOwner = context.one(target);
         Optional<ServerPlayer> owner = Optional.of(player);
         setAttribute("target", owner.get().name());
-        Optional<ServerWorld> storeWorld = context.one(world);
-        Optional<Vector3d> cuboidStart = storeWorld.isPresent() ? Optional.of(context.requireOne(startingPoint)) : context.one(startingPoint);
+        Optional<ServerLocation> cuboidStart = context.one(startingPoint);
+        Optional<ServerWorld> storeWorld = cuboidStart.map(ServerLocation::world);
         Optional<Vector3d> cuboidEnd = storeWorld.isPresent() ? Optional.of(context.requireOne(endingPoint)) : context.one(endingPoint);
 
         if (storeOwner.isPresent()) {
@@ -74,7 +74,7 @@ public class CreateCommand extends SubCommand {
         x1 = y1 = z1 = x2 = y2 = z2 = 0D;
 
         if (cuboidStart.isPresent() && cuboidEnd.isPresent()) {
-            Vector3d start = cuboidStart.get();
+            Vector3d start = cuboidStart.get().position();
             Vector3d end = cuboidEnd.get();
 
             x1 = start.x();
@@ -162,7 +162,7 @@ public class CreateCommand extends SubCommand {
     public static Command.Parameterized build() {
         final Command.Parameterized customizeStoreBuild = Command.builder()
                 .executor(new CreateCommand())
-                .addParameters(target, world, startingPoint, endingPoint)
+                .addParameters(target, startingPoint, endingPoint)
                 .build();
 
         return Command.builder()

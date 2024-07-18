@@ -20,6 +20,7 @@ import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
  */
 public class BrowseCommand extends SubCommand {
 
+    // TODO: improve page browsing layout
     public CommandResult execute(@NotNull CommandContext context) throws NumberFormatException {
         resetAttributes();
         ServerPlayer player = (ServerPlayer) setAttribute("sender", context.subject());
@@ -47,9 +48,9 @@ public class BrowseCommand extends SubCommand {
     public static Command.Parameterized build() {
         return Command.builder()
                 .executor(new BrowseCommand())
-                .permission("shops.cmd.add")
-                .shortDescription(Component.text("Allows a player to add items to their store"))
-                .extendedDescription(Component.text("Add items to your store"))
+                .permission("shops.cmd.browse")
+                .shortDescription(Component.text("Allows a player to browse items in a store"))
+                .extendedDescription(Component.text("Browse items in a store"))
                 .executionRequirements(context -> context.cause().root() instanceof ServerPlayer)
                 .addParameter(quantityParameter.key("page-number").optional().build())
                 .build();
