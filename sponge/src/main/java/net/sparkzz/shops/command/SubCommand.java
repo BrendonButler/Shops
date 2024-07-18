@@ -204,6 +204,37 @@ public abstract class SubCommand extends Notifiable implements CommandExecutor {
                 return Optional.of(quantity);
             });
 
+    /**
+     * The coordinateParameter is used to identify the coordinates for the store location
+     */
+    protected static final Parameter.Value.Builder<Double> coordinateParameter = Parameter.doubleNumber()
+            .addParser((Parameter.Key<? super Double> parameterKey,
+                        ArgumentReader.Mutable reader,
+                        CommandContext.Builder context) -> {
+                String input = reader.parseString();
+                double coordinate = 0;
+
+                if (input.isEmpty()) return Optional.of(coordinate);
+
+                try {
+                    coordinate = Double.parseDouble(input);
+                } catch (NumberFormatException ignored) {}
+
+                return Optional.of(coordinate);
+            });
+
+    /**
+     * The storeItemAttributeParameter is used to suggest options for available store item attributes such as buy, sell, max_quantity, etc.
+     */
+    protected static final Parameter.Value.Builder<String> storeItemAttributeParameter = Parameter.string()
+            .completer((context, input) -> Stream.of(
+                    CommandCompletion.of("customer-buy-price"),
+                    CommandCompletion.of("customer-sell-price"),
+                    CommandCompletion.of("max-quantity"),
+                    CommandCompletion.of("infinite-quantity")
+            ).filter(i -> i.completion().startsWith(input))
+                    .collect(Collectors.toList()));
+
 
     protected static final Parameter.Value<Store> inputStore = Parameter
             .builder(Store.class)
