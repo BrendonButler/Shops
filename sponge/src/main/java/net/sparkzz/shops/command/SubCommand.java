@@ -223,19 +223,6 @@ public abstract class SubCommand extends Notifiable implements CommandExecutor {
                 return Optional.of(coordinate);
             });
 
-    /**
-     * The storeItemAttributeParameter is used to suggest options for available store item attributes such as buy, sell, max_quantity, etc.
-     */
-    protected static final Parameter.Value.Builder<String> storeItemAttributeParameter = Parameter.string()
-            .completer((context, input) -> Stream.of(
-                    CommandCompletion.of("customer-buy-price"),
-                    CommandCompletion.of("customer-sell-price"),
-                    CommandCompletion.of("max-quantity"),
-                    CommandCompletion.of("infinite-quantity")
-            ).filter(i -> i.completion().startsWith(input))
-                    .collect(Collectors.toList()));
-
-
     protected static final Parameter.Value<Store> inputStore = Parameter
             .builder(Store.class)
             .addParser((Parameter.Key<? super Store> parameterKey,

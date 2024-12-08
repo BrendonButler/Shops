@@ -283,6 +283,17 @@ public class Store extends AbstractStore {
     }
 
     /**
+     * Sets material attributes in a store
+     *
+     * @param material the material to be set
+     * @param attribute the attribute to be set
+     * @param value the value of the attribute to be set
+     */
+    public void setAttribute(ItemType material, String attribute, Number value) {
+        items.get(material).put(attribute, value);
+    }
+
+    /**
      * Sets the bounds of the store based on the Cuboid inputted
      *
      * @param cuboid the store bounds defined by a cuboid
