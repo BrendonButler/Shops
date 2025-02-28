@@ -25,7 +25,6 @@
         <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>5.9.2</jupiter.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
         <vault-api.version>1.7.1</vault-api.version>
         <vault.version>1.7.3</vault.version>
 
@@ -36,9 +35,8 @@
         <sponge-api.version>10.0.0</sponge-api.version>
 
         <!-- Other Properties -->
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-        <maven.dependency-check.version>8.3.1</maven.dependency-check.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
         <maven.reports.version>3.5.0</maven.reports.version>
         <maven.site.version>4.0.0-M8</maven.site.version>
@@ -116,7 +114,7 @@
 
         <repository>
             <id>paper-repo</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
 
         <repository>
@@ -230,13 +228,6 @@
                 <version>${jackson-databind.version}</version>
             </dependency>
 
-            <!-- SnakeYAML (override vulnerable transitive dependency) -->
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-            </dependency>
-
             <!-- Guava (override vulnerable transitive dependency -->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -291,24 +282,6 @@
                     <reportSet>
                         <reports>
                             <report>report-aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-            <!-- Generates a Dependency Analysis report -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${maven.dependency-check.version}</version>
-                <configuration>
-                    <name>Dependency Analysis</name>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <inherited>false</inherited>
-                        <reports>
-                            <report>aggregate</report>
                         </reports>
                     </reportSet>
                 </reportSets>

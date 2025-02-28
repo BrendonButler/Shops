@@ -182,7 +182,14 @@
     <repositories>
         <repository>
             <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
+            <url>https://repo.essentialsx.net/#/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
