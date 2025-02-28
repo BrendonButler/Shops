@@ -25,7 +25,7 @@
         <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
         <jupiter.version>5.9.2</jupiter.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <vault-api.version>1.7.1</vault-api.version>
         <vault.version>1.7.3</vault.version>
 
