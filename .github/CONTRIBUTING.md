@@ -6,7 +6,7 @@ Read our [Code of Conduct](CODE_OF_CONDUCT.md) to keep our community approachabl
 
 In this guide you will get an overview of the contribution workflow from forking the repository, creating a PR, reviewing, and merging the PR.
 
-To get an overview of the project, read the [README](README.md).
+To get an overview of the project, read the [README](../README.md).
 
 ## Getting started
 
