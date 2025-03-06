@@ -19,16 +19,15 @@
 
         <!-- Dependency Versions -->
         <essentialsx.version>2.20.0</essentialsx.version>
-        <guava.version>32.1.1-jre</guava.version>
+        <guava.version>33.4.0-jre</guava.version>
         <configurate.version>4.2.0</configurate.version>
-        <jackson-databind.version>2.15.2</jackson-databind.version>
-        <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
-        <junit.version>5.9.2</junit.version>
+        <jackson-databind.version>2.18.3</jackson-databind.version>
+        <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
+        <junit.version>5.12.0</junit.version>
         <vault-api.version>1.7.1</vault-api.version>
-        <vault.version>1.7.3</vault.version>
 
         <!-- Spigot Dependencies -->
-        <mockbukkit.version>3.70.0</mockbukkit.version>
+        <mockbukkit.version>3.68.0</mockbukkit.version>
         <minecraft.server.version>1.20</minecraft.server.version>
         <spigot-api.version>${minecraft.server.version}.4-R0.1-SNAPSHOT</spigot-api.version>
         <sponge-api.version>11.0.0</sponge-api.version>
@@ -117,7 +116,7 @@
 
         <repository>
             <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+            <url>https://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
     </repositories>
 
@@ -193,8 +192,8 @@
             <!-- JUnit Jupiter API -->
             <dependency>
                 <groupId>org.junit</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${jupiter.version}</version>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
             </dependency>
 
             <!-- MockBukkit Test Mocking Tool -->
@@ -209,13 +208,6 @@
                 <groupId>com.github.MilkBowl</groupId>
                 <artifactId>VaultAPI</artifactId>
                 <version>${vault-api.version}</version>
-            </dependency>
-
-            <!-- Vault Plugin -->
-            <dependency>
-                <groupId>com.github.MilkBowl</groupId>
-                <artifactId>Vault</artifactId>
-                <version>${vault.version}</version>
             </dependency>
 
             <!-- SpongePowered Configurate HOCON (configuration management) -->
