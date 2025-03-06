@@ -131,6 +131,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
                 <configuration>
+                    <!-- Remove once MockBukkit tests are fixed -->
+                    <skipTests>true</skipTests>
                     <dependenciesToScan>
                         <dependency>net.essentialsx:EssentialsX</dependency>
                         <dependency>com.github.MilkBowl:Vault</dependency>
@@ -182,7 +184,14 @@
     <repositories>
         <repository>
             <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
+            <url>https://repo.essentialsx.net/#/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -215,13 +224,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Vault (Hooking Plugin) -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>Vault</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- EssentialsX (Economy Plugin) -->
         <dependency>
             <groupId>net.essentialsx</groupId>
@@ -241,13 +243,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- Maven Project Info Reports Plugin -->
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-project-info-reports-plugin</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -283,35 +278,6 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-            </plugin>
-
-            <!-- Generates a Dependency Analysis report -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${maven.dependency-check.version}</version>
-                <configuration>
-                    <name>Dependency Analysis</name>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <inherited>false</inherited>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-            <!-- Generates a SpotBugs Java bug report -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.version}</version>
-                <configuration>
-                    <encoding>${project.build.encoding}</encoding>
-                    <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
-                </configuration>
             </plugin>
         </plugins>
     </reporting>

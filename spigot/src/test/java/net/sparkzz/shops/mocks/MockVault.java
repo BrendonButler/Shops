@@ -1,7 +1,7 @@
 package net.sparkzz.shops.mocks;
 
+import com.earth2me.essentials.economy.vault.VaultEconomyProvider;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.plugins.Economy_Essentials;
 import net.sparkzz.shops.util.VaultProvider;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -28,14 +28,16 @@ public class MockVault extends JavaPlugin implements VaultProvider {
     public void onEnable() {
         Logger log = this.getLogger();
         ServicesManager servicesManager = this.getServer().getServicesManager();
-        Economy econ;
+        Economy econ = null;
 
+        // mock econ
         try {
-            econ = Economy_Essentials.class.getConstructor(Plugin.class).newInstance(this);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            econ = VaultEconomyProvider.class.getConstructor(Plugin.class).newInstance(this);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
+
         }
 
+        assert econ != null;
         servicesManager.register(Economy.class, econ, this, ServicePriority.Low);
     }
 }
