@@ -16,7 +16,6 @@
         <maven.shade.version>3.6.0</maven.shade.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
         <jacoco.version>0.8.12</jacoco.version>
-        <spotbugs.version>4.7.3.5</spotbugs.version>
 
         <!-- Dependency Versions -->
         <essentialsx.version>2.20.0</essentialsx.version>
@@ -24,22 +23,20 @@
         <configurate.version>4.2.0</configurate.version>
         <jackson-databind.version>2.15.2</jackson-databind.version>
         <jetbrains.annotations.version>24.0.0</jetbrains.annotations.version>
-        <jupiter.version>5.9.2</jupiter.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <junit.version>5.9.2</junit.version>
         <vault-api.version>1.7.1</vault-api.version>
         <vault.version>1.7.3</vault.version>
 
         <!-- Spigot Dependencies -->
-        <mockbukkit.version>2.85.2</mockbukkit.version>
-        <minecraft.server.version>1.18</minecraft.server.version>
-        <spigot-api.version>${minecraft.server.version}.2-R0.1-SNAPSHOT</spigot-api.version>
-        <sponge-api.version>10.0.0</sponge-api.version>
+        <mockbukkit.version>3.70.0</mockbukkit.version>
+        <minecraft.server.version>1.20</minecraft.server.version>
+        <spigot-api.version>${minecraft.server.version}.4-R0.1-SNAPSHOT</spigot-api.version>
+        <sponge-api.version>11.0.0</sponge-api.version>
 
         <!-- Other Properties -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
-        <maven.reports.version>3.9.0</maven.reports.version>
         <maven.site.version>4.0.0-M16</maven.site.version>
         <project.build.encoding>UTF-8</project.build.encoding>
     </properties>
@@ -195,7 +192,7 @@
 
             <!-- JUnit Jupiter API -->
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
+                <groupId>org.junit</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
@@ -242,14 +239,6 @@
                 <version>${jackson-databind.version}</version>
             </dependency>
 
-            <!-- SnakeYAML (override vulnerable transitive dependency) -->
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
             <!-- Guava (override vulnerable transitive dependency -->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -262,13 +251,6 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${jetbrains.annotations.version}</version>
-            </dependency>
-
-            <!-- Maven Project Info Reports Plugin -->
-            <dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>${maven.reports.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
