@@ -7,6 +7,11 @@
       <option name="url" value="http://nexus.hc.to/content/repositories/pub_releases" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="paper-repo" />
+      <option name="name" value="paper-repo" />
+      <option name="url" value="https://repo.papermc.io/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
@@ -20,6 +25,16 @@
       <option name="id" value="herocraft" />
       <option name="name" value="herocraft" />
       <option name="url" value="http://nexus.hc.to/content/repositories/pub_releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="essentials-releases" />
+      <option name="name" value="essentials-releases" />
+      <option name="url" value="https://repo.essentialsx.net/#/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="sponge-repo" />
+      <option name="name" value="Sponge Maven Repository" />
+      <option name="url" value="https://repo.spongepowered.org/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
@@ -65,6 +80,11 @@
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="vault-repo" />
+      <option name="name" value="vault-repo" />
+      <option name="url" value="https://nexus.hc.to/content/repositories/pub_releases" />
     </remote-repository>
   </component>
 </project>

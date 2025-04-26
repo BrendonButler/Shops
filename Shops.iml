@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/server/CraftBukkit" />
-      <excludeFolder url="file://$MODULE_DIR$/server/logs" />
-      <excludeFolder url="file://$MODULE_DIR$/server/plugins" />
-      <excludeFolder url="file://$MODULE_DIR$/server/BuildData" />
-      <excludeFolder url="file://$MODULE_DIR$/server/bundler" />
-      <excludeFolder url="file://$MODULE_DIR$/server/world" />
-      <excludeFolder url="file://$MODULE_DIR$/server/world_nether" />
-      <excludeFolder url="file://$MODULE_DIR$/server/apache-maven-3.6.0" />
-      <excludeFolder url="file://$MODULE_DIR$/server/Bukkit" />
-      <excludeFolder url="file://$MODULE_DIR$/server/world_the_end" />
-      <excludeFolder url="file://$MODULE_DIR$/server/Spigot" />
-      <excludeFolder url="file://$MODULE_DIR$/server/work" />
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/servers/paper-server" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/BuildData" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/Bukkit" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/CraftBukkit" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/Spigot" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/apache-maven-3.6.0" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/bundler" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/plugins" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/work" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/world" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/world_nether" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/spigot-server/world_the_end" />
+      <excludeFolder url="file://$MODULE_DIR$/servers/sponge-server" />
     </content>
   </component>
 </module>

@@ -1,6 +1,5 @@
-# Shops
 [![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/BrendonButler/Shops/pipeline.yml?logo=github&label=CI%20Pipeline)](https://github.com/BrendonButler/Shops/actions/workflows/pipeline.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/BrendonButler/Shops?logo=codecov&logoColor=white&label=Coverage)](https://app.codecov.io/github/BrendonButler/Shops)<br>
+[![Codecov](https://img.shields.io/codecov/c/github/BrendonButler/Shops?logo=codecov&logoColor=white&label=Coverage)](https://app.codecov.io/github/BrendonButler/Shops)
 [![GitHub downloads](https://img.shields.io/github/downloads/BrendonButler/Shops/total?label=GitHub%20Downloads&logo=github)](https://github.com/BrendonButler/Shops/releases)
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/873479?logo=curseforge&logoColor=white&label=CurseForge%20Downloads&color=f16436)](https://www.curseforge.com/minecraft/bukkit-plugins/command-shops)
 <br>
