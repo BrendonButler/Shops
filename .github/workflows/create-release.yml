@@ -297,7 +297,7 @@ jobs:
           file_path: ${{ steps.prepare-jars.outputs.spigot_jar }}
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
-          game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
+          game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 21'
           release_type: ${{ steps.release-stage.outputs.release_stage }}
           display_name: Shops ${{ steps.get-tag.outputs.tag }}
           changelog: ${{ steps.changelog.outputs.changelog }}
