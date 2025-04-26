@@ -7,44 +7,278 @@ on:
   workflow_dispatch:
 
 jobs:
+  pipeline:
+    name: Build and Test
+    uses: ./.github/workflows/pipeline.yml
+    with:
+      create_release_artifacts: true
+    secrets: inherit
+
   create-and-publish-release:
     name: Create and Publish Release
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: pipeline
     permissions:
       contents: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          java-version: '17'
-          distribution: 'zulu'
-          cache: 'maven'
+          name: build-artifacts
+          path: .
 
-      - name: Get Previous tag
-        id: previous-tag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Get current tag
+        id: get-tag
+        run: |
+          TAG=${GITHUB_REF/refs\/tags\//}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Current tag: $TAG"
 
-      - name: Build and package the shaded jar
-        run: mvn clean package shade:shade
+      - name: Verify POM version matches tag
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+          POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          
+          if [ "$POM_VERSION" != "$TAG" ]; then
+            echo "::warning::POM version ($POM_VERSION) does not match Git tag ($TAG)"
+          else
+            echo "✅ POM version matches Git tag: $TAG"
+          fi
 
-      - uses: ncipollo/release-action@v1
-        with:
-          skipIfReleaseExists: true
-          artifacts: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
-          tag: ${{ steps.previous-tag.outputs.tag }}
+      - name: Prepare module JARs
+        id: prepare-jars
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+
+          # Spigot
+          if [ -f "spigot/target/shops-*.jar" ]; then
+            SPIGOT_JAR=$(find spigot/target -name "shops-*.jar" | head -n 1)
+            SPIGOT_JAR_NAME="shops-spigot-${TAG}.jar"
+            cp "$SPIGOT_JAR" "spigot/target/$SPIGOT_JAR_NAME"
+            echo "spigot_jar=spigot/target/$SPIGOT_JAR_NAME" >> $GITHUB_OUTPUT
+            echo "Spigot JAR prepared as: $SPIGOT_JAR_NAME"
+          else
+            echo "No Spigot JAR found!"
+          fi
+
+          # Sponge
+          if [ -f "sponge/target/shops-*.jar" ]; then
+            SPONGE_JAR=$(find sponge/target -name "shops-*.jar" | head -n 1)
+            SPONGE_JAR_NAME="shops-sponge-${TAG}.jar"
+            cp "$SPONGE_JAR" "sponge/target/$SPONGE_JAR_NAME"
+            echo "sponge_jar=sponge/target/$SPONGE_JAR_NAME" >> $GITHUB_OUTPUT
+            echo "Sponge JAR prepared as: $SPONGE_JAR_NAME"
+          else
+            echo "No Sponge JAR found!"
+          fi
+
+      - name: Verify JARs exist and are valid
+        id: verify-jars
+        run: |
+          # Check if JARs were generated and have valid size
+          JAR_VALID=true
+
+          for jar_path in "${{ steps.prepare-jars.outputs.spigot_jar }}" "${{ steps.prepare-jars.outputs.sponge_jar }}"; do
+            if [ -n "$jar_path" ]; then
+              if [ -f "$jar_path" ]; then
+                size=$(stat -c%s "$jar_path")
+                if [ "$size" -lt 10000 ]; then
+                  echo "::error::JAR file $jar_path seems too small ($size bytes)"
+                  JAR_VALID=false
+                else
+                  echo "✅ JAR file $jar_path is valid ($size bytes)"
+                fi
+
+                # Verify JAR structure
+                if jar tf "$jar_path" > /dev/null; then
+                  echo "✅ JAR file $jar_path has valid structure"
+                else
+                  echo "::error::JAR file $jar_path has invalid structure"
+                  JAR_VALID=false
+                fi
+              else
+                echo "::error::JAR file $jar_path not found"
+                JAR_VALID=false
+              fi
+            fi
+          done
+
+          echo "jars_valid=$JAR_VALID" >> $GITHUB_OUTPUT
+
+          if [ "$JAR_VALID" = "false" ]; then
+            exit 1
+          fi
+
+          echo "All JAR files verified successfully"
+
+      - name: Verify plugin.yml/mcmod.info files
+        run: |
+          # Verify Spigot plugin.yml
+          if [ -n "${{ steps.prepare-jars.outputs.spigot_jar }}" ]; then
+            if jar tf "${{ steps.prepare-jars.outputs.spigot_jar }}" | grep -q "plugin.yml"; then
+              echo "✅ Spigot plugin.yml found"
+              # Extract and check version matches
+              jar xf "${{ steps.prepare-jars.outputs.spigot_jar }}" plugin.yml
+              if grep -q "version: ${{ steps.get-tag.outputs.tag }}" plugin.yml; then
+                echo "✅ Version in plugin.yml matches tag"
+              else
+                echo "⚠️ Version in plugin.yml doesn't match tag"
+              fi
+            else
+              echo "::error::Spigot JAR missing plugin.yml"
+              exit 1
+            fi
+          fi
+          
+          # Verify Sponge mcmod.info
+          if [ -n "${{ steps.prepare-jars.outputs.sponge_jar }}" ]; then
+            if jar tf "${{ steps.prepare-jars.outputs.sponge_jar }}" | grep -q "mcmod.info"; then
+              echo "✅ Sponge mcmod.info found"
+            else
+              echo "::error::Sponge JAR missing mcmod.info"
+              exit 1
+            fi
+          fi
+
+      - name: Verify GitHub release was created
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+          MAX_ATTEMPTS=5
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            if gh release view $TAG &>/dev/null; then
+              echo "✅ GitHub release for $TAG verified successfully!"
+              exit 0
+            fi
+          
+            echo "Waiting for GitHub release to be available (attempt $ATTEMPT/$MAX_ATTEMPTS)..."
+            sleep 5
+            ATTEMPT=$((ATTEMPT+1))
+          done
+          
+          echo "::error::Failed to verify GitHub release after $MAX_ATTEMPTS attempts"
+          exit 1
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+          
+          # Find the previous tag
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "$TAG" | head -n 1)
+          
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag, use first commit
+            echo "No previous tag found. Using all commits for changelog."
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges)
+          else
+            echo "Generating changelog from $PREV_TAG to $TAG"
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges $PREV_TAG..$TAG)
+          fi
+          
+          # Save changelog to file and output
+          echo "$CHANGELOG" > changelog.md
+          echo "changelog_file=changelog.md" >> $GITHUB_OUTPUT
+          
+          # Create multiline output for debugging
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create-release
+        if: steps.verify-jars.outputs.jars_valid != 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+
+          # Check if release already exists
+          if gh release view $TAG &>/dev/null; then
+            echo "Release for tag $TAG already exists, uploading artifacts"
+
+            # Upload artifacts to existing release
+            if [ -n "${{ steps.prepare-jars.outputs.spigot_jar }}" ]; then
+              gh release upload $TAG "${{ steps.prepare-jars.outputs.spigot_jar }}" --clobber
+            fi
+
+            if [ -n "${{ steps.prepare-jars.outputs.sponge_jar }}" ]; then
+              gh release upload $TAG "${{ steps.prepare-jars.outputs.sponge_jar }}" --clobber
+            fi
+          else
+            echo "Creating new release for tag $TAG"
+
+            # Create assets argument list
+            ASSETS=""
+            if [ -n "${{ steps.prepare-jars.outputs.spigot_jar }}" ]; then
+              ASSETS="$ASSETS ${{ steps.prepare-jars.outputs.spigot_jar }}"
+            fi
+
+            if [ -n "${{ steps.prepare-jars.outputs.sponge_jar }}" ]; then
+              ASSETS="$ASSETS ${{ steps.prepare-jars.outputs.sponge_jar }}"
+            fi
+
+            # Create the release with assets and custom notes
+            if [ -f "${{ steps.changelog.outputs.changelog_file }}" ]; then
+              gh release create $TAG \
+                --title "Shops $TAG" \
+                --notes-file "${{ steps.changelog.outputs.changelog_file }}" \
+                $ASSETS
+            else
+              # Fallback to generated notes
+              gh release create $TAG \
+                --title "Shops $TAG" \
+                --generate-notes \
+                $ASSETS
+            fi
+          fi
+
+      - name: Verify release artifacts on GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.get-tag.outputs.tag }}
+          
+          # Check if release exists
+          if ! gh release view $TAG &>/dev/null; then
+            echo "::error::GitHub release for $TAG not found after creation"
+            exit 1
+          fi
+          
+          # Verify assets were uploaded
+          ASSETS=$(gh release view $TAG --json assets -q '.assets[].name')
+          
+          if [[ "$ASSETS" == *"spigot"* ]]; then
+            echo "✅ Spigot JAR found in GitHub release"
+          elif [ -n "${{ steps.prepare-jars.outputs.spigot_jar }}" ]; then
+            echo "::error::Spigot JAR not found in GitHub release"
+            exit 1
+          fi
+          
+          if [[ "$ASSETS" == *"sponge"* ]]; then
+            echo "✅ Sponge JAR found in GitHub release"
+          elif [ -n "${{ steps.prepare-jars.outputs.sponge_jar }}" ]; then
+            echo "::error::Sponge JAR not found in GitHub release"
+            exit 1
+          fi
 
       - name: Determine Release Stage
         id: release-stage
         run: |
-          tag=${{ steps.previous-tag.outputs.tag }}
+          tag=${{ steps.get-tag.outputs.tag }}
           lowercase_tag=$(echo "$tag" | tr '[:upper:]' '[:lower:]')
-  
+
           if [[ $lowercase_tag == *"beta"* ]]; then
             release_stage="beta"
           elif [[ $lowercase_tag == *"alpha"* ]]; then
@@ -56,16 +290,32 @@ jobs:
           echo "Release stage: $release_stage"
           echo "release_stage=$release_stage" >> $GITHUB_OUTPUT
 
-      - name: Upload to CurseForge
+      - name: Upload Spigot artifact to CurseForge
+        if: steps.prepare-jars.outputs.spigot_jar != ''
         uses: itsmeow/curseforge-upload@v3
         with:
-          file_path: target/shops-${{ steps.previous-tag.outputs.tag }}.jar
+          file_path: ${{ steps.prepare-jars.outputs.spigot_jar }}
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
           game_versions: 'Minecraft 1.18:1.18.2,Minecraft 1.19:1.19.4,Minecraft 1.20:1.20.1,Java 17'
           release_type: ${{ steps.release-stage.outputs.release_stage }}
-          display_name: Shops ${{ steps.previous-tag.outputs.tag }}
-          #changelog: TODO: ADD GENERATED CHANGELOG
-          #changelog_type: markdown
+          display_name: Shops ${{ steps.get-tag.outputs.tag }}
+          changelog: ${{ steps.changelog.outputs.changelog }}
+          changelog_type: markdown
           project_id: 873479
           token: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Send Discord notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ job.status == 'success' && format('Shops version {0} released!', steps.get-tag.outputs.tag) || format('Shops version release {0} failed!', steps.get-tag.outputs.tag) }}
+          description: |
+            **Type:** ${{ steps.release-stage.outputs.release_stage }}
+
+            ${{ job.status == 'success' && 'A new version has been released! 🎉' || 'Release process failed. Please check the workflow run for details.' }}
+            ${{ job.status == 'success' && format('See the changes at: https://github.com/{0}/releases/tag/{1}', github.repository, steps.get-tag.outputs.tag) || '' }}
+          color: ${{ job.status == 'success' && '5025616' || '15548997' }}
+          url: ${{ job.status == 'success' && format('https://github.com/{0}/releases/tag/{1}', github.repository, steps.get-tag.outputs.tag) || format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+          nodetail: true

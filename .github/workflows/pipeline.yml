@@ -7,11 +7,19 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+    inputs:
+      create_release_artifacts:
+        description: 'Create shaded JARs for release'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -27,17 +35,40 @@ jobs:
       - name: Build and run unit tests
         run: mvn clean install
 
-      - name: Upload 'target' folder as an artifact
-        id: upload-target-folder
+      - name: Build shaded JARs
+        if: ${{ inputs.create_release_artifacts }}
+        run: mvn package shade:shade -DskipTests
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: target
-          path: target/
+          name: build-artifacts
+          path: |
+            **/target/*.jar
+            !**/target/original-*.jar
+          retention-days: 1
+
+      - name: Send Discord build notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ job.status == 'success' && 'Shops build succeeded' || 'Shops build failed' }}
+          description: |
+            **Branch:** ${{ github.ref_name }}
+            ${{ github.event_name == 'pull_request' && format('**PR:** #{0}', github.event.pull_request.number) || '' }}
+
+            ${{ job.status == 'success' && 'Build and tests completed successfully! ✅' || job.status == 'cancelled' && 'Build was cancelled. ⚠️' || 'Build or tests failed. ❌' }}
+          color: ${{ job.status == 'success' && '5025616' || job.status == 'cancelled' && '16753920' || '15548997' }}
+          url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+          nodetail: true
 
   documentation-and-reporting:
     name: Documentation and Reports
     runs-on: ubuntu-latest
     needs: build-and-test
+    if: ${{ !inputs.create_release_artifacts }}
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -50,17 +81,32 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
 
-      - name: Download the 'target' folder artifact
-        id: download-target-folder
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: target
-          path: target/
+          name: build-artifacts
+          path: .
 
       - name: Check documentation and publish reports
-        run: mvn validate site -DskipTests
+        run: mvn validate site -DskipTests -Dmaven.main.skip -Dmaven.test.skip
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Send Discord documentation notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ job.status == 'success' && 'Shops coverage reports updated' || 'Shops coverage report generation failed' }}
+          description: |
+            **Branch:** ${{ github.ref_name }}
+
+            ${{ job.status == 'success' && 'Test coverage reports have been updated for Shops! 📊' || job.status == 'cancelled' && 'Coverage report generation was cancelled. ⚠️' || 'Failed to generate coverage reports. ❌' }}
+
+            ${{ job.status == 'success' && format('View the latest coverage metrics for this branch: https://app.codecov.io/gh/BrendonButler/Shops/tree/{0}', github.ref_name) || '' }}
+          color: ${{ job.status == 'success' && '5814783' || job.status == 'cancelled' && '16753920' || '15548997' }}
+          url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+          nodetail: true
