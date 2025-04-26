@@ -73,9 +73,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        id: checkout
 
       - name: Set up Java
         uses: actions/setup-java@v4
+        id: setup-java
         with:
           java-version: '21'
           distribution: 'zulu'
@@ -83,30 +85,46 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
+        id: download-artifacts
         with:
           name: build-artifacts
           path: .
 
       - name: Check documentation and publish reports
+        id: check-docs
         run: mvn validate site -DskipTests -Dmaven.main.skip -Dmaven.test.skip
 
       - name: Upload coverage reports to Codecov
+        id: codecov
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check steps status
+        id: check-status
+        if: always()
+        run: |
+          if [ "${{ steps.checkout.outcome }}" == "success" ] && 
+             [ "${{ steps.setup-java.outcome }}" == "success" ] && 
+             [ "${{ steps.download-artifacts.outcome }}" == "success" ] && 
+             [ "${{ steps.check-docs.outcome }}" == "success" ] && 
+             [ "${{ steps.codecov.outcome }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
 
       - name: Send Discord documentation notification
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: ${{ job.status == 'success' && 'Shops coverage reports updated' || 'Shops coverage report generation failed' }}
+          title: ${{ steps.check-status.outputs.status == 'success' && 'Shops coverage reports updated' || 'Shops coverage report generation failed' }}
           description: |
             **Branch:** ${{ github.ref_name }}
 
-            ${{ job.status == 'success' && 'Test coverage reports have been updated for Shops! 📊' || job.status == 'cancelled' && 'Coverage report generation was cancelled. ⚠️' || 'Failed to generate coverage reports. ❌' }}
-
-            ${{ job.status == 'success' && format('View the latest coverage metrics for this branch: https://app.codecov.io/gh/BrendonButler/Shops/tree/{0}', github.ref_name) || '' }}
-          color: ${{ job.status == 'success' && '5814783' || job.status == 'cancelled' && '16753920' || '15548997' }}
+            ${{ steps.check-status.outputs.status == 'success' && 'Test coverage reports have been updated for Shops! 📊' || job.status == 'cancelled' && 'Coverage report generation was cancelled. ⚠️' || 'Failed to generate coverage reports. ❌' }}
+            ${{ steps.check-status.outputs.status == 'success' && format('View the latest coverage metrics for this branch: https://app.codecov.io/gh/BrendonButler/Shops/tree/{0}', github.ref_name) || '' }}
+          color: ${{ steps.check-status.outputs.status == 'success' && '5814783' || job.status == 'cancelled' && '16753920' || '15548997' }}
           url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
           nodetail: true
