@@ -43,7 +43,7 @@
     <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
-    <version>0.3-BETA</version>
+    <version>0.4-BETA</version>
     <url>https://shops.sparkzz.net/</url>
     <packaging>pom</packaging>
 
