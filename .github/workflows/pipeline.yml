@@ -37,7 +37,7 @@ jobs:
 
       - name: Build shaded JARs
         if: ${{ inputs.create_release_artifacts }}
-        run: mvn package shade:shade -DskipTests
+        run: mvn package -DskipTests
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

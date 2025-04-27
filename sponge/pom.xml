@@ -80,6 +80,13 @@
                         </filter>
 
                         <filter>
+                            <artifact>net.sparkzz:core</artifact>
+                            <includes>
+                                <include>net/sparkzz/**</include>
+                            </includes>
+                        </filter>
+
+                        <filter>
                             <artifact>net.sparkzz:shops-sponge</artifact>
                             <includes>
                                 <include>net/sparkzz/**</include>

@@ -69,6 +69,13 @@
                         </filter>
 
                         <filter>
+                            <artifact>net.sparkzz:core</artifact>
+                            <includes>
+                                <include>net/sparkzz/**</include>
+                            </includes>
+                        </filter>
+
+                        <filter>
                             <artifact>net.sparkzz:shops-spigot</artifact>
                             <includes>
                                 <include>net/sparkzz/**</include>
