@@ -21,7 +21,7 @@
         <essentialsx.version>2.20.0</essentialsx.version>
         <guava.version>33.4.0-jre</guava.version>
         <configurate.version>4.2.0</configurate.version>
-        <jackson-databind.version>2.18.3</jackson-databind.version>
+        <jackson-databind.version>2.18.11</jackson-databind.version>
         <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
         <junit.version>5.12.0</junit.version>
         <vault-api.version>1.7.1</vault-api.version>
