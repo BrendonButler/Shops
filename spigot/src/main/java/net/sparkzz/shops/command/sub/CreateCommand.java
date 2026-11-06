@@ -93,8 +93,8 @@ public class CreateCommand extends SubCommand {
             double minX = setAttribute("min-x", Math.min(x1, x2));
             double maxX = setAttribute("max-x", Math.max(x1, x2));
             double maxY = setAttribute("max-y", Math.max(y1, y2));
-            double minZ = setAttribute("min-z", Math.min(z1, z2));
             double minY = setAttribute("min-y", Math.min(y1, y2));
+            double minZ = setAttribute("min-z", Math.min(z1, z2));
             double maxZ = setAttribute("max-z", Math.max(z1, z2));
             double[] minDims = Config.getMinDimensions();
             double[] maxDims = Config.getMaxDimensions();
