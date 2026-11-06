@@ -44,10 +44,6 @@ class AddCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId()));
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().addFunds(BigDecimal.valueOf(100));
     }
 
     @AfterAll
@@ -57,6 +53,10 @@ class AddCommandTest {
 
     @BeforeEach
     void setUpEach() {
+        Store store = new Store("BetterBuy", mrSparkzz.getUniqueId());
+        store.addItem(emeralds.getType(), 10, -1, 2D, 1.5D);
+        store.addFunds(BigDecimal.valueOf(100));
+        Store.setDefaultStore(mrSparkzz.getWorld(), store);
         mrSparkzz.getInventory().addItem(emeralds);
     }
 
@@ -98,8 +98,8 @@ class AddCommandTest {
         performCommand(mrSparkzz, "shop add emerald all");
         assertEquals(Notifier.compose(ADD_SUCCESS_QUANTITY, Map.of("quantity", quantity, "material", material)), mrSparkzz.nextMessage());
         assertFalse(mrSparkzz.getInventory().contains(material));
-        // 11 left over from testAddCommand_AddOne plus the 64 added here
-        assertEquals(75, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
+        // 10 starting stock plus the 64 added here
+        assertEquals(74, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add all");
     }
 

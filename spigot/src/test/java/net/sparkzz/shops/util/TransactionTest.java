@@ -1,7 +1,12 @@
 package net.sparkzz.shops.util;
 
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.shops.mocks.FakeEconomy;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
+
+import java.math.BigDecimal;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -86,6 +93,62 @@ public class TransactionTest {
         printSuccessMessage("transaction - purchase not ready when unaffordable");
     }
 
+    @Test
+    @DisplayName("Test Transaction - purchase changes nothing when the economy rejects the withdrawal")
+    @Order(3)
+    void testProcess_PurchaseWithdrawRejected() {
+        prepareEmeraldPurchase(24);
+        BigDecimal storeBalance = store.getBalance();
+        // The transaction picks up the economy when it's created, so create it while the rejecting one is set
+        withRejectingEconomy(() -> assertFalse(new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE).process()));
+        assertEquals(64, store.getItems().get(Material.EMERALD).get("quantity").intValue());
+        assertEquals(storeBalance, store.getBalance());
+        assertFalse(mrSparkzz.getInventory().contains(Material.EMERALD));
+        printSuccessMessage("transaction - purchase rejected by economy");
+    }
+
+    @Test
+    @DisplayName("Test Transaction - sale changes nothing when the economy rejects the deposit")
+    @Order(4)
+    void testProcess_SaleDepositRejected() {
+        store.getItems().clear();
+        store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
+        store.setBalance(BigDecimal.valueOf(100));
+        mrSparkzz.getInventory().clear();
+        mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 12));
+        // The transaction picks up the economy when it's created, so create it while the rejecting one is set
+        withRejectingEconomy(() -> assertFalse(new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.SALE).process()));
+        assertEquals(0, store.getItems().get(Material.EMERALD).get("quantity").intValue());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
+        assertTrue(mrSparkzz.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 12));
+        printSuccessMessage("transaction - sale rejected by economy");
+    }
+
+    /**
+     * Runs an action with an economy that rejects every withdrawal and deposit, then restores the original
+     */
+    private static void withRejectingEconomy(Runnable action) {
+        Economy original = Shops.getEconomy();
+
+        Shops.setEconomy(new FakeEconomy() {
+            @Override
+            public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
+                return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Rejected");
+            }
+
+            @Override
+            public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
+                return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Rejected");
+            }
+        });
+
+        try {
+            action.run();
+        } finally {
+            Shops.setEconomy(original);
+        }
+    }
+
     /**
      * Stocks the store with 64 emeralds for sale at 2 each (12 cost 24), clears the player's inventory so they
      * have space, and sets the player's balance
@@ -99,7 +162,7 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - get type")
-    @Order(3)
+    @Order(5)
     void testGetType() {
         assertEquals(Transaction.TransactionType.PURCHASE, purchase.getType());
         assertEquals(Transaction.TransactionType.SALE, sale.getType());

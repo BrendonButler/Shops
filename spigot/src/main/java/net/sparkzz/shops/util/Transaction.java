@@ -1,6 +1,7 @@
 package net.sparkzz.shops.util;
 
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
@@ -143,29 +144,40 @@ public class Transaction extends Notifiable {
     }
 
     /**
-     * Processes the transaction for the player and store
+     * Processes the transaction for the player and store. The player's money is moved first, and nothing else
+     * changes if the economy rejects it.
+     *
+     * @return whether the transaction was completed
      */
-    public void process() {
+    public boolean process() {
         switch (type) {
             case PURCHASE -> {
+                EconomyResponse response = econ.withdrawPlayer(player, cost.doubleValue());
+
+                if (response == null || !response.transactionSuccess()) return false;
+
                 if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.removeItem(itemStack);
 
                 store.addFunds(cost);
                 player.getInventory().addItem(itemStack);
-                econ.withdrawPlayer(player, cost.doubleValue());
             }
             case SALE -> {
+                EconomyResponse response = econ.depositPlayer(player, cost.doubleValue());
+
+                if (response == null || !response.transactionSuccess()) return false;
+
                 if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.addItem(itemStack);
                 if (!store.hasInfiniteFunds())
                     store.removeFunds(cost);
 
                 player.getInventory().removeItem(itemStack);
-                econ.depositPlayer(player, cost.doubleValue());
             }
             default -> {}
         }
+
+        return true;
     }
 
     /**
