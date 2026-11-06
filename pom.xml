@@ -6,7 +6,7 @@
 
     <modules>
         <module>core</module>
-        <module>spigot</module>
+        <module>spigot</module> <!-- Paper -->
         <module>sponge</module>
     </modules>
 
@@ -18,23 +18,20 @@
         <jacoco.version>0.8.12</jacoco.version>
 
         <!-- Dependency Versions -->
-        <essentialsx.version>2.20.0</essentialsx.version>
         <guava.version>33.7.1-jre</guava.version>
         <configurate.version>4.2.0</configurate.version>
         <jackson-databind.version>2.18.11</jackson-databind.version>
         <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
-        <junit.version>5.12.0</junit.version>
+        <junit.version>6.1.3</junit.version>
         <vault-api.version>1.7.1</vault-api.version>
 
-        <!-- Spigot Dependencies -->
-        <mockbukkit.version>3.68.0</mockbukkit.version>
-        <minecraft.server.version>1.20</minecraft.server.version>
-        <spigot-api.version>${minecraft.server.version}.4-R0.1-SNAPSHOT</spigot-api.version>
+        <!-- Server Dependencies -->
+        <mockbukkit.version>4.116.3</mockbukkit.version>
+        <papermc-api.version>1.21.11-R0.1-SNAPSHOT</papermc-api.version>
         <sponge-api.version>11.0.0</sponge-api.version>
 
         <!-- Other Properties -->
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
         <maven.site.version>4.0.0-M16</maven.site.version>
         <project.build.encoding>UTF-8</project.build.encoding>
@@ -94,26 +91,9 @@
         </repository>
 
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-
-        <repository>
             <id>sponge-repo</id>
             <name>Sponge Maven Repository</name>
             <url>https://repo.spongepowered.org/repository/maven-public/</url>
-        </repository>
-
-        <repository>
-            <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
 
         <repository>
@@ -158,6 +138,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <!-- Server API classes are too large to instrument and aren't our code -->
+                    <excludes>
+                        <exclude>org/bukkit/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -185,11 +171,12 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spigot Minecraft API -->
+            <!-- PaperMC Minecraft API -->
             <dependency>
-                <groupId>org.spigotmc</groupId>
-                <artifactId>spigot-api</artifactId>
-                <version>${spigot-api.version}</version>
+                <groupId>io.papermc.paper</groupId>
+                <artifactId>paper-api</artifactId>
+                <version>${papermc-api.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Sponge Minecraft API -->
@@ -204,14 +191,16 @@
             <!-- JUnit Jupiter API -->
             <dependency>
                 <groupId>org.junit</groupId>
-                <artifactId>junit</artifactId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- MockBukkit Test Mocking Tool -->
             <dependency>
-                <groupId>com.github.seeseemelk</groupId>
-                <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+                <groupId>org.mockbukkit.mockbukkit</groupId>
+                <artifactId>mockbukkit-v1.21</artifactId>
                 <version>${mockbukkit.version}</version>
             </dependency>
 

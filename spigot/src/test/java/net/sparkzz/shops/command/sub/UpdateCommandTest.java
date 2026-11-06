@@ -1,20 +1,16 @@
 package net.sparkzz.shops.command.sub;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WorldCreator;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.GOLD;
@@ -34,11 +30,7 @@ class UpdateCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST UPDATE COMMAND ]==");
-        server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        server = startServer();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         mrSparkzz.setOp(true);
@@ -51,9 +43,7 @@ class UpdateCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @BeforeEach

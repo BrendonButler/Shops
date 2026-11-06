@@ -27,10 +27,10 @@ public class BuyCommand extends SubCommand {
             throws NumberFormatException {
         resetAttributes();
         setArgsAsAttributes(args);
-        Material material = (Material) setAttribute("material", Material.matchMaterial(args[1]));
+        Material material = setAttribute("material", Material.matchMaterial(args[1]));
         Player player = (Player) setAttribute("sender", sender);
-        int quantity = (Integer) setAttribute("quantity", 1);
-        Store store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        int quantity = setAttribute("quantity", 1);
+        Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (store == null) {
             Notifier.process(player, NO_STORE_FOUND, getAttributes());
@@ -38,7 +38,7 @@ public class BuyCommand extends SubCommand {
         }
 
         if (args.length == 3)
-            quantity = (Integer) setAttribute("quantity", Integer.parseInt(args[2]));
+            quantity = setAttribute("quantity", Integer.parseInt(args[2]));
 
         // quantity less than or equal to 0, or greater than 2304 (max inventory capacity) is invalid
         if (quantity <= 0 || quantity > 2304) {
@@ -60,7 +60,11 @@ public class BuyCommand extends SubCommand {
                 return true;
             }
 
-            transaction.process();
+            if (!transaction.process()) {
+                Notifier.process(sender, TRANSACTION_FAILED, getAttributes());
+                return true;
+            }
+
             Notifier.process(sender, BUY_SUCCESS, getAttributes());
             return true;
         }

@@ -2,7 +2,7 @@ name: Shops
 version: @project.version@
 author: MrSparkzz
 main: net.sparkzz.shops.Shops
-api-version: 1.18
+api-version: 1.21
 
 depend: [ Vault ]
 softdepend: [ Essentials ]

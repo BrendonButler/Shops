@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.*;
 import net.sparkzz.shops.util.InventoryManagementSystem;
@@ -38,7 +37,7 @@ import static org.bukkit.ChatColor.RED;
  */
 public class ShopCommand extends CommandManager {
 
-    private final Server server = Shops.getServerInstance();
+    private final Server server = Bukkit.getServer();
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
         put("add", new AddCommand());

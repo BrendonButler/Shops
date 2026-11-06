@@ -1,11 +1,11 @@
 package net.sparkzz.shops.command.sub;
 
 import net.sparkzz.shops.Core;
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Notifier;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -41,9 +41,8 @@ public class TransferCommand extends SubCommand {
 
             boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-            // TODO: remove mock references once Server mocking is updated to fix issues with getServer()
             setAttribute("target", args[2]);
-            Server server = Shops.getServerInstance();
+            Server server = Bukkit.getServer();
             OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
 
             if (targetPlayer == null) {
@@ -63,7 +62,7 @@ public class TransferCommand extends SubCommand {
                         shopsOwned++;
                     }
 
-                if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
+                if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
                     Notifier.process(sender, STORE_TRANSFER_FAIL_MAX_STORES, getAttributes());
                     return true;
                 }

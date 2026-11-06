@@ -6,12 +6,13 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -272,7 +273,7 @@ public class Notifier extends AbstractNotifier {
     public static class Paginator {
         private static final int pageSize = 10;
 
-        private static int calcMaterialColWidth(Set<Material> materials) {
+        private static int calcMaterialColWidth(Collection<Material> materials) {
             int materialColWidth = 9;
 
             for (Material material : materials) {
@@ -298,15 +299,15 @@ public class Notifier extends AbstractNotifier {
             return priceColWidth;
         }
 
-        private static Set<Material> getValuesForPage(List<Material> materials, int pageNumber) {
+        private static List<Material> getValuesForPage(List<Material> materials, int pageNumber) {
             int startIndex = (pageNumber - 1) * pageSize;
             int endIndex = Math.min(startIndex + pageSize, materials.size());
 
             if (startIndex >= endIndex || startIndex < 0) {
-                return Collections.emptySet();
+                return Collections.emptyList();
             }
 
-            return new TreeSet<>(materials.subList(startIndex, endIndex));
+            return materials.subList(startIndex, endIndex);
         }
 
         /**
@@ -317,8 +318,8 @@ public class Notifier extends AbstractNotifier {
          * @return the page built containing the items in the store with the buy and sell price
          */
         public static String buildBrowsePage(Store store, int pageNumber) {
-            List<Material> materials = store.getItems().keySet().stream().sorted().toList();
-            Set<Material> valuesForPage = getValuesForPage(materials, pageNumber);
+            List<Material> materials = store.getItems().keySet().stream().sorted(Comparator.comparing(Material::name)).toList();
+            List<Material> valuesForPage = getValuesForPage(materials, pageNumber);
 
             if (valuesForPage.isEmpty()) return null;
 

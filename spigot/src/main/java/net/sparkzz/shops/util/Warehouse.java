@@ -49,6 +49,8 @@ public class Warehouse {
     private static CommentedConfigurationNode config, storeConfig;
     private static ConfigurationLoader<CommentedConfigurationNode> configLoader, storeLoader;
     private static Logger log;
+    // Only true after the configs and every store loaded, so a failed load never overwrites saved data
+    private static boolean loaded = false;
     private static ObjectMapper<Store> storeMapper;
     private static final String configName = "config.yml";
     private static final String storeConfigName = "data.shops";
@@ -60,7 +62,9 @@ public class Warehouse {
      * @return whether the configuration(s) were loaded successfully
      */
     public static boolean loadConfig(JavaPlugin shops) {
-        log = JavaPlugin.getPlugin(shops.getClass()).getLogger();
+        log = shops.getLogger();
+        loaded = false;
+        config = storeConfig = null;
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder()
                 .register(new TypeToken<>() {}, new MaterialMapSerializer())
                 .register(TypeToken.get(Cuboid.class), new CuboidSerializer())
@@ -105,7 +109,13 @@ public class Warehouse {
         }
 
         Config.setRootNode(config);
-        loadStores();
+
+        if (!loadStores()) {
+            log.severe("Error loading stores, disabling Shops plugin");
+            return false;
+        }
+
+        loaded = true;
         log.info("Configurations loaded successfully");
 
         return true;
@@ -115,6 +125,11 @@ public class Warehouse {
      * Saves the config to data.shops in the plugin data folder
      */
     public static void saveConfig() {
+        if (!loaded) {
+            if (log != null) log.warning("Configuration was not fully loaded, skipping save to protect existing data");
+            return;
+        }
+
         try {
             saveStores();
             configLoader.save(config);
@@ -127,8 +142,10 @@ public class Warehouse {
 
     /**
      * Loads the stores from the data.shops file
+     *
+     * @return whether every store loaded successfully
      */
-    private static void loadStores() {
+    private static boolean loadStores() {
         try {
             storeMapper = ObjectMapper.factory().get(TypeToken.get(Store.class));
 
@@ -148,8 +165,10 @@ public class Warehouse {
             }
 
             log.info(String.format("%d %s loaded", Store.STORES.size(), (Store.STORES.size() == 1) ? "store" : "stores"));
+            return true;
         } catch (SerializationException e) {
-            throw new RuntimeException(e);
+            log.severe("Error loading stores: " + e.getMessage());
+            return false;
         }
     }
 

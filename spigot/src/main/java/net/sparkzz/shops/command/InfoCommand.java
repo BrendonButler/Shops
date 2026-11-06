@@ -32,7 +32,7 @@ public class InfoCommand extends CommandManager {
             return true;
         }
 
-        sender.sendMessage(String.format("§l§3Shops v%s", Shops.getDesc().getVersion()));
+        sender.sendMessage(String.format("§3§lShops v%s", Shops.getDesc().getVersion()));
         return true;
     }
 

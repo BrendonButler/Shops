@@ -1,16 +1,10 @@
 package net.sparkzz.shops.event;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +13,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,17 +31,13 @@ public class EntranceListenerTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST ENTRANCE LISTENER ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        ServerMock server = startServer();
 
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
         World world = server.createWorld(WorldCreator.name("main-world"));
         otherWorld = server.createWorld(WorldCreator.name("other-world"));
         home = new Location(world, 0D, 0D, 0D);
         inStore = new Location(world, 15D, 15D, 15D);
 
-        Shops.setServerInstance(server);
         mrSparkzz = server.addPlayer("MrSparkzz");
 
         mrSparkzz.setLocation(new Location(world, 0D, 0D, 0D));
@@ -55,10 +47,7 @@ public class EntranceListenerTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
