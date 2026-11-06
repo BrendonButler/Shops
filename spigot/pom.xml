@@ -187,10 +187,10 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- PaperMC Minecraft API -->
+        <!-- Minecraft server API (Paper by default, see the spigot-api profile in the parent POM) -->
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
+            <groupId>${server-api.groupId}</groupId>
+            <artifactId>${server-api.artifactId}</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -204,7 +204,7 @@
         <!-- MockBukkit Test Mocking Tool -->
         <dependency>
             <groupId>org.mockbukkit.mockbukkit</groupId>
-            <artifactId>mockbukkit-v1.21</artifactId>
+            <artifactId>${mockbukkit.artifactId}</artifactId>
             <scope>test</scope>
         </dependency>
 
