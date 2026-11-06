@@ -12,7 +12,7 @@
 
     <name>Shops (Spigot)</name>
     <artifactId>shops-spigot</artifactId>
-    <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
+    <description>Location based shops plugin for Paper ${papermc-api.version}</description>
     <packaging>jar</packaging>
 
     <build>
@@ -127,8 +127,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
@@ -196,17 +195,24 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Spigot Minecraft API -->
+        <!-- PaperMC Minecraft API -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- JUnit Jupiter -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- MockBukkit Test Mocking Tool -->
         <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <groupId>org.mockbukkit.mockbukkit</groupId>
+            <artifactId>mockbukkit-v1.21</artifactId>
             <scope>test</scope>
         </dependency>
 

@@ -1,9 +1,9 @@
 package net.sparkzz.shops;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.command.CommandSender;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;

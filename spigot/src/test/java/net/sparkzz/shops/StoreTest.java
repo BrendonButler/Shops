@@ -1,7 +1,5 @@
 package net.sparkzz.shops;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Cuboid;
 import org.bukkit.Material;
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.math.BigDecimal;
 
