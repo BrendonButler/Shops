@@ -1,15 +1,9 @@
 package net.sparkzz.shops.command.sub;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +13,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,18 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RemoveCommandTest {
 
-    private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
+    private static ItemStack emeralds;
 
     private static PlayerMock mrSparkzz, player2;
 
     @BeforeAll
     static void setUpRemoveCommand() {
         printMessage("==[ TEST REMOVE COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        ServerMock server = startServer();
+        emeralds = new ItemStack(Material.EMERALD, 64);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -55,8 +48,7 @@ public class RemoveCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
+        stopServer();
     }
 
     @BeforeEach

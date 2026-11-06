@@ -2,129 +2,139 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - develop
+    branches: [develop]
   pull_request:
-    branches:
-      - main
+    branches: [develop, main]
   workflow_call:
     inputs:
       create_release_artifacts:
-        description: 'Create shaded JARs for release'
+        description: 'Called from the release workflow'
         required: false
         type: boolean
         default: false
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !inputs.create_release_artifacts }}
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
         with:
-          java-version: '21'
+          persist-credentials: false
+
+      # JDK 25 builds Java 21 bytecode through maven.compiler.release (D2)
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '25'
           distribution: 'zulu'
           cache: 'maven'
 
-      - name: Build and run unit tests
-        run: mvn clean install
+      - name: Build and test
+        run: mvn -B verify
 
-      - name: Build shaded JARs
-        if: ${{ inputs.create_release_artifacts }}
-        run: mvn package -DskipTests
+      - name: Upload coverage to Codecov
+        if: ${{ !inputs.create_release_artifacts }}
+        uses: codecov/codecov-action@v7
+        with:
+          files: '**/target/site/jacoco/jacoco.xml'
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
           path: |
-            **/target/*.jar
-            !**/target/original-*.jar
+            */target/shops-*.jar
+            !*/target/original-*.jar
           retention-days: 1
 
-      - name: Send Discord build notification
-        uses: sarisia/actions-status-discord@v1
-        if: always()
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: ${{ job.status == 'success' && 'Shops build succeeded' || 'Shops build failed' }}
-          description: |
-            **Branch:** ${{ github.ref_name }}
-            ${{ github.event_name == 'pull_request' && format('**PR:** #{0}', github.event.pull_request.number) || '' }}
-
-            ${{ job.status == 'success' && 'Build and tests completed successfully! ✅' || job.status == 'cancelled' && 'Build was cancelled. ⚠️' || 'Build or tests failed. ❌' }}
-          color: ${{ job.status == 'success' && '5025616' || job.status == 'cancelled' && '16753920' || '15548997' }}
-          url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-          nodetail: true
-
-  documentation-and-reporting:
-    name: Documentation and Reports
+  documentation:
+    name: Documentation
     runs-on: ubuntu-latest
     needs: build-and-test
     if: ${{ !inputs.create_release_artifacts }}
     timeout-minutes: 10
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        id: checkout
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        id: setup-java
+      - uses: actions/checkout@v7
         with:
-          java-version: '21'
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '25'
           distribution: 'zulu'
           cache: 'maven'
+      - name: Check Javadoc / site
+        run: mvn -B -DskipTests package site
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        id: download-artifacts
+  # Compiles against the 26.x API and runs every test on the 26.x mock server (D1/D3). Never released.
+  mc26-compat:
+    name: 26.x Compatibility
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.create_release_artifacts }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
         with:
-          name: build-artifacts
-          path: .
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build and test against 26.x
+        run: mvn -B -Pmc26 verify
 
-      - name: Check documentation and publish reports
-        id: check-docs
-        run: mvn validate site -DskipTests -Dmaven.main.skip -Dmaven.test.skip
+  # Compiles the plugin against the Spigot API to catch Paper-only calls (D1). Main code only.
+  spigot-api:
+    name: Spigot API Compile
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.create_release_artifacts }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Compile against spigot-api
+        run: mvn -B -Pspigot-api -pl spigot -am compile
 
-      - name: Upload coverage reports to Codecov
-        id: codecov
-        uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Check steps status
-        id: check-status
-        if: always()
-        run: |
-          if [ "${{ steps.checkout.outcome }}" == "success" ] && 
-             [ "${{ steps.setup-java.outcome }}" == "success" ] && 
-             [ "${{ steps.download-artifacts.outcome }}" == "success" ] && 
-             [ "${{ steps.check-docs.outcome }}" == "success" ] && 
-             [ "${{ steps.codecov.outcome }}" == "success" ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Send Discord documentation notification
+  report:
+    name: Report
+    if: ${{ always() && !inputs.create_release_artifacts }}
+    needs: [build-and-test, documentation, mc26-compat, spigot-api]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      OVERALL: ${{ contains(needs.*.result, 'cancelled') && 'cancelled' || (needs.build-and-test.result == 'success' && needs.documentation.result == 'success' && needs.mc26-compat.result == 'success' && needs.spigot-api.result == 'success') && 'success' || 'failure' }}
+    steps:
+      - name: Notify Discord
+        if: ${{ env.DISCORD_WEBHOOK != '' }}
         uses: sarisia/actions-status-discord@v1
-        if: always()
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: ${{ steps.check-status.outputs.status == 'success' && 'Shops coverage reports updated' || 'Shops coverage report generation failed' }}
+          webhook: ${{ env.DISCORD_WEBHOOK }}
+          status: ${{ env.OVERALL }}
+          title: ${{ env.OVERALL == 'success' && 'Shops build succeeded' || env.OVERALL == 'cancelled' && 'Shops build cancelled' || 'Shops build failed' }}
           description: |
-            **Branch:** ${{ github.ref_name }}
-
-            ${{ steps.check-status.outputs.status == 'success' && 'Test coverage reports have been updated for Shops! 📊' || job.status == 'cancelled' && 'Coverage report generation was cancelled. ⚠️' || 'Failed to generate coverage reports. ❌' }}
-            ${{ steps.check-status.outputs.status == 'success' && format('View the latest coverage metrics for this branch: https://app.codecov.io/gh/BrendonButler/Shops/tree/{0}', github.ref_name) || '' }}
-          color: ${{ steps.check-status.outputs.status == 'success' && '5814783' || job.status == 'cancelled' && '16753920' || '15548997' }}
+            **Branch:** ${{ github.head_ref || github.ref_name }}
+            ${{ github.event_name == 'pull_request' && format('**PR:** #{0} {1}', github.event.pull_request.number, github.event.pull_request.title) || '' }}
+            Build & tests: `${{ needs.build-and-test.result }}`
+            Docs: `${{ needs.documentation.result }}`
+            26.x compatibility: `${{ needs.mc26-compat.result }}`
+            Spigot API compile: `${{ needs.spigot-api.result }}`
           url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
           nodetail: true

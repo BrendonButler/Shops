@@ -1,3 +1,27 @@
-# Project exclude paths
+# Build output
+target/
 /out/
-/target/
+dependency-reduced-pom.xml
+
+# Local test servers: ignore everything except the launch/build scripts
+/servers/*/*
+!/servers/*/start.sh
+!/servers/*/build.sh
+
+# IntelliJ IDEA: shared project config in .idea/ stays tracked, personal files don't
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+.idea/aws.xml
+.idea/awsToolkit.xml
+*.iws
+
+# Other IDEs
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# macOS
+.DS_Store

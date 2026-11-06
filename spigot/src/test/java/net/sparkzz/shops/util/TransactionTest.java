@@ -1,26 +1,36 @@
 package net.sparkzz.shops.util;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
+import net.sparkzz.shops.mocks.FakeEconomy;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
+
+import java.math.BigDecimal;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Transaction Test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionTest {
 
-    private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
+    private static ItemStack emeralds;
     private static PlayerMock mrSparkzz, player;
     private static ServerMock server;
     private static Store store;
@@ -29,14 +39,11 @@ public class TransactionTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST TRANSACTION ]==");
-        server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
+        server = startServer();
+        emeralds = new ItemStack(Material.EMERALD, 64);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player = server.addPlayer();
-        loadConfig();
 
         mrSparkzz.setOp(true);
         Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
@@ -44,10 +51,7 @@ public class TransactionTest {
 
     @AfterAll
     static void tearDownAll() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -68,18 +72,97 @@ public class TransactionTest {
     }
 
     @Test
-    @Disabled("Disabled until essentials can be loaded")
-    @DisplayName("Test Transaction - shop tab complete")
+    @DisplayName("Test Transaction - purchase is ready when the player can afford it")
     @Order(1)
-    void testValidateComplete() {
-        boolean isReady = purchase.validateReady();
-        assertTrue(isReady);
-        printSuccessMessage("transaction - validate ready");
+    void testValidateReady_PurchaseAffordable() {
+        prepareEmeraldPurchase(24);
+        Transaction transaction = new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE);
+
+        assertTrue(transaction.validateReady());
+        printSuccessMessage("transaction - purchase ready when affordable");
+    }
+
+    @Test
+    @DisplayName("Test Transaction - purchase is not ready when the player can't afford it")
+    @Order(2)
+    void testValidateReady_PurchaseUnaffordable() {
+        prepareEmeraldPurchase(23.99);
+        Transaction transaction = new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE);
+
+        assertFalse(transaction.validateReady());
+        printSuccessMessage("transaction - purchase not ready when unaffordable");
+    }
+
+    @Test
+    @DisplayName("Test Transaction - purchase changes nothing when the economy rejects the withdrawal")
+    @Order(3)
+    void testProcess_PurchaseWithdrawRejected() {
+        prepareEmeraldPurchase(24);
+        BigDecimal storeBalance = store.getBalance();
+        // The transaction picks up the economy when it's created, so create it while the rejecting one is set
+        withRejectingEconomy(() -> assertFalse(new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE).process()));
+        assertEquals(64, store.getItems().get(Material.EMERALD).get("quantity").intValue());
+        assertEquals(storeBalance, store.getBalance());
+        assertFalse(mrSparkzz.getInventory().contains(Material.EMERALD));
+        printSuccessMessage("transaction - purchase rejected by economy");
+    }
+
+    @Test
+    @DisplayName("Test Transaction - sale changes nothing when the economy rejects the deposit")
+    @Order(4)
+    void testProcess_SaleDepositRejected() {
+        store.getItems().clear();
+        store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
+        store.setBalance(BigDecimal.valueOf(100));
+        mrSparkzz.getInventory().clear();
+        mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 12));
+        // The transaction picks up the economy when it's created, so create it while the rejecting one is set
+        withRejectingEconomy(() -> assertFalse(new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.SALE).process()));
+        assertEquals(0, store.getItems().get(Material.EMERALD).get("quantity").intValue());
+        assertEquals(BigDecimal.valueOf(100), store.getBalance());
+        assertTrue(mrSparkzz.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 12));
+        printSuccessMessage("transaction - sale rejected by economy");
+    }
+
+    /**
+     * Runs an action with an economy that rejects every withdrawal and deposit, then restores the original
+     */
+    private static void withRejectingEconomy(Runnable action) {
+        Economy original = Shops.getEconomy();
+
+        Shops.setEconomy(new FakeEconomy() {
+            @Override
+            public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
+                return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Rejected");
+            }
+
+            @Override
+            public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
+                return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Rejected");
+            }
+        });
+
+        try {
+            action.run();
+        } finally {
+            Shops.setEconomy(original);
+        }
+    }
+
+    /**
+     * Stocks the store with 64 emeralds for sale at 2 each (12 cost 24), clears the player's inventory so they
+     * have space, and sets the player's balance
+     */
+    private static void prepareEmeraldPurchase(double balance) {
+        store.getItems().clear();
+        store.addItem(Material.EMERALD, 64, -1, 2D, 1.5D);
+        mrSparkzz.getInventory().clear();
+        setBalance(mrSparkzz, balance);
     }
 
     @Test
     @DisplayName("Test Transaction - get type")
-    @Order(2)
+    @Order(5)
     void testGetType() {
         assertEquals(Transaction.TransactionType.PURCHASE, purchase.getType());
         assertEquals(Transaction.TransactionType.SALE, sale.getType());

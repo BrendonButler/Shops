@@ -1,6 +1,7 @@
 package net.sparkzz.shops.util;
 
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
@@ -15,7 +16,8 @@ import java.math.BigDecimal;
  */
 public class Transaction extends Notifiable {
 
-    private static final Economy econ = Shops.getEconomy();
+    // Looked up per transaction so a changed or re-registered economy provider is picked up
+    private final Economy econ = Shops.getEconomy();
     private final BigDecimal cost;
     private final ItemStack itemStack;
     private final TransactionType type;
@@ -32,16 +34,16 @@ public class Transaction extends Notifiable {
      * @param type the provided type of transaction
      */
     public Transaction(Player player, ItemStack itemStack, TransactionType type) {
-        this.player = (Player) setAttribute("player", player);
+        this.player = setAttribute("player", player);
         this.itemStack = itemStack;
-        this.type = (TransactionType) setAttribute("type", type);
+        this.type = setAttribute("type", type);
         this.transactionMessage = new Notifier.MultilineBuilder(getAttributes());
 
         setAttribute("material", itemStack.getType());
         setAttribute("quantity", itemStack.getAmount());
 
-        store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        cost = BigDecimal.valueOf((Double) setAttribute("cost", switch (type) {
+        store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        cost = BigDecimal.valueOf(setAttribute("cost", switch (type) {
             case PURCHASE -> (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
             case SALE -> (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
         }));
@@ -51,7 +53,7 @@ public class Transaction extends Notifiable {
     private void validateFinances() {
         switch (type) {
             case PURCHASE -> {
-                if (cost.compareTo(BigDecimal.valueOf(econ.getBalance(player))) >= 0)
+                if (BigDecimal.valueOf(econ.getBalance(player)).compareTo(cost) >= 0)
                     financesReady = true;
 
                 if (!financesReady) transactionMessage.append(Notifier.CipherKey.INSUFFICIENT_FUNDS_PLAYER);
@@ -142,29 +144,40 @@ public class Transaction extends Notifiable {
     }
 
     /**
-     * Processes the transaction for the player and store
+     * Processes the transaction for the player and store. The player's money is moved first, and nothing else
+     * changes if the economy rejects it.
+     *
+     * @return whether the transaction was completed
      */
-    public void process() {
+    public boolean process() {
         switch (type) {
             case PURCHASE -> {
+                EconomyResponse response = econ.withdrawPlayer(player, cost.doubleValue());
+
+                if (response == null || !response.transactionSuccess()) return false;
+
                 if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.removeItem(itemStack);
 
                 store.addFunds(cost);
                 player.getInventory().addItem(itemStack);
-                econ.withdrawPlayer(player, cost.doubleValue());
             }
             case SALE -> {
+                EconomyResponse response = econ.depositPlayer(player, cost.doubleValue());
+
+                if (response == null || !response.transactionSuccess()) return false;
+
                 if (!store.hasInfiniteStock() && store.getAttributes(itemStack.getType()).get("quantity").intValue() >= 0)
                     store.addItem(itemStack);
                 if (!store.hasInfiniteFunds())
                     store.removeFunds(cost);
 
                 player.getInventory().removeItem(itemStack);
-                econ.depositPlayer(player, cost.doubleValue());
             }
             default -> {}
         }
+
+        return true;
     }
 
     /**

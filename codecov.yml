@@ -2,14 +2,17 @@ coverage:
   status:
     project:
       default:
-        target: 70% # Set the default target to 60%
-        threshold: 40% # Set the threshold for the "yellow" range to 40%
+        target: auto      # compare against the base branch's coverage
+        threshold: 1%     # allow up to a 1% drop before failing
         base: auto
         paths:
-          - "src/main/java"
-  range: 40..70 # Set the range to "40..70" for the "yellow" range
+          - "**/src/main/java"
+    patch:
+      default:
+        target: 80%       # lines changed in the PR should be at least 80% covered
+  range: 70..90           # colors only: red below 70, green at 90+
   round: down
   precision: 2
 parsers:
   jacoco:
-    partials_as_hits: true #false by default
+    partials_as_hits: true

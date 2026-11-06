@@ -181,6 +181,7 @@ public class AbstractNotifier {
         STORE_UPDATE_SUCCESS_LOCATION("§aYou have successfully updated the location of {store} to ({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) in {world}!"),
         STORE_UPDATE_NO_STOCK("§cPlease ensure there is no stock in the store for this item and try again!"),
         STORE_WELCOME_MSG("§9Welcome to §6{store}§9!"),
+        TRANSACTION_FAILED("§cThe transaction could not be completed, please try again!"),
         WITHDRAW_SUCCESS("§aYou have successfully withdrawn §6{amount}§a from the store!"),
         WORLD_NOT_FOUND("§cCould not find world ({world})!");
 

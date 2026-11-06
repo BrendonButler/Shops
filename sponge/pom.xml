@@ -7,7 +7,7 @@
     <parent>
         <groupId>net.sparkzz</groupId>
         <artifactId>shops</artifactId>
-        <version>0.3-BETA</version>
+        <version>0.4-BETA</version>
     </parent>
 
     <name>Shops (Sponge)</name>
@@ -115,8 +115,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
@@ -125,12 +124,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
-                <configuration>
-                    <dependenciesToScan>
-                        <dependency>net.essentialsx:EssentialsX</dependency>
-                        <dependency>com.github.MilkBowl:Vault</dependency>
-                    </dependenciesToScan>
-                </configuration>
             </plugin>
 
             <!-- JaCoCo Plugin -->

@@ -1,11 +1,11 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -37,7 +37,7 @@ public class CreateCommand extends SubCommand {
             if (store.getOwner().equals(((Player) sender).getUniqueId()))
                 shopsOwned++;
 
-        if (shopsOwned >= (int) setAttribute("max-stores", Config.getMaxOwnedStores())) {
+        if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
             Notifier.process(sender, STORE_CREATE_FAIL_MAX_STORES, getAttributes());
             return true;
         }
@@ -54,11 +54,12 @@ public class CreateCommand extends SubCommand {
             setAttribute("target", args[2]);
 
             boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-            Server server = Shops.getServerInstance();
+            Server server = Bukkit.getServer();
             owner = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
         }
 
         if (owner == null) {
+            assert sender != null;
             Notifier.process(sender, PLAYER_NOT_FOUND, getAttributes());
             return true;
         }
@@ -89,20 +90,20 @@ public class CreateCommand extends SubCommand {
         if (DoubleStream.of(x1, y1, z1, x2, y2, z2).allMatch(value -> value == 0D))
             store = new Store(args[1], owner.getUniqueId());
         else {
-            double minX = (double) setAttribute("min-x", Math.min(x1, x2));
-            double maxX = (double) setAttribute("max-x", Math.max(x1, x2));
-            double minY = (double) setAttribute("min-y", Math.min(y1, y2));
-            double maxY = (double) setAttribute("max-y", Math.max(y1, y2));
-            double minZ = (double) setAttribute("min-z", Math.min(z1, z2));
-            double maxZ = (double) setAttribute("max-z", Math.max(z1, z2));
+            double minX = setAttribute("min-x", Math.min(x1, x2));
+            double maxX = setAttribute("max-x", Math.max(x1, x2));
+            double maxY = setAttribute("max-y", Math.max(y1, y2));
+            double minY = setAttribute("min-y", Math.min(y1, y2));
+            double minZ = setAttribute("min-z", Math.min(z1, z2));
+            double maxZ = setAttribute("max-z", Math.max(z1, z2));
             double[] minDims = Config.getMinDimensions();
             double[] maxDims = Config.getMaxDimensions();
-            double limitMinX = (double) setAttribute("limit-min-x", minDims[0]);
-            double limitMinY = (double) setAttribute("limit-min-y", minDims[1]);
-            double limitMinZ = (double) setAttribute("limit-min-z", minDims[2]);
-            double limitMaxX = (double) setAttribute("limit-max-x", maxDims[0]);
-            double limitMaxY = (double) setAttribute("limit-max-y", maxDims[1]);
-            double limitMaxZ = (double) setAttribute("limit-max-z", maxDims[2]);
+            double limitMinX = setAttribute("limit-min-x", minDims[0]);
+            double limitMinY = setAttribute("limit-min-y", minDims[1]);
+            double limitMinZ = setAttribute("limit-min-z", minDims[2]);
+            double limitMaxX = setAttribute("limit-max-x", maxDims[0]);
+            double limitMaxY = setAttribute("limit-max-y", maxDims[1]);
+            double limitMaxZ = setAttribute("limit-max-z", maxDims[2]);
 
             if ((maxX - minX) < limitMinX || (maxY - minY) < limitMinY || (maxZ - minZ) < limitMinZ) {
                 Notifier.process(sender, STORE_CREATE_FAIL_MIN_DIMS, getAttributes());
@@ -114,9 +115,9 @@ public class CreateCommand extends SubCommand {
                 return true;
             }
 
-            double volume = (double) setAttribute("volume", (maxX - minX) * (maxY - minY) * (maxZ - minZ));
-            double minVolume = (double) setAttribute("limit-min-vol", Config.getMinVolume());
-            double maxVolume = (double) setAttribute("limit-max-vol", Config.getMaxVolume());
+            double volume = setAttribute("volume", (maxX - minX) * (maxY - minY) * (maxZ - minZ));
+            double minVolume = setAttribute("limit-min-vol", Config.getMinVolume());
+            double maxVolume = setAttribute("limit-max-vol", Config.getMaxVolume());
 
             if (volume < minVolume) {
                 Notifier.process(sender, STORE_CREATE_FAIL_MIN_VOL, getAttributes());

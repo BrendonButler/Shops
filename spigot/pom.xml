@@ -7,12 +7,12 @@
     <parent>
         <groupId>net.sparkzz</groupId>
         <artifactId>shops</artifactId>
-        <version>0.3-BETA</version>
+        <version>0.4-BETA</version>
     </parent>
 
     <name>Shops (Spigot)</name>
     <artifactId>shops-spigot</artifactId>
-    <description>Location based shops plugin for Spigot ${spigot-api.version}</description>
+    <description>Location based shops plugin for Paper ${papermc-api.version}</description>
     <packaging>jar</packaging>
 
     <build>
@@ -127,8 +127,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
@@ -137,14 +136,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
-                <configuration>
-                    <!-- Remove once MockBukkit tests are fixed -->
-                    <skipTests>true</skipTests>
-                    <dependenciesToScan>
-                        <dependency>net.essentialsx:EssentialsX</dependency>
-                        <dependency>com.github.MilkBowl:Vault</dependency>
-                    </dependenciesToScan>
-                </configuration>
             </plugin>
 
             <!-- JaCoCo Plugin -->
@@ -196,17 +187,24 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Spigot Minecraft API -->
+        <!-- Minecraft server API (Paper by default, see the spigot-api profile in the parent POM) -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>${server-api.groupId}</groupId>
+            <artifactId>${server-api.artifactId}</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- JUnit Jupiter -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- MockBukkit Test Mocking Tool -->
         <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+            <groupId>org.mockbukkit.mockbukkit</groupId>
+            <artifactId>${mockbukkit.artifactId}</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -215,21 +213,6 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- EssentialsX (Economy Plugin) -->
-        <dependency>
-            <groupId>net.essentialsx</groupId>
-            <artifactId>EssentialsX</artifactId>
-            <version>${essentialsx.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Guava (override vulnerable transitive dependency -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Jackson Databind (expanded serialization and deserialization) -->

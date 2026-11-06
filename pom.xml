@@ -6,35 +6,39 @@
 
     <modules>
         <module>core</module>
-        <module>spigot</module>
+        <module>spigot</module> <!-- Paper -->
         <module>sponge</module>
     </modules>
 
     <properties>
         <!-- Plugin Versions -->
         <maven.compiler.version>3.14.0</maven.compiler.version>
-        <maven.shade.version>3.6.0</maven.shade.version>
+        <maven.shade.version>3.6.2</maven.shade.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
 
         <!-- Dependency Versions -->
-        <essentialsx.version>2.20.0</essentialsx.version>
-        <guava.version>33.4.0-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
         <configurate.version>4.2.0</configurate.version>
-        <jackson-databind.version>2.18.3</jackson-databind.version>
+        <jackson-databind.version>2.18.11</jackson-databind.version>
         <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
-        <junit.version>5.12.0</junit.version>
+        <junit.version>6.1.3</junit.version>
         <vault-api.version>1.7.1</vault-api.version>
 
-        <!-- Spigot Dependencies -->
-        <mockbukkit.version>3.68.0</mockbukkit.version>
-        <minecraft.server.version>1.20</minecraft.server.version>
-        <spigot-api.version>${minecraft.server.version}.4-R0.1-SNAPSHOT</spigot-api.version>
+        <!-- Server Dependencies -->
+        <mockbukkit.artifactId>mockbukkit-v1.21</mockbukkit.artifactId>
+        <mockbukkit.version>4.116.3</mockbukkit.version>
+        <papermc-api.version>1.21.11-R0.1-SNAPSHOT</papermc-api.version>
+        <spigot-api.version>1.21.11-R0.1-SNAPSHOT</spigot-api.version>
         <sponge-api.version>11.0.0</sponge-api.version>
 
+        <!-- Server API the plugin compiles against: Paper by default, Spigot with -Pspigot-api (see D1) -->
+        <server-api.groupId>io.papermc.paper</server-api.groupId>
+        <server-api.artifactId>paper-api</server-api.artifactId>
+        <server-api.version>${papermc-api.version}</server-api.version>
+
         <!-- Other Properties -->
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
         <maven.site.version>4.0.0-M16</maven.site.version>
         <project.build.encoding>UTF-8</project.build.encoding>
@@ -43,7 +47,7 @@
     <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
-    <version>0.3-BETA</version>
+    <version>0.4-BETA</version>
     <url>https://shops.sparkzz.net/</url>
     <packaging>pom</packaging>
 
@@ -94,26 +98,9 @@
         </repository>
 
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-
-        <repository>
             <id>sponge-repo</id>
             <name>Sponge Maven Repository</name>
             <url>https://repo.spongepowered.org/repository/maven-public/</url>
-        </repository>
-
-        <repository>
-            <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
 
         <repository>
@@ -158,6 +145,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <!-- Server API classes are too large to instrument and aren't our code -->
+                    <excludes>
+                        <exclude>org/bukkit/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -185,11 +178,12 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spigot Minecraft API -->
+            <!-- Minecraft server API (Paper by default, see the spigot-api profile) -->
             <dependency>
-                <groupId>org.spigotmc</groupId>
-                <artifactId>spigot-api</artifactId>
-                <version>${spigot-api.version}</version>
+                <groupId>${server-api.groupId}</groupId>
+                <artifactId>${server-api.artifactId}</artifactId>
+                <version>${server-api.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Sponge Minecraft API -->
@@ -204,14 +198,16 @@
             <!-- JUnit Jupiter API -->
             <dependency>
                 <groupId>org.junit</groupId>
-                <artifactId>junit</artifactId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- MockBukkit Test Mocking Tool -->
             <dependency>
-                <groupId>com.github.seeseemelk</groupId>
-                <artifactId>MockBukkit-v${minecraft.server.version}</artifactId>
+                <groupId>org.mockbukkit.mockbukkit</groupId>
+                <artifactId>${mockbukkit.artifactId}</artifactId>
                 <version>${mockbukkit.version}</version>
             </dependency>
 
@@ -258,6 +254,49 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <!--
+            Checks 26.x support (D1/D3): compiles against the 26.x API and runs the full test suite on the 26.x
+            mock server. Needs JDK 25. Its output is never released. Update both versions when a new 26.x comes out.
+            Usage: mvn -Pmc26 verify
+        -->
+        <profile>
+            <id>mc26</id>
+            <properties>
+                <papermc-api.version>26.3.build.243-stable</papermc-api.version>
+                <mockbukkit.artifactId>mockbukkit-v26.3</mockbukkit.artifactId>
+                <mockbukkit.version>4.119.0</mockbukkit.version>
+                <maven.compiler.release>25</maven.compiler.release>
+            </properties>
+        </profile>
+
+        <!--
+            Compiles the plugin against the Spigot API to catch Paper-only calls (D1). Main code only: the tests use
+            MockBukkit, which is built on Paper.
+            Usage: mvn -Pspigot-api -pl spigot -am compile
+        -->
+        <profile>
+            <id>spigot-api</id>
+            <properties>
+                <server-api.groupId>org.spigotmc</server-api.groupId>
+                <server-api.artifactId>spigot-api</server-api.artifactId>
+                <server-api.version>${spigot-api.version}</server-api.version>
+            </properties>
+            <repositories>
+                <repository>
+                    <id>spigot-repo</id>
+                    <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- JetBrains Annotations -->
