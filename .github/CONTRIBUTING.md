@@ -38,10 +38,25 @@ Scan through the [existing issues](https://github.com/BrendonButler/Shops/issues
     - Using the command line:
       - [Fork the repo](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo#fork-an-example-repository) so that you can make your changes without affecting the original project until you're ready to merge them.
 
-2. Create a working branch and start with your changes!
-    - Create a branch with the appropriate prefix for the issue type:
-      - `feature/GH-{ISSUE_NUM}` - use the "feature/GH-##" prefix to create the new feature branch
-      - `fix/GH-{ISSUE_NUM}` - use the "fix/GH-##" prefix to create a fix branch for bugs and other issues
+2. Create a working branch from `main` and start with your changes!
+    - Name the branch `<type>/<issue>-<short-description>`, for example `fix/35-mockbukkit-tests` or `feat/32-permissions`. Leave out the issue number if there isn't one.
+    - Use one of these types:
+      - `feat` - a new feature
+      - `fix` - a bug fix
+      - `docs` - documentation only
+      - `refactor` - code changes that don't change behavior
+      - `test` - adding or fixing tests
+      - `ci` - build and pipeline changes
+      - `chore` - anything else, such as dependency updates or cleanup
+    - Keep branches short-lived and focused on one issue, so they're quick to review and merge.
+
+### Branches and releases
+
+Shops uses [GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow):
+- `main` is the only long-lived branch. Every change reaches it through a pull request, and CI must pass first.
+- `main` should always be releasable, because any commit on it can become the next release.
+- Releases, including beta builds, are tags on `main` (for example `0.4.0-beta.1`). Maintainers create them.
+- A `release/<major>.<minor>.x` branch is only created when an older version needs a fix after a newer one is out.
 
 ### Commit your update
 
@@ -55,6 +70,7 @@ This will ensure fantastic traceability on issues and how the commits relate. Fo
 ### Pull Request
 
 When you're finished with the changes, create a pull request, also known as a PR.
+- Open the PR against `main`.
 - Don't forget to [link PR to issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) if you are solving one.
 - Enable the checkbox to [allow maintainer edits](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
   Once you submit your PR, a project admin will review your proposal. We may ask questions or request additional information.
