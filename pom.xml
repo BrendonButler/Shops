@@ -13,9 +13,9 @@
     <properties>
         <!-- Plugin Versions -->
         <maven.compiler.version>3.14.0</maven.compiler.version>
-        <maven.shade.version>3.6.0</maven.shade.version>
+        <maven.shade.version>3.6.2</maven.shade.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
 
         <!-- Dependency Versions -->
         <guava.version>33.7.1-jre</guava.version>
@@ -26,9 +26,16 @@
         <vault-api.version>1.7.1</vault-api.version>
 
         <!-- Server Dependencies -->
+        <mockbukkit.artifactId>mockbukkit-v1.21</mockbukkit.artifactId>
         <mockbukkit.version>4.116.3</mockbukkit.version>
         <papermc-api.version>1.21.11-R0.1-SNAPSHOT</papermc-api.version>
+        <spigot-api.version>1.21.11-R0.1-SNAPSHOT</spigot-api.version>
         <sponge-api.version>11.0.0</sponge-api.version>
+
+        <!-- Server API the plugin compiles against: Paper by default, Spigot with -Pspigot-api (see D1) -->
+        <server-api.groupId>io.papermc.paper</server-api.groupId>
+        <server-api.artifactId>paper-api</server-api.artifactId>
+        <server-api.version>${papermc-api.version}</server-api.version>
 
         <!-- Other Properties -->
         <maven.compiler.release>21</maven.compiler.release>
@@ -171,11 +178,11 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- PaperMC Minecraft API -->
+            <!-- Minecraft server API (Paper by default, see the spigot-api profile) -->
             <dependency>
-                <groupId>io.papermc.paper</groupId>
-                <artifactId>paper-api</artifactId>
-                <version>${papermc-api.version}</version>
+                <groupId>${server-api.groupId}</groupId>
+                <artifactId>${server-api.artifactId}</artifactId>
+                <version>${server-api.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -200,7 +207,7 @@
             <!-- MockBukkit Test Mocking Tool -->
             <dependency>
                 <groupId>org.mockbukkit.mockbukkit</groupId>
-                <artifactId>mockbukkit-v1.21</artifactId>
+                <artifactId>${mockbukkit.artifactId}</artifactId>
                 <version>${mockbukkit.version}</version>
             </dependency>
 
@@ -247,6 +254,49 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <!--
+            Checks 26.x support (D1/D3): compiles against the 26.x API and runs the full test suite on the 26.x
+            mock server. Needs JDK 25. Its output is never released. Update both versions when a new 26.x comes out.
+            Usage: mvn -Pmc26 verify
+        -->
+        <profile>
+            <id>mc26</id>
+            <properties>
+                <papermc-api.version>26.3.build.243-stable</papermc-api.version>
+                <mockbukkit.artifactId>mockbukkit-v26.3</mockbukkit.artifactId>
+                <mockbukkit.version>4.119.0</mockbukkit.version>
+                <maven.compiler.release>25</maven.compiler.release>
+            </properties>
+        </profile>
+
+        <!--
+            Compiles the plugin against the Spigot API to catch Paper-only calls (D1). Main code only: the tests use
+            MockBukkit, which is built on Paper.
+            Usage: mvn -Pspigot-api -pl spigot -am compile
+        -->
+        <profile>
+            <id>spigot-api</id>
+            <properties>
+                <server-api.groupId>org.spigotmc</server-api.groupId>
+                <server-api.artifactId>spigot-api</server-api.artifactId>
+                <server-api.version>${spigot-api.version}</server-api.version>
+            </properties>
+            <repositories>
+                <repository>
+                    <id>spigot-repo</id>
+                    <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- JetBrains Annotations -->
