@@ -1,6 +1,5 @@
 package net.sparkzz.shops.util;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.util.List;
@@ -32,9 +30,7 @@ public class ConfigTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST CONFIG ]==");
-        server = MockBukkit.getOrCreateMock();
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        server = startServer();
         world = server.createWorld(WorldCreator.name("world"));
         world_nether = server.createWorld(WorldCreator.name("world_nether"));
         world_the_end = server.createWorld(WorldCreator.name("world_the_end"));
@@ -44,7 +40,6 @@ public class ConfigTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
         List<Cuboid> cuboids = List.of(
                 new Cuboid(world, -20, -64, -20, 20, 320, 20),
                 new Cuboid(world_nether, -20, -64, -20, 20, 128, 20),
@@ -57,9 +52,7 @@ public class ConfigTest {
         Config.setMaxVolume(1024D);
         Config.setOffLimitsAreas(cuboids);
         Config.setMaxOwnedStores(2);
-        unLoadConfig();
-        Store.STORES.clear();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @AfterEach

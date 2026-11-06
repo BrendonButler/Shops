@@ -1,11 +1,8 @@
 package net.sparkzz.shops.command;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +10,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -33,12 +29,8 @@ class SubCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST SUB COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        ServerMock server = startServer();
         testClass = new SubCommandTestClass();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
 
         PlayerMock mrSparkzz = server.addPlayer("MrSparkzz");
 
@@ -48,10 +40,7 @@ class SubCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @Test

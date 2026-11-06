@@ -60,7 +60,7 @@ public class Warehouse {
      * @return whether the configuration(s) were loaded successfully
      */
     public static boolean loadConfig(JavaPlugin shops) {
-        log = JavaPlugin.getPlugin(shops.getClass()).getLogger();
+        log = shops.getLogger();
         TypeSerializerCollection serializers = ConfigurationOptions.defaults().serializers().childBuilder()
                 .register(new TypeToken<>() {}, new MaterialMapSerializer())
                 .register(TypeToken.get(Cuboid.class), new CuboidSerializer())
@@ -115,6 +115,11 @@ public class Warehouse {
      * Saves the config to data.shops in the plugin data folder
      */
     public static void saveConfig() {
+        if (config == null || storeConfig == null) {
+            if (log != null) log.warning("Configuration was never loaded, skipping save");
+            return;
+        }
+
         try {
             saveStores();
             configLoader.save(config);

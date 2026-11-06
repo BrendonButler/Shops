@@ -15,7 +15,8 @@ import java.math.BigDecimal;
  */
 public class Transaction extends Notifiable {
 
-    private static final Economy econ = Shops.getEconomy();
+    // Looked up per transaction so a changed or re-registered economy provider is picked up
+    private final Economy econ = Shops.getEconomy();
     private final BigDecimal cost;
     private final ItemStack itemStack;
     private final TransactionType type;
@@ -32,16 +33,16 @@ public class Transaction extends Notifiable {
      * @param type the provided type of transaction
      */
     public Transaction(Player player, ItemStack itemStack, TransactionType type) {
-        this.player = (Player) setAttribute("player", player);
+        this.player = setAttribute("player", player);
         this.itemStack = itemStack;
-        this.type = (TransactionType) setAttribute("type", type);
+        this.type = setAttribute("type", type);
         this.transactionMessage = new Notifier.MultilineBuilder(getAttributes());
 
         setAttribute("material", itemStack.getType());
         setAttribute("quantity", itemStack.getAmount());
 
-        store = (Store) setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
-        cost = BigDecimal.valueOf((Double) setAttribute("cost", switch (type) {
+        store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
+        cost = BigDecimal.valueOf(setAttribute("cost", switch (type) {
             case PURCHASE -> (store.getBuyPrice(itemStack.getType()) * itemStack.getAmount());
             case SALE -> (store.getSellPrice(itemStack.getType()) * itemStack.getAmount());
         }));
@@ -51,7 +52,7 @@ public class Transaction extends Notifiable {
     private void validateFinances() {
         switch (type) {
             case PURCHASE -> {
-                if (cost.compareTo(BigDecimal.valueOf(econ.getBalance(player))) >= 0)
+                if (BigDecimal.valueOf(econ.getBalance(player)).compareTo(cost) >= 0)
                     financesReady = true;
 
                 if (!financesReady) transactionMessage.append(Notifier.CipherKey.INSUFFICIENT_FUNDS_PLAYER);

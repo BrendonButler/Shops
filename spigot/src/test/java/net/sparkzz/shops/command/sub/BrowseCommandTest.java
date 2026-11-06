@@ -1,14 +1,11 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +15,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -35,12 +31,8 @@ public class BrowseCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST BROWSE COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        ServerMock server = startServer();
         World world = server.createWorld(WorldCreator.name("world"));
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -51,9 +43,7 @@ public class BrowseCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -84,7 +74,7 @@ public class BrowseCommandTest {
     @DisplayName("Test Browse - permissions")
     @Order(1)
     void testBrowseShop_Permissions() {
-        performCommand(player2, "shop browse");
+        withoutPermission(player2, "shops.cmd.browse", () -> performCommand(player2, "shop browse"));
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("browse command permission check");
     }
@@ -97,16 +87,16 @@ public class BrowseCommandTest {
         assertEquals("""
                 §7==[ §3BetterBuy§7 ]==
                 §nITEM          | BUY PRICE | SELL PRICE
-                §2COPPER_BLOCK  §r: §62.00      §r| §61.00
-                §2SPRUCE_LOG    §r: §64.00      §r| §62.00
                 §2ACACIA_LOG    §r: §62.00      §r| §61.00
-                §2OBSIDIAN      §r: §62.00      §r| §61.00
+                §2ACACIA_SIGN   §r: §60.00      §r| §60.00
+                §2BEEF          §r: §64.00      §r| §61.50
+                §2BUCKET        §r: §610.00     §r| §62.50
                 §2CHARCOAL      §r: §60.50      §r| §60.10
+                §2COPPER_BLOCK  §r: §62.00      §r| §61.00
                 §2EMERALD       §r: §624.50     §r| §612.00
                 §2IRON_AXE      §r: §610.00     §r| §65.00
-                §2STICK         §r: §60.25      §r| §60.10
-                §2ACACIA_SIGN   §r: §60.00      §r| §60.00
-                §2BUCKET        §r: §610.00     §r| §62.50
+                §2ITEM_FRAME    §r: §613.00     §r| §610.00
+                §2OBSIDIAN      §r: §62.00      §r| §61.00
                 Page 1 of 2""", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - browse page 1");
     }
@@ -129,8 +119,8 @@ public class BrowseCommandTest {
         assertEquals("""
                 §7==[ §3BetterBuy§7 ]==
                 §nITEM        | BUY PRICE | SELL PRICE
-                §2BEEF        §r: §64.00      §r| §61.50
-                §2ITEM_FRAME  §r: §613.00     §r| §610.00
+                §2SPRUCE_LOG  §r: §64.00      §r| §62.00
+                §2STICK       §r: §60.25      §r| §60.10
                 Page 2 of 2""", mrSparkzz.nextMessage());
         printSuccessMessage("browse command test - browse page 2");
     }

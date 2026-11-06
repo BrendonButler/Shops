@@ -1,6 +1,5 @@
 package net.sparkzz.shops.util;
 
-import net.sparkzz.shops.Store;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -13,12 +12,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
-import static net.sparkzz.shops.TestHelper.printMessage;
-import static net.sparkzz.shops.TestHelper.printSuccessMessage;
+import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Cuboid Test")
@@ -31,7 +28,7 @@ public class CuboidTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST CUBOID ]==");
-        server = MockBukkit.getOrCreateMock();
+        server = startServer();
         server.createWorld(WorldCreator.name("world"));
     }
 
@@ -43,8 +40,7 @@ public class CuboidTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @Test

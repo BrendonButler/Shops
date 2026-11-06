@@ -2,8 +2,6 @@ package net.sparkzz.shops.command;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -19,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Info Command")
@@ -33,11 +30,9 @@ class InfoCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST INFO COMMAND ]==");
-        server = MockBukkit.getOrCreateMock();
+        server = startServer();
 
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        plugin = MockBukkit.load(Shops.class);
-        loadConfig();
+        plugin = (Shops) server.getPluginManager().getPlugin("Shops");
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -48,18 +43,18 @@ class InfoCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @Test
     @DisplayName("Test Info - permissions")
     @Order(1)
     void testInfoCommand_Permissions() {
-        performCommand(player2, "shops");
-        assertEquals("§cI'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is a mistake.", player2.nextMessage());
+        withoutPermission(player2, "shops.cmd.shops", () -> performCommand(player2, "shops"));
+        // The server sends its own no-permission message; only check that the command was blocked
+        String message = player2.nextMessage();
+        assertNotNull(message);
+        assertTrue(message.contains("do not have permission"), message);
         printSuccessMessage("info command permission check");
     }
 
@@ -68,7 +63,7 @@ class InfoCommandTest {
     @Order(2)
     void testInfoCommand() {
         performCommand(mrSparkzz, "shops");
-        assertEquals(String.format("§l§3Shops v%s", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
+        assertEquals(String.format("§3§lShops v%s", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
         printSuccessMessage("info command test");
     }
 

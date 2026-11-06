@@ -2,13 +2,18 @@ package net.sparkzz.shops.command.sub;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.*;
-import org.mockbukkit.mockbukkit.MockBukkit;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -24,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DisplayName("Sell Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SellCommandTest {
-    private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
+    private static ItemStack emeralds;
 
     private static PlayerMock mrSparkzz, player2;
     private static Store store;
@@ -32,11 +37,8 @@ class SellCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST SELL COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        ServerMock server = startServer();
+        emeralds = new ItemStack(Material.EMERALD, 64);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -47,10 +49,7 @@ class SellCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -59,7 +58,7 @@ class SellCommandTest {
         Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
         Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(100));
         mrSparkzz.getInventory().addItem(emeralds);
-        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+        setBalance(mrSparkzz, 50);
     }
 
     @AfterEach
@@ -71,20 +70,19 @@ class SellCommandTest {
     @DisplayName("Test Sell - permissions")
     @Order(1)
     void testSellCommand_Permissions() {
-        performCommand(player2, "shop sell emerald 1");
+        withoutPermission(player2, "shops.cmd.sell", () -> performCommand(player2, "shop sell emerald 1"));
         assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("sell command permission check");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Sell - main functionality - sell 1")
     @Order(2)
     void testSellCommand() {
         performCommand(mrSparkzz, "shop sell emerald 1");
         assertEquals(Notifier.compose(SELL_SUCCESS, Map.of("quantity", 1, "material", Material.EMERALD, "cost", 1.5D)), mrSparkzz.nextMessage());
-        assertEquals(25, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance());
-        assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(98.5D, Store.getDefaultStore(mrSparkzz.getWorld()).get().getBalance().doubleValue());
+        assertEquals(51.5D, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test");
     }
 
@@ -95,7 +93,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emerald -1");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
         assertEquals(BigDecimal.valueOf(100), store.getBalance());
-        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - below minimum amount");
     }
 
@@ -106,7 +104,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emerald 2305");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
         assertEquals(BigDecimal.valueOf(100), store.getBalance());
-        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - above maximum amount");
     }
 
@@ -118,7 +116,7 @@ class SellCommandTest {
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
         assertEquals(BigDecimal.valueOf(100), store.getBalance());
-        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - above maximum amount");
     }
 
@@ -129,7 +127,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emerald");
         assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 1.5D)), mrSparkzz.nextMessage());
         assertEquals(BigDecimal.valueOf(100), store.getBalance());
-        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - query price");
     }
 
@@ -141,7 +139,7 @@ class SellCommandTest {
         performCommand(mrSparkzz, "shop sell emerald 2");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
         assertEquals(BigDecimal.valueOf(100), store.getBalance());
-        // TODO: assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(50, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("sell command test - no store");
     }
 }

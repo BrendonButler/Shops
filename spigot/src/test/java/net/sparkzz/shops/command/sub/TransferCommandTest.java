@@ -1,9 +1,7 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
-import org.bukkit.plugin.PluginDescriptionFile;
+import net.sparkzz.shops.util.Notifier;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,12 +11,12 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import static net.sparkzz.shops.TestHelper.*;
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GREEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -32,13 +30,8 @@ class TransferCommandTest {
     @BeforeAll
     static void setUpTransferCommand() {
         printMessage("==[ TEST TRANSFER COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        ServerMock server = startServer();
 
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
-
-        Shops.setServerInstance(server);
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
@@ -47,9 +40,7 @@ class TransferCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -68,12 +59,11 @@ class TransferCommandTest {
     @Order(1)
     void testTransferCommand_Permissions() {
         performCommand(player2, "shop transfer BetterBuy MrSparkzz");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("transfer command permission check");
     }
 
     @Test
-    //@Disabled("Not sure exactly what's going on with this, but it's having trouble loading either the Server or Player (TransferSubCommand:44)")
     @DisplayName("Test Transfer - main functionality")
     @Order(2)
     void testTransferCommand() {

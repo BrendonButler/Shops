@@ -5,16 +5,11 @@ import net.sparkzz.shops.command.CommandManager;
 import net.sparkzz.shops.event.EntranceListener;
 import net.sparkzz.shops.util.Notifier;
 import net.sparkzz.shops.util.Warehouse;
-import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
-import java.io.File;
 import java.util.logging.Logger;
-
-import static net.sparkzz.shops.Core.isTest;
 
 /**
  * Location based shop plugin for Spigot/Bukkit
@@ -26,8 +21,6 @@ public class Shops extends JavaPlugin {
     private static Economy economy;
     private static Logger log;
     private static PluginDescriptionFile description;
-    private static Server server;
-
 
     /**
      * Default constructor for Spigot plugin
@@ -36,24 +29,6 @@ public class Shops extends JavaPlugin {
         super();
         Shops.log = getLogger();
         Shops.description = getDescription();
-    }
-
-    /**
-     * Constructor for MockBukkit mocking
-     *
-     * @param loader mocked plugin loader
-     * @param description the plugin description which describes the plugin to the loader
-     * @param dataFolder the data folder containing the plugin data
-     * @param file the file of the plugin
-     */
-    protected Shops(JavaPluginLoader loader,
-                    PluginDescriptionFile description,
-                    File dataFolder,
-                    File file) {
-        super(loader, description, dataFolder, file);
-        Core.setTest();
-        Shops.log = getLogger();
-        Shops.description = description;
     }
 
     /**
@@ -75,29 +50,11 @@ public class Shops extends JavaPlugin {
     }
 
     /**
-     * Gets the server, this is necessary for the MockBukkit configuration
-     *
-     * @return the server instance
-     */
-    public static Server getServerInstance() {
-        return (server == null) ? Shops.getPlugin(Shops.class).getServer() : server;
-    }
-
-    /**
-     * Sets the server, this is necessary for the MockBukkit configuration
-     *
-     * @param server the server instance to be set
-     */
-    public static void setServerInstance(Server server) {
-        Shops.server = server;
-    }
-
-    /**
      * Tears down the plugin and saves configurations
      */
     @Override
     public void onDisable() {
-        if (!isTest() && getEconomy() != null) Warehouse.saveConfig();
+        if (getEconomy() != null) Warehouse.saveConfig();
 
         getLogger().info("Shops has been disabled!");
     }
@@ -113,12 +70,13 @@ public class Shops extends JavaPlugin {
             return;
         }
 
-        server = getServer();
         CommandManager.registerCommands(this);
         getServer().getPluginManager().registerEvents(new EntranceListener(), this);
 
-        if (!isTest() && !Warehouse.loadConfig(this))
+        if (!Warehouse.loadConfig(this)) {
             getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         Notifier.loadCustomMessages();
 
@@ -128,11 +86,10 @@ public class Shops extends JavaPlugin {
     private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> provider = null;
 
-        if (isTest() || getServer().getPluginManager().getPlugin("Vault") != null)
+        if (getServer().getPluginManager().getPlugin("Vault") != null)
             provider = getServer().getServicesManager().getRegistration(Economy.class);
 
-        if (provider != null)
-            setEconomy(provider.getProvider());
+        setEconomy(provider != null ? provider.getProvider() : null);
 
         return getEconomy() != null;
     }

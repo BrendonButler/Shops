@@ -1,24 +1,28 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.*;
-import org.mockbukkit.mockbukkit.MockBukkit;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
-import static org.bukkit.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -26,18 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @DisplayName("Add Command")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AddCommandTest {
-    private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
 
+    private static ItemStack emeralds;
     private static PlayerMock mrSparkzz, player2;
 
     @BeforeAll
     static void setUpAddCommand() {
         printMessage("==[ TEST ADD COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        ServerMock server = startServer();
+        emeralds = new ItemStack(Material.EMERALD, 64);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -51,9 +52,7 @@ class AddCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -72,27 +71,24 @@ class AddCommandTest {
     @Order(1)
     void testAddCommand_Permissions() {
         performCommand(player2, "shop add acacia_log 1");
-        assertEquals(String.format("%sYou do not have permission to use this command!", RED), player2.nextMessage());
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("add command permission check");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Add - main functionality - add 1")
     @Order(2)
     void testAddCommand_AddOne() {
         Material material = emeralds.getType();
-        int quantity = emeralds.getAmount();
 
         performCommand(mrSparkzz, "shop add emerald 1");
-        assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(ADD_SUCCESS_QUANTITY, Map.of("quantity", 1, "material", material)), mrSparkzz.nextMessage());
         assertEquals(63, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
         assertEquals(11, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add 1");
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Add - main functionality - add all")
     @Order(3)
     void testAddCommand_AddAll() {
@@ -100,9 +96,10 @@ class AddCommandTest {
         int quantity = emeralds.getAmount();
 
         performCommand(mrSparkzz, "shop add emerald all");
-        assertEquals(String.format("%sYou have successfully added %s%s%s to the shop!", GREEN, GOLD, (quantity > 0) ? String.valueOf(quantity) + GREEN + " of " + GOLD + material : material, GREEN), mrSparkzz.nextMessage());
+        assertEquals(Notifier.compose(ADD_SUCCESS_QUANTITY, Map.of("quantity", quantity, "material", material)), mrSparkzz.nextMessage());
         assertFalse(mrSparkzz.getInventory().contains(material));
-        assertEquals(11, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
+        // 11 left over from testAddCommand_AddOne plus the 64 added here
+        assertEquals(75, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(material).get("quantity").intValue());
         printSuccessMessage("add command test - add all");
     }
 

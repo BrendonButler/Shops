@@ -1,13 +1,10 @@
 package net.sparkzz.shops.util;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WorldCreator;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +14,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -31,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class InventoryManagementSystemTest {
 
-    private static final ItemStack emeralds = new ItemStack(Material.EMERALD, 64);
-    private static final ItemStack snowballs = new ItemStack(Material.SNOWBALL, 14);
+    private static ItemStack emeralds;
+    private static ItemStack snowballs;
     private static PlayerMock mrSparkzz;
     private static ServerMock server;
     private static Store store, secondaryStore;
@@ -40,11 +36,9 @@ public class InventoryManagementSystemTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST IMS ]==");
-        server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        server = startServer();
+        emeralds = new ItemStack(Material.EMERALD, 64);
+        snowballs = new ItemStack(Material.SNOWBALL, 14);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
 
@@ -57,10 +51,7 @@ public class InventoryManagementSystemTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
@@ -272,7 +263,7 @@ public class InventoryManagementSystemTest {
     @DisplayName("Test IMS - identify store - not within any store")
     @Order(20)
     void testIdentifyStore_NotWithinAnyStore() {
-        mrSparkzz.setLocation(new Location(server.getWorld("not-a-world"), 0D, 0D, 0D));
+        mrSparkzz.setLocation(new Location(server.createWorld(WorldCreator.name("empty-world")), 0D, 0D, 0D));
         Store.DEFAULT_STORES.clear();
 
         System.out.println(mrSparkzz.getWorld());

@@ -2,11 +2,16 @@ package net.sparkzz.shops.command.sub;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.*;
-import org.mockbukkit.mockbukkit.MockBukkit;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -28,11 +33,7 @@ class WithdrawCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST WITHDRAW COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        ServerMock server = startServer();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -42,14 +43,13 @@ class WithdrawCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
+        stopServer();
     }
 
     @BeforeEach
     void setUpWithdrawCommand() {
         Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
-        // TODO: Shops.getEconomy().depositPlayer(mrSparkzz, 50);
+        setBalance(mrSparkzz, 50);
         Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(125));
     }
 
@@ -70,13 +70,12 @@ class WithdrawCommandTest {
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Withdraw - main functionality - withdraw 100")
     @Order(2)
     void testWithdrawCommand() {
         performCommand(mrSparkzz, "shop withdraw 100");
         assertEquals(Notifier.compose(WITHDRAW_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
-        assertEquals(25, store.getBalance());
+        assertEquals(25D, store.getBalance().doubleValue());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         printSuccessMessage("withdraw command test");
     }

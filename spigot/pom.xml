@@ -136,14 +136,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
-                <configuration>
-                    <!-- Remove once MockBukkit tests are fixed -->
-                    <skipTests>true</skipTests>
-                    <dependenciesToScan>
-                        <dependency>net.essentialsx:EssentialsX</dependency>
-                        <dependency>com.github.MilkBowl:Vault</dependency>
-                    </dependenciesToScan>
-                </configuration>
             </plugin>
 
             <!-- JaCoCo Plugin -->
@@ -221,21 +213,6 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- EssentialsX (Economy Plugin) -->
-        <dependency>
-            <groupId>net.essentialsx</groupId>
-            <artifactId>EssentialsX</artifactId>
-            <version>${essentialsx.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Guava (override vulnerable transitive dependency -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Jackson Databind (expanded serialization and deserialization) -->

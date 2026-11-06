@@ -1,6 +1,5 @@
 package net.sparkzz.shops.util;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.junit.jupiter.api.AfterAll;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -19,8 +17,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.Map.entry;
-import static net.sparkzz.shops.TestHelper.loadConfig;
-import static net.sparkzz.shops.TestHelper.unLoadConfig;
+import static net.sparkzz.shops.TestHelper.startServer;
+import static net.sparkzz.shops.TestHelper.stopServer;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Notifier Tests")
@@ -34,9 +32,7 @@ class NotifierTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST Notifier UTILITY ]==");
-        ServerMock mock = MockBukkit.getOrCreateMock();
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        ServerMock mock = startServer();
 
         player = mock.addPlayer();
         message1 = "This is a test message!";
@@ -45,9 +41,7 @@ class NotifierTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        Store.DEFAULT_STORES.clear();
-        unLoadConfig();
+        stopServer();
     }
 
     @AfterEach
@@ -320,8 +314,8 @@ class NotifierTest {
             String expected = """
                     §7==[ §3TestStore§7 ]==
                     §nITEM        | BUY PRICE | SELL PRICE
-                    §2BEEF        §r: §64.00      §r| §61.50
-                    §2ITEM_FRAME  §r: §613.00     §r| §610.00
+                    §2SPRUCE_LOG  §r: §64.00      §r| §62.00
+                    §2STICK       §r: §60.25      §r| §60.10
                     Page 2 of 2""";
 
             assertEquals(expected, result);

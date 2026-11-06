@@ -1,15 +1,12 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +16,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -43,14 +39,10 @@ class CreateCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST CREATE COMMAND ]==");
-        ServerMock server = MockBukkit.getOrCreateMock();
+        ServerMock server = startServer();
 
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
         world = server.createWorld(WorldCreator.name("world"));
 
-        Shops.setServerInstance(server);
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
 
@@ -63,9 +55,7 @@ class CreateCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
+        stopServer();
     }
 
     @AfterEach

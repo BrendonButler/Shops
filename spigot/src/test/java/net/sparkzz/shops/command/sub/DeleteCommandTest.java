@@ -2,14 +2,19 @@ package net.sparkzz.shops.command.sub;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.junit.jupiter.api.*;
-import org.mockbukkit.mockbukkit.MockBukkit;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -33,11 +38,7 @@ class DeleteCommandTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST DELETE COMMAND ]==");
-        server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
+        server = startServer();
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         player2 = server.addPlayer();
@@ -48,15 +49,13 @@ class DeleteCommandTest {
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
-        Store.DEFAULT_STORES.clear();
-        Store.STORES.clear();
+        stopServer();
     }
 
     @BeforeEach
     void setUpStore() {
         tempStore = new Store("DollHairStore", player2.getUniqueId());
+        setBalance(mrSparkzz, 0);
     }
 
     @AfterEach
@@ -75,7 +74,6 @@ class DeleteCommandTest {
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Delete - main functionality")
     @Order(2)
     void testDeleteShop() {
@@ -85,7 +83,6 @@ class DeleteCommandTest {
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Delete - main functionality - UUID")
     @Order(2)
     void testDeleteShop_ByUUID() {
@@ -116,7 +113,6 @@ class DeleteCommandTest {
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Delete - fail to delete")
     @Order(5)
     void testDeleteShop_Fail() {
@@ -140,7 +136,6 @@ class DeleteCommandTest {
     }
 
     @Test
-    @Disabled("Disabled until MockBukkit is updated to load plugins properly (or I find a new solution)")
     @DisplayName("Test Delete - ignore stock")
     @Order(6)
     void testDeleteShop_IgnoreStock() {
@@ -165,7 +160,7 @@ class DeleteCommandTest {
 
         performCommand(mrSparkzz, "shop delete DollHairStore -F");
         assertTrue(mrSparkzz.getInventory().isEmpty());
-        // TODO: add back assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals("§aYou have successfully deleted §6DollHairStore§a!", mrSparkzz.nextMessage());
         printSuccessMessage("delete command test - ignore stock and funds");
     }

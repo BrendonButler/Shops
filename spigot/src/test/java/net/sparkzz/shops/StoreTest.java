@@ -1,12 +1,10 @@
 package net.sparkzz.shops;
 
-import net.sparkzz.shops.mocks.MockVault;
 import net.sparkzz.shops.util.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,7 +13,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.math.BigDecimal;
@@ -32,21 +29,14 @@ public class StoreTest {
     @BeforeAll
     static void setUp() {
         printMessage("==[ TEST ENTRANCE LISTENER ]==");
-        server = MockBukkit.getOrCreateMock();
-
-        MockBukkit.loadWith(MockVault.class, new PluginDescriptionFile("Vault", "MOCK", "net.sparkzz.shops.mocks.MockVault"));
-        MockBukkit.load(Shops.class);
-        loadConfig();
-
-        Shops.setServerInstance(server);
+        server = startServer();
 
         Store.setDefaultStore(null, new Store("BetterBuy"));
     }
 
     @AfterAll
     static void tearDown() {
-        MockBukkit.unmock();
-        unLoadConfig();
+        stopServer();
     }
 
     @AfterEach

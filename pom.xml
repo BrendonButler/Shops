@@ -18,7 +18,6 @@
         <jacoco.version>0.8.12</jacoco.version>
 
         <!-- Dependency Versions -->
-        <essentialsx.version>2.20.0</essentialsx.version>
         <guava.version>33.7.1-jre</guava.version>
         <configurate.version>4.2.0</configurate.version>
         <jackson-databind.version>2.18.11</jackson-databind.version>
@@ -98,18 +97,6 @@
         </repository>
 
         <repository>
-            <id>essentials-releases</id>
-            <url>https://repo.essentialsx.net/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -151,6 +138,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <!-- Server API classes are too large to instrument and aren't our code -->
+                    <excludes>
+                        <exclude>org/bukkit/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
