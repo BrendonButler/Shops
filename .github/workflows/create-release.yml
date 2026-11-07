@@ -52,10 +52,12 @@ jobs:
       - name: Check tag and determine release type
         id: release-type
         run: |
-          # Tags are SemVer with no "v" prefix: 0.4.0, 0.4.0-beta.1, 1.0.0-rc.1
-          SEMVER='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$'
+          # Tags are SemVer with no "v" prefix and an optional alpha.N, beta.N or rc.N label: 0.4.0, 0.4.0-beta.1,
+          # 1.0.0-rc.1. Numbers have no leading zeroes, as SemVer requires.
+          NUM='(0|[1-9][0-9]*)'
+          SEMVER="^$NUM\.$NUM\.$NUM(-(alpha|beta|rc)\.$NUM)?\$"
           if ! [[ $TAG =~ $SEMVER ]]; then
-            echo "::error::Tag $TAG isn't a SemVer version like 0.4.0 or 0.4.0-beta.1 (no 'v' prefix)"
+            echo "::error::Tag $TAG isn't a version like 0.4.0, 0.4.0-alpha.1, 0.4.0-beta.1 or 0.4.0-rc.1 (lowercase, no 'v' prefix, no leading zeroes)"
             exit 1
           fi
 
@@ -71,23 +73,22 @@ jobs:
             exit 1
           fi
 
+          # The SemVer check above already limits the label to alpha.N, beta.N or rc.N
           case "$LABEL" in
-            "")      STAGE=release; LABEL_NAME="" ;;
-            alpha*)  STAGE=alpha;   LABEL_NAME="Alpha" ;;
-            beta*)   STAGE=beta;    LABEL_NAME="Beta" ;;
+            "")       STAGE=release; LABEL_NAME="" ;;
+            alpha.*)  STAGE=alpha;   LABEL_NAME="Alpha" ;;
+            beta.*)   STAGE=beta;    LABEL_NAME="Beta" ;;
             # CurseForge has no release candidate type, so RCs publish as beta
-            rc*)     STAGE=beta;    LABEL_NAME="Release Candidate" ;;
-            *)
-              echo "::error::Unknown pre-release label '$LABEL'. Use alpha.N, beta.N or rc.N (lowercase)."
-              exit 1
-              ;;
+            rc.*)     STAGE=beta;    LABEL_NAME="Release Candidate" ;;
           esac
 
-          # Only the highest release becomes "Latest", so a patch to an older line doesn't replace it
+          # Only the highest published full release becomes "Latest", so a patch to an older line doesn't replace
+          # it. Published releases are used rather than tags, so a tag whose release failed doesn't count.
           LATEST=false
           if [ "$STAGE" = release ]; then
-            HIGHEST=$(git tag --list | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
-            [ "$HIGHEST" = "$CORE" ] && LATEST=true
+            HIGHEST=$( { gh release list --exclude-drafts --exclude-pre-releases --limit 1000 --json tagName --jq '.[].tagName'; echo "$TAG"; } \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+            [ "$HIGHEST" = "$TAG" ] && LATEST=true
           fi
 
           if [ "$STAGE" = release ]; then
