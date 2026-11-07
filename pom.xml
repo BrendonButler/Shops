@@ -33,13 +33,13 @@
         <spigot-api.version>1.21.11-R0.1-SNAPSHOT</spigot-api.version>
         <sponge-api.version>11.0.0</sponge-api.version>
 
-        <!-- Server API the plugin compiles against: Paper by default, Spigot with -Pspigot-api (see D1) -->
+        <!-- Server API the plugin compiles against: Paper by default, Spigot with -Pspigot-api -->
         <server-api.groupId>io.papermc.paper</server-api.groupId>
         <server-api.artifactId>paper-api</server-api.artifactId>
         <server-api.version>${papermc-api.version}</server-api.version>
 
         <!--
-            Version in progress (D13). Releases are built from a tag with -Drevision=<tag>, so this only changes
+            Version in progress. Releases are built from a tag with -Drevision=<tag>, so this only changes
             when work on the next version starts (for example 0.4.0-SNAPSHOT -> 0.5.0-SNAPSHOT).
         -->
         <revision>0.4.0-SNAPSHOT</revision>
@@ -291,7 +291,7 @@
 
     <profiles>
         <!--
-            Checks 26.x support (D1/D3): compiles against the 26.x API and runs the full test suite on the 26.x
+            Checks 26.x support: compiles against the 26.x API and runs the full test suite on the 26.x
             mock server. Needs JDK 25. Its output is never released. Update both versions when a new 26.x comes out.
             Usage: mvn -Pmc26 verify
         -->
@@ -306,7 +306,7 @@
         </profile>
 
         <!--
-            Compiles the plugin against the Spigot API to catch Paper-only calls (D1). Main code only: the tests use
+            Compiles the plugin against the Spigot API to catch Paper-only calls. Main code only: the tests use
             MockBukkit, which is built on Paper.
             Usage: mvn -Pspigot-api -pl spigot -am compile
         -->

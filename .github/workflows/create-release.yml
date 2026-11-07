@@ -213,7 +213,7 @@ jobs:
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
           # Bukkit version IDs (type 1) from https://dev.bukkit.org/api/game/versions:
           # 14417 = 1.21.11, 16083 = 26.1, 16084 = 26.1.1, 16085 = 26.1.2, 16500 = 26.2, 17046 = 26.3.
-          # Bukkit projects don't accept the Java version group. CI builds against 1.21.11 and tests against 26.3 (D3).
+          # Bukkit projects don't accept the Java version group. CI builds against 1.21.11 and tests against 26.3.
           GAME_VERSIONS: '14417,16083,16084,16085,16500,17046'
         run: |
           METADATA=$(jq -n \

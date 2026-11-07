@@ -35,7 +35,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # JDK 25 builds Java 21 bytecode through maven.compiler.release (D2)
+      # JDK 25 builds Java 21 bytecode through maven.compiler.release
       - uses: actions/setup-java@v6
         with:
           java-version: '25'
@@ -83,7 +83,7 @@ jobs:
       - name: Check Javadoc / site
         run: mvn -B -DskipTests package site
 
-  # Compiles against the 26.x API and runs every test on the 26.x mock server (D1/D3). Never released.
+  # Compiles against the 26.x API and runs every test on the 26.x mock server. Never released.
   mc26-compat:
     name: 26.x Compatibility
     runs-on: ubuntu-latest
@@ -101,7 +101,7 @@ jobs:
       - name: Build and test against 26.x
         run: mvn -B -Pmc26 verify
 
-  # Compiles the plugin against the Spigot API to catch Paper-only calls (D1). Main code only.
+  # Compiles the plugin against the Spigot API to catch Paper-only calls. Main code only.
   spigot-api:
     name: Spigot API Compile
     runs-on: ubuntu-latest
