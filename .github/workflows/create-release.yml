@@ -14,6 +14,7 @@ jobs:
     uses: ./.github/workflows/pipeline.yml
     with:
       create_release_artifacts: true
+      revision: ${{ github.ref_name }}
     secrets: inherit
 
   create-and-publish-release:
@@ -38,7 +39,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v6
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'zulu'
           cache: 'maven'
 
@@ -48,14 +49,66 @@ jobs:
           name: build-artifacts
           path: artifacts
 
-      - name: Verify POM version matches tag
+      - name: Check tag and determine release type
+        id: release-type
         run: |
-          POM_VERSION=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)
-          if [ "$POM_VERSION" != "$TAG" ]; then
-            echo "::error::POM version ($POM_VERSION) does not match Git tag ($TAG)"
+          # Tags are SemVer with no "v" prefix and an optional alpha.N, beta.N or rc.N label: 0.4.0, 0.4.0-beta.1,
+          # 1.0.0-rc.1. Numbers have no leading zeroes, as SemVer requires.
+          NUM='(0|[1-9][0-9]*)'
+          SEMVER="^$NUM\.$NUM\.$NUM(-(alpha|beta|rc)\.$NUM)?\$"
+          if ! [[ $TAG =~ $SEMVER ]]; then
+            echo "::error::Tag $TAG isn't a version like 0.4.0, 0.4.0-alpha.1, 0.4.0-beta.1 or 0.4.0-rc.1 (lowercase, no 'v' prefix, no leading zeroes)"
             exit 1
           fi
-          echo "✅ POM version matches Git tag: $TAG"
+
+          CORE="${TAG%%-*}"
+          LABEL=""
+          [[ $TAG == *-* ]] && LABEL="${TAG#*-}"
+
+          # The tag can be older than the POM (a patch from older code) but never newer
+          POM_REVISION=$(mvn -B -q help:evaluate -Dexpression=revision -DforceStdout)
+          POM_BASE="${POM_REVISION%%-*}"
+          if [ "$(printf '%s\n%s\n' "$CORE" "$POM_BASE" | sort -V | tail -n1)" != "$POM_BASE" ]; then
+            echo "::error::Tag $TAG is newer than the version in progress ($POM_REVISION). Update <revision> in pom.xml first."
+            exit 1
+          fi
+
+          # The SemVer check above already limits the label to alpha.N, beta.N or rc.N
+          case "$LABEL" in
+            "")       STAGE=release; LABEL_NAME="" ;;
+            alpha.*)  STAGE=alpha;   LABEL_NAME="Alpha" ;;
+            beta.*)   STAGE=beta;    LABEL_NAME="Beta" ;;
+            # CurseForge has no release candidate type, so RCs publish as beta
+            rc.*)     STAGE=beta;    LABEL_NAME="Release Candidate" ;;
+          esac
+
+          # Only the highest published full release becomes "Latest", so a patch to an older line doesn't replace
+          # it. Published releases are used rather than tags, so a tag whose release failed doesn't count.
+          LATEST=false
+          if [ "$STAGE" = release ]; then
+            HIGHEST=$( { gh release list --exclude-drafts --exclude-pre-releases --limit 1000 --json tagName --jq '.[].tagName'; echo "$TAG"; } \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+            [ "$HIGHEST" = "$TAG" ] && LATEST=true
+          fi
+
+          if [ "$STAGE" = release ]; then
+            TITLE="Shops $TAG"
+            ANNOUNCE_TITLE="Shops $TAG released!"
+            ANNOUNCE_TEXT="A new version has been released! 🎉"
+          else
+            TITLE="Shops $TAG ($LABEL_NAME)"
+            ANNOUNCE_TITLE="Shops $TAG ($LABEL_NAME) is available for testing"
+            ANNOUNCE_TEXT="A new test build is available. It isn't a full release yet, so please try it on a test server first and report any issues."
+          fi
+
+          echo "Tag $TAG: stage=$STAGE, latest=$LATEST, POM version in progress=$POM_REVISION"
+          {
+            echo "release_stage=$STAGE"
+            echo "latest=$LATEST"
+            echo "title=$TITLE"
+            echo "announce_title=$ANNOUNCE_TITLE"
+            echo "announce_text=$ANNOUNCE_TEXT"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Locate and verify Spigot JAR
         id: prepare-jars
@@ -88,20 +141,6 @@ jobs:
           echo "✅ $SPIGOT_JAR verified ($SIZE bytes, plugin.yml version $TAG)"
           echo "spigot_jar=$SPIGOT_JAR" >> "$GITHUB_OUTPUT"
 
-      - name: Determine release stage
-        id: release-stage
-        run: |
-          LOWER_TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]')
-          if [[ $LOWER_TAG == *beta* ]]; then
-            STAGE=beta
-          elif [[ $LOWER_TAG == *alpha* ]]; then
-            STAGE=alpha
-          else
-            STAGE=release
-          fi
-          echo "Release stage: $STAGE"
-          echo "release_stage=$STAGE" >> "$GITHUB_OUTPUT"
-
       - name: Generate changelog
         id: changelog
         run: |
@@ -128,7 +167,9 @@ jobs:
       - name: Create or update GitHub release
         env:
           SPIGOT_JAR: ${{ steps.prepare-jars.outputs.spigot_jar }}
-          STAGE: ${{ steps.release-stage.outputs.release_stage }}
+          STAGE: ${{ steps.release-type.outputs.release_stage }}
+          LATEST: ${{ steps.release-type.outputs.latest }}
+          TITLE: ${{ steps.release-type.outputs.title }}
         run: |
           PRERELEASE=false
           [ "$STAGE" != "release" ] && PRERELEASE=true
@@ -136,17 +177,19 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             echo "Release $TAG already exists, updating notes and uploading artifacts"
             gh release edit "$TAG" \
-              --title "Shops $TAG" \
+              --title "$TITLE" \
               --notes-file changelog.md \
-              --prerelease="$PRERELEASE"
+              --prerelease="$PRERELEASE" \
+              --latest="$LATEST"
             gh release upload "$TAG" "$SPIGOT_JAR" --clobber
           else
             echo "Creating release $TAG"
             gh release create "$TAG" "$SPIGOT_JAR" \
               --verify-tag \
-              --title "Shops $TAG" \
+              --title "$TITLE" \
               --notes-file changelog.md \
-              --prerelease="$PRERELEASE"
+              --prerelease="$PRERELEASE" \
+              --latest="$LATEST"
           fi
 
       - name: Verify release artifacts on GitHub
@@ -167,8 +210,13 @@ jobs:
           file_path: ${{ steps.prepare-jars.outputs.spigot_jar }}
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
-          game_versions: 'Minecraft 1.21:1.21.11,Java 21'
-          release_type: ${{ steps.release-stage.outputs.release_stage }}
+          # Numeric CurseForge version IDs from https://dev.bukkit.org/api/game/versions. The action sends them as-is,
+          # while names need a lookup that the bukkit endpoint returns nothing for. Bukkit versions (type 1):
+          # 14417 = 1.21.11, 16083 = 26.1, 16084 = 26.1.1, 16085 = 26.1.2, 16500 = 26.2, 17046 = 26.3.
+          # Java (type 2): 11135 = Java 21 (the bytecode level), 14454 = Java 25 (needed by 26.x servers).
+          # CI builds against 1.21.11 and tests against 26.3 (D3).
+          game_versions: '14417,16083,16084,16085,16500,17046,11135,14454'
+          release_type: ${{ steps.release-type.outputs.release_stage }}
           display_name: Shops ${{ github.ref_name }}
           changelog: ${{ steps.changelog.outputs.changelog }}
           changelog_type: markdown
@@ -180,11 +228,11 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ env.DISCORD_WEBHOOK }}
-          title: ${{ job.status == 'success' && format('Shops version {0} released!', github.ref_name) || format('Shops version release {0} failed!', github.ref_name) }}
+          title: ${{ job.status == 'success' && steps.release-type.outputs.announce_title || format('Shops {0} release failed!', github.ref_name) }}
           description: |
-            **Type:** ${{ steps.release-stage.outputs.release_stage }}
+            **Type:** ${{ steps.release-type.outputs.release_stage }}
 
-            ${{ job.status == 'success' && 'A new version has been released! 🎉' || 'Release process failed. Please check the workflow run for details.' }}
+            ${{ job.status == 'success' && steps.release-type.outputs.announce_text || 'Release process failed. Please check the workflow run for details.' }}
             ${{ job.status == 'success' && format('See the changes at: https://github.com/{0}/releases/tag/{1}', github.repository, github.ref_name) || '' }}
           color: ${{ job.status == 'success' && '5025616' || '15548997' }}
           url: ${{ job.status == 'success' && format('https://github.com/{0}/releases/tag/{1}', github.repository, github.ref_name) || format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}

@@ -15,6 +15,7 @@
         <maven.compiler.version>3.14.0</maven.compiler.version>
         <maven.shade.version>3.6.2</maven.shade.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
+        <flatten.version>1.8.0</flatten.version>
         <jacoco.version>0.8.16</jacoco.version>
 
         <!-- Dependency Versions -->
@@ -37,6 +38,12 @@
         <server-api.artifactId>paper-api</server-api.artifactId>
         <server-api.version>${papermc-api.version}</server-api.version>
 
+        <!--
+            Version in progress (D13). Releases are built from a tag with -Drevision=<tag>, so this only changes
+            when work on the next version starts (for example 0.4.0-SNAPSHOT -> 0.5.0-SNAPSHOT).
+        -->
+        <revision>0.4.0-SNAPSHOT</revision>
+
         <!-- Other Properties -->
         <maven.compiler.release>21</maven.compiler.release>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
@@ -47,7 +54,7 @@
     <name>Shops</name>
     <groupId>net.sparkzz</groupId>
     <artifactId>shops</artifactId>
-    <version>0.4-BETA</version>
+    <version>${revision}</version>
     <url>https://shops.sparkzz.net/</url>
     <packaging>pom</packaging>
 
@@ -122,6 +129,33 @@
     <!-- TODO: Finish configuring plugins -->
     <build>
         <plugins>
+            <!-- Flatten Plugin: replaces ${revision} with the real version in installed POMs -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten.version}</version>
+                <configuration>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Site Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
