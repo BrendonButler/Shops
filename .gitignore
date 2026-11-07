@@ -25,3 +25,6 @@ dependency-reduced-pom.xml
 
 # macOS
 .DS_Store
+
+# Maven flatten plugin output
+.flattened-pom.xml

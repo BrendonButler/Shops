@@ -12,6 +12,11 @@ on:
         required: false
         type: boolean
         default: false
+      revision:
+        description: 'Version to build (the release tag). Empty builds the POM version, for example 0.4.0-SNAPSHOT'
+        required: false
+        type: string
+        default: ''
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -38,7 +43,9 @@ jobs:
           cache: 'maven'
 
       - name: Build and test
-        run: mvn -B verify
+        env:
+          REVISION: ${{ inputs.revision }}
+        run: mvn -B verify ${REVISION:+"-Drevision=$REVISION"}
 
       - name: Upload coverage to Codecov
         if: ${{ !inputs.create_release_artifacts }}
