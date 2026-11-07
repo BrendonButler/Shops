@@ -3,5 +3,5 @@
 # normal startup.
 set -eu
 
-/shops/docker/install-shops.sh
+sh /shops/docker/install-shops.sh
 exec /start "$@"

@@ -20,8 +20,9 @@ name: shops
 x-server: &server
   # Pinned image release. Java 25 runs both 1.21.11 and 26.3.
   image: itzg/minecraft-server:2026.10.1-java25
-  # Copies the freshly built Shops JAR into the server before handing over to the image's normal startup.
-  entrypoint: ["/shops/docker/start-with-shops.sh"]
+  # Copies the freshly built Shops JAR into the server before handing over to the image's normal startup. Run through
+  # sh, so it works even if a checkout lost the script's execute permission.
+  entrypoint: ["/bin/sh", "/shops/docker/start-with-shops.sh"]
   tty: true
   stdin_open: true
   restart: "no"

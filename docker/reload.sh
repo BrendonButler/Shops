@@ -18,9 +18,19 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
+# Keep going when one server fails, so the others still get the new build, and report the failures at the end.
+failed=""
 for server in "$@"; do
     echo "== $server"
-    docker compose exec -T "$server" /shops/docker/install-shops.sh
     # Namespaced, because on Paper 26.x a plain "reload" is the vanilla data pack reload and leaves plugins alone.
-    docker compose exec -T "$server" rcon-cli "bukkit:reload confirm"
+    if ! docker compose exec -T "$server" sh /shops/docker/install-shops.sh ||
+        ! docker compose exec -T "$server" rcon-cli "bukkit:reload confirm"; then
+        echo "Reloading $server failed. Restart it instead: docker compose restart $server" >&2
+        failed="$failed $server"
+    fi
 done
+
+if [ -n "$failed" ]; then
+    echo "Not reloaded:$failed" >&2
+    exit 1
+fi
