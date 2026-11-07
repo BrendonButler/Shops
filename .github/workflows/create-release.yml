@@ -209,7 +209,12 @@ jobs:
           file_path: ${{ steps.prepare-jars.outputs.spigot_jar }}
           game_endpoint: bukkit
           relations: vault:requiredDependency,essentialsx:optionalDependency
-          game_versions: 'Minecraft 1.21:1.21.11,Java 21'
+          # Numeric CurseForge version IDs from https://dev.bukkit.org/api/game/versions. The action sends them as-is,
+          # while names need a lookup that the bukkit endpoint returns nothing for. Bukkit versions (type 1):
+          # 14417 = 1.21.11, 16083 = 26.1, 16084 = 26.1.1, 16085 = 26.1.2, 16500 = 26.2, 17046 = 26.3.
+          # Java (type 2): 11135 = Java 21 (the bytecode level), 14454 = Java 25 (needed by 26.x servers).
+          # CI builds against 1.21.11 and tests against 26.3 (D3).
+          game_versions: '14417,16083,16084,16085,16500,17046,11135,14454'
           release_type: ${{ steps.release-type.outputs.release_stage }}
           display_name: Shops ${{ github.ref_name }}
           changelog: ${{ steps.changelog.outputs.changelog }}
