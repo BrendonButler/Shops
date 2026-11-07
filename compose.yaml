@@ -1,0 +1,118 @@
+# Local test servers for Shops. See "Testing on a local server" in .github/CONTRIBUTING.md.
+#
+#   mvn package -DskipTests        # build spigot/target/shops-spigot-*.jar
+#   cp .env.example .env           # once: pick the default server (COMPOSE_PROFILES)
+#   docker compose up -d           # start the default server
+#   docker compose restart         # load the plugin after a rebuild
+#   docker/reload.sh               # or, faster but less reliable: install it and run /reload
+#
+# Each server runs under its own profile and on its own port, so they can also run side by side:
+#
+#   paper-1.21   Paper 1.21.11, the version the plugin is built against   localhost:25565, debugger 5005
+#   paper-26     Paper 26.3, the newest version CI tests against          localhost:25566, debugger 5006
+#   spigot       Spigot 1.21.11, to catch Paper-only behavior             localhost:25567, debugger 5007
+#
+# Starting a server accepts the Minecraft EULA (https://aka.ms/MinecraftEULA) through EULA=TRUE below.
+
+# Fixed project name, so volume names (shops_<server>-data) don't depend on the checkout folder's name.
+name: shops
+
+x-server: &server
+  # Pinned image release. Java 25 runs both 1.21.11 and 26.3.
+  image: itzg/minecraft-server:2026.10.1-java25
+  # Copies the freshly built Shops JAR into the server before handing over to the image's normal startup. Run through
+  # sh, so it works even if a checkout lost the script's execute permission.
+  entrypoint: ["/bin/sh", "/shops/docker/start-with-shops.sh"]
+  tty: true
+  stdin_open: true
+  restart: "no"
+  # The image's health check, polled every 2 seconds while starting instead of every 30, so `docker compose up --wait`
+  # (used by the debug run configurations) returns as soon as the server is ready.
+  healthcheck:
+    test: mc-health
+    start_period: 3m
+    start_interval: 2s
+    interval: 30s
+    retries: 2
+  env_file:
+    # Optional personal settings, such as OPS=<your name>. Not committed, see docker/local.env.example.
+    - path: ./docker/local.env
+      required: false
+  environment: &server-env
+    EULA: "TRUE"
+    MEMORY: 2G
+    MOTD: Shops test server
+    MODE: creative
+    DIFFICULTY: peaceful
+    LEVEL_TYPE: minecraft:flat
+    GENERATOR_SETTINGS: >-
+      {"layers": [{"block": "minecraft:bedrock", "height": 1}, {"block": "minecraft:dirt", "height": 2},
+      {"block": "minecraft:grass_block", "height": 1}], "biome": "minecraft:plains"}
+    SPAWN_PROTECTION: "0"
+    VIEW_DISTANCE: "8"
+    # Java debugger on container port 5005 (published on localhost only), so the IDE can attach and hot swap code
+    # changes without a restart.
+    JVM_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    # Pinned dependencies: Vault for the economy API and EssentialsX as the economy provider.
+    PLUGINS: |
+      https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar
+      https://github.com/EssentialsX/Essentials/releases/download/2.22.0/EssentialsX-2.22.0.jar
+
+services:
+  paper-1.21:
+    <<: *server
+    profiles: [paper-1.21]
+    ports: ["25565:25565", "127.0.0.1:5005:5005"]
+    environment:
+      <<: *server-env
+      TYPE: PAPER
+      VERSION: 1.21.11
+      PAPER_BUILD: "132"
+    volumes:
+      - ./docker:/shops/docker:ro
+      - ./spigot/target:/shops/target:ro
+      - paper-1.21-data:/data
+
+  paper-26:
+    <<: *server
+    profiles: [paper-26]
+    ports: ["25566:25565", "127.0.0.1:5006:5005"]
+    environment:
+      <<: *server-env
+      TYPE: PAPER
+      VERSION: "26.3"
+      PAPER_BUILD: "243"
+    volumes:
+      - ./docker:/shops/docker:ro
+      - ./spigot/target:/shops/target:ro
+      - paper-26-data:/data
+
+  spigot:
+    <<: *server
+    profiles: [spigot]
+    # The JDK variant of the same image release, because BuildTools compiles Spigot (the default image has only a JRE).
+    image: itzg/minecraft-server:2026.10.1-java25-jdk
+    ports: ["25567:25565", "127.0.0.1:5007:5005"]
+    environment:
+      <<: *server-env
+      TYPE: SPIGOT
+      VERSION: 1.21.11
+      # Build the server with Spigot's BuildTools instead of downloading it from a third-party mirror. The first start
+      # takes several minutes; the result is kept in the volume, so later starts are as fast as Paper's.
+      BUILD_FROM_SOURCE: "true"
+    # Same health check as the other servers, with room for the BuildTools run on the first start.
+    healthcheck:
+      test: mc-health
+      start_period: 20m
+      start_interval: 2s
+      interval: 30s
+      retries: 2
+    volumes:
+      - ./docker:/shops/docker:ro
+      - ./spigot/target:/shops/target:ro
+      - spigot-data:/data
+
+volumes:
+  paper-1.21-data:
+  paper-26-data:
+  spigot-data:

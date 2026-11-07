@@ -3,10 +3,10 @@ target/
 /out/
 dependency-reduced-pom.xml
 
-# Local test servers: ignore everything except the launch/build scripts
-/servers/*/*
-!/servers/*/start.sh
-!/servers/*/build.sh
+# Local test servers: personal settings for compose.yaml (copied from the .example files), and the old servers folder
+/.env
+/docker/local.env
+/servers/
 
 # IntelliJ IDEA: shared project config in .idea/ stays tracked, personal files don't
 .idea/workspace.xml
