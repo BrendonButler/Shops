@@ -1,0 +1,39 @@
+{
+  // Build environment matching CI: JDK 25 (Zulu) and Maven. Docker is available inside the container, so the local
+  // test servers from compose.yaml can be started from here too.
+  "name": "Shops",
+  "image": "mcr.microsoft.com/devcontainers/base:2-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "jdkDistro": "zulu",
+      "installMaven": true,
+      "mavenVersion": "3.9.11"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "mounts": [
+    // Keep downloaded Maven dependencies between container rebuilds.
+    "source=shops-m2,target=/home/vscode/.m2,type=volume"
+  ],
+  // Downloads the dependencies and builds the plugin JAR, so a test server can start right away.
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.m2 && mvn -B -q package -DskipTests",
+  // Game ports, then the debugger ports for attaching and hot swap.
+  "forwardPorts": [25565, 25566, 25567, 5005, 5006, 5007],
+  "portsAttributes": {
+    "25565": { "label": "Paper 1.21.11" },
+    "25566": { "label": "Paper 26.3" },
+    "25567": { "label": "Spigot 1.21.11" },
+    "5005": { "label": "Paper 1.21.11 debugger", "onAutoForward": "silent" },
+    "5006": { "label": "Paper 26.3 debugger", "onAutoForward": "silent" },
+    "5007": { "label": "Spigot 1.21.11 debugger", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["vscjava.vscode-java-pack", "ms-azuretools.vscode-docker"]
+    },
+    "jetbrains": {
+      "backend": "IntelliJ"
+    }
+  }
+}
