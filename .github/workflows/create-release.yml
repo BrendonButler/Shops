@@ -205,23 +205,45 @@ jobs:
           fi
 
       - name: Upload Spigot artifact to CurseForge
-        uses: itsmeow/curseforge-upload@v3
-        with:
-          file_path: ${{ steps.prepare-jars.outputs.spigot_jar }}
-          game_endpoint: bukkit
-          relations: vault:requiredDependency,essentialsx:optionalDependency
-          # Numeric CurseForge version IDs from https://dev.bukkit.org/api/game/versions. The action sends them as-is,
-          # while names need a lookup that the bukkit endpoint returns nothing for. Bukkit versions (type 1):
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_PROJECT_ID: '873479'
+          JAR: ${{ steps.prepare-jars.outputs.spigot_jar }}
+          RELEASE_TYPE: ${{ steps.release-type.outputs.release_stage }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+          # Bukkit version IDs (type 1) from https://dev.bukkit.org/api/game/versions:
           # 14417 = 1.21.11, 16083 = 26.1, 16084 = 26.1.1, 16085 = 26.1.2, 16500 = 26.2, 17046 = 26.3.
-          # Java (type 2): 11135 = Java 21 (the bytecode level), 14454 = Java 25 (needed by 26.x servers).
-          # CI builds against 1.21.11 and tests against 26.3 (D3).
-          game_versions: '14417,16083,16084,16085,16500,17046,11135,14454'
-          release_type: ${{ steps.release-type.outputs.release_stage }}
-          display_name: Shops ${{ github.ref_name }}
-          changelog: ${{ steps.changelog.outputs.changelog }}
-          changelog_type: markdown
-          project_id: 873479
-          token: ${{ secrets.CF_API_TOKEN }}
+          # Bukkit projects don't accept the Java version group. CI builds against 1.21.11 and tests against 26.3 (D3).
+          GAME_VERSIONS: '14417,16083,16084,16085,16500,17046'
+        run: |
+          METADATA=$(jq -n \
+            --arg displayName "Shops $TAG" \
+            --arg releaseType "$RELEASE_TYPE" \
+            --arg changelog "$CHANGELOG" \
+            --arg gameVersions "$GAME_VERSIONS" \
+            '{
+              displayName: $displayName,
+              releaseType: $releaseType,
+              changelog: $changelog,
+              changelogType: "markdown",
+              gameVersions: ($gameVersions | split(",") | map(tonumber)),
+              relations: {projects: [
+                {slug: "vault", type: "requiredDependency"},
+                {slug: "essentialsx", type: "optionalDependency"}
+              ]}
+            }')
+
+          HTTP_CODE=$(curl -sS -o response.json -w '%{http_code}' \
+            -H "X-Api-Token: $CF_API_TOKEN" \
+            -F "metadata=$METADATA;type=application/json" \
+            -F "file=@$JAR" \
+            "https://bukkit.curseforge.com/api/projects/$CF_PROJECT_ID/upload-file")
+
+          if [ "$HTTP_CODE" != 200 ]; then
+            echo "::error::CurseForge upload failed with HTTP $HTTP_CODE: $(cat response.json)"
+            exit 1
+          fi
+          echo "Uploaded to CurseForge as file $(jq -r .id response.json)"
 
       - name: Send Discord notification
         if: ${{ always() && env.DISCORD_WEBHOOK != '' }}
