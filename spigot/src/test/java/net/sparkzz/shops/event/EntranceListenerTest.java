@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
+import org.mockbukkit.mockbukkit.simulate.entity.PlayerSimulation;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +23,7 @@ public class EntranceListenerTest {
 
     private static Location home, inStore;
     private static PlayerMock mrSparkzz;
+    private static PlayerSimulation simulation;
     private static World otherWorld;
 
     @BeforeAll
@@ -35,6 +37,7 @@ public class EntranceListenerTest {
         inStore = new Location(world, 15D, 15D, 15D);
 
         mrSparkzz = server.addPlayer("MrSparkzz");
+        simulation = new PlayerSimulation(mrSparkzz);
 
         mrSparkzz.setLocation(new Location(world, 0D, 0D, 0D));
         Store.setDefaultStore(mrSparkzz.getWorld(), new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(world, 10D, 10D, 10D, 20D, 20D, 20D)));
@@ -52,7 +55,7 @@ public class EntranceListenerTest {
 
         location.setPitch(location.getPitch() + 1);
         mrSparkzz.setLocation(home);
-        mrSparkzz.simulatePlayerMove(location);
+        simulation.simulatePlayerMove(location);
 
         while (mrSparkzz.nextMessage() != null)
             mrSparkzz.nextMessage();
@@ -61,7 +64,7 @@ public class EntranceListenerTest {
     @Test
     @DisplayName("Test Player entering store")
     void testPlayerEnteringStore() {
-        mrSparkzz.simulatePlayerMove(inStore);
+        simulation.simulatePlayerMove(inStore);
         assertEquals("§9Welcome to §6BetterBuy§9!", mrSparkzz.nextMessage());
         printSuccessMessage("enter store test");
     }
@@ -73,9 +76,9 @@ public class EntranceListenerTest {
         location.setPitch(location.getPitch() + 1);
 
         mrSparkzz.setLocation(inStore);
-        mrSparkzz.simulatePlayerMove(location);
+        simulation.simulatePlayerMove(location);
         mrSparkzz.nextMessage();
-        mrSparkzz.simulatePlayerMove(home);
+        simulation.simulatePlayerMove(home);
         assertEquals("§9We hope to see you again!", mrSparkzz.nextMessage());
         printSuccessMessage("exit store test");
     }
@@ -83,9 +86,9 @@ public class EntranceListenerTest {
     @Test
     @DisplayName("Test Player entering and exiting store")
     void testPlayerEnteringAndExitingStore() {
-        mrSparkzz.simulatePlayerMove(inStore);
+        simulation.simulatePlayerMove(inStore);
         assertEquals("§9Welcome to §6BetterBuy§9!", mrSparkzz.nextMessage());
-        mrSparkzz.simulatePlayerMove(home);
+        simulation.simulatePlayerMove(home);
         assertEquals("§9We hope to see you again!", mrSparkzz.nextMessage());
         printSuccessMessage("enter and exit store test");
     }
@@ -94,11 +97,11 @@ public class EntranceListenerTest {
     @DisplayName("Test Player exiting and entering store")
     void testPlayerExitingAndEnteringStore() {
         mrSparkzz.setLocation(inStore);
-        mrSparkzz.simulatePlayerMove(inStore.add(1, 1, 1));
+        simulation.simulatePlayerMove(inStore.add(1, 1, 1));
         mrSparkzz.nextMessage();
-        mrSparkzz.simulatePlayerMove(home);
+        simulation.simulatePlayerMove(home);
         assertEquals("§9We hope to see you again!", mrSparkzz.nextMessage());
-        mrSparkzz.simulatePlayerMove(inStore);
+        simulation.simulatePlayerMove(inStore);
         assertEquals("§9Welcome to §6BetterBuy§9!", mrSparkzz.nextMessage());
         printSuccessMessage("exit and enter store test");
     }
@@ -112,7 +115,7 @@ public class EntranceListenerTest {
         otherWorldHome.setWorld(otherWorld);
         otherWorldInStore.setWorld(otherWorld);
         mrSparkzz.setLocation(otherWorldHome);
-        mrSparkzz.simulatePlayerMove(otherWorldInStore);
+        simulation.simulatePlayerMove(otherWorldInStore);
         assertNull(mrSparkzz.nextMessage());
         printSuccessMessage("enter store test - wrong world");
     }
@@ -126,7 +129,7 @@ public class EntranceListenerTest {
         otherWorldHome.setWorld(otherWorld);
         otherWorldInStore.setWorld(otherWorld);
         mrSparkzz.setLocation(otherWorldInStore);
-        mrSparkzz.simulatePlayerMove(otherWorldHome);
+        simulation.simulatePlayerMove(otherWorldHome);
         assertNull(mrSparkzz.nextMessage());
         printSuccessMessage("exit store test - wrong world");
     }
@@ -135,7 +138,7 @@ public class EntranceListenerTest {
     @DisplayName("Test Player moving around in the store")
     void testPlayerWalkingAroundInStore() {
         mrSparkzz.setLocation(inStore);
-        mrSparkzz.simulatePlayerMove(inStore.add(1, 1, 1));
+        simulation.simulatePlayerMove(inStore.add(1, 1, 1));
         mrSparkzz.nextMessage();
         assertNull(mrSparkzz.nextMessage());
         printSuccessMessage("walking around in store test");
@@ -145,7 +148,7 @@ public class EntranceListenerTest {
     @DisplayName("Test Player moving around out of the store")
     void testPlayerWalkingAroundOutOfStore() {
         mrSparkzz.setLocation(home);
-        mrSparkzz.simulatePlayerMove(home.add(1, 1, 1));
+        simulation.simulatePlayerMove(home.add(1, 1, 1));
         assertNull(mrSparkzz.nextMessage());
         printSuccessMessage("walking around out of store test");
     }
