@@ -63,7 +63,7 @@ class InfoCommandTest {
     @Order(2)
     void testInfoCommand() {
         performCommand(mrSparkzz, "shops");
-        assertEquals(String.format("§3§lShops v%s", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
+        assertEquals(String.format("§3Shops v%s (local, build dev)", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
         printSuccessMessage("info command test");
     }
 

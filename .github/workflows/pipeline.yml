@@ -45,7 +45,11 @@ jobs:
       - name: Build and test
         env:
           REVISION: ${{ inputs.revision }}
-        run: mvn -B verify ${REVISION:+"-Drevision=$REVISION"}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN: ${{ github.run_number }}
+        run: |
+          mvn -B verify ${REVISION:+"-Drevision=$REVISION"} \
+            -Dshops.build.commit="${COMMIT::7}" -Dshops.build.number="$RUN"
 
       - name: Upload coverage to Codecov
         if: ${{ !inputs.create_release_artifacts }}

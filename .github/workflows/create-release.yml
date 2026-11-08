@@ -138,7 +138,22 @@ jobs:
             exit 1
           fi
 
-          echo "✅ $SPIGOT_JAR verified ($SIZE bytes, plugin.yml version $TAG)"
+          # The manifest must carry the CI values, not the placeholders a local build writes
+          MANIFEST=$(unzip -p "$SPIGOT_JAR" META-INF/MANIFEST.MF | tr -d '\r')
+          COMMIT=$(sed -n 's/^Shops-Commit: //p' <<< "$MANIFEST")
+          BUILD=$(sed -n 's/^Shops-Build: //p' <<< "$MANIFEST")
+
+          if [ "$COMMIT" != "${GITHUB_SHA::7}" ]; then
+            echo "::error::Manifest commit is '$COMMIT', expected ${GITHUB_SHA::7}"
+            exit 1
+          fi
+
+          if [ -z "$BUILD" ] || [ "$BUILD" = dev ]; then
+            echo "::error::Manifest build number is '${BUILD:-missing}'"
+            exit 1
+          fi
+
+          echo "✅ $SPIGOT_JAR verified ($SIZE bytes, plugin.yml version $TAG, commit $COMMIT, build $BUILD)"
           echo "spigot_jar=$SPIGOT_JAR" >> "$GITHUB_OUTPUT"
 
       - name: Generate changelog
