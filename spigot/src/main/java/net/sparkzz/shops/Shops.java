@@ -3,6 +3,7 @@ package net.sparkzz.shops;
 import net.milkbowl.vault.economy.Economy;
 import net.sparkzz.shops.command.CommandManager;
 import net.sparkzz.shops.event.EntranceListener;
+import net.sparkzz.shops.util.BuildInfo;
 import net.sparkzz.shops.util.Notifier;
 import net.sparkzz.shops.util.Warehouse;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
  */
 public class Shops extends JavaPlugin {
 
+    private static BuildInfo buildInfo = BuildInfo.UNKNOWN;
     private static Economy economy;
     private static Logger log;
     private static PluginDescriptionFile description;
@@ -29,22 +31,17 @@ public class Shops extends JavaPlugin {
         super();
         Shops.log = getLogger();
         Shops.description = getDescription();
+        Shops.buildInfo = BuildInfo.load(getFile());
     }
 
-    /**
-     * Gets the logger
-     *
-     * @return the logger
-     */
+    public static BuildInfo getBuildInfo() {
+        return buildInfo;
+    }
+
     public static Logger getLog() {
         return log;
     }
 
-    /**
-     * Gets the plugin description
-     *
-     * @return the plugin description
-     */
     public static PluginDescriptionFile getDesc() {
         return description;
     }

@@ -1,6 +1,7 @@
 package net.sparkzz.shops.command;
 
 import net.sparkzz.shops.Shops;
+import net.sparkzz.shops.util.BuildInfo;
 import net.sparkzz.shops.util.Notifier;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -32,7 +33,9 @@ public class InfoCommand extends CommandManager {
             return true;
         }
 
-        sender.sendMessage(String.format("§3§lShops v%s", Shops.getDesc().getVersion()));
+        BuildInfo info = Shops.getBuildInfo();
+
+        sender.sendMessage(String.format("§3Shops v%s (%s, build %s)", Shops.getDesc().getVersion(), info.commit(), info.build()));
         return true;
     }
 
