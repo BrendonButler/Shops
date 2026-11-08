@@ -9,10 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -28,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Add Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AddCommandTest {
 
     private static ItemStack emeralds;
@@ -68,7 +64,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - permissions")
-    @Order(1)
     void testAddCommand_Permissions() {
         performCommand(player2, "shop add acacia_log 1");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
@@ -77,7 +72,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - main functionality - add 1")
-    @Order(2)
     void testAddCommand_AddOne() {
         Material material = emeralds.getType();
 
@@ -90,7 +84,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - main functionality - add all")
-    @Order(3)
     void testAddCommand_AddAll() {
         Material material = emeralds.getType();
         int quantity = emeralds.getAmount();
@@ -105,7 +98,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - material not found in shop")
-    @Order(4)
     void testAddCommand_NoMaterial() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.STICK, 64));
         performCommand(mrSparkzz, "shop add stick 1");
@@ -115,7 +107,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - invalid material")
-    @Order(5)
     void testRemoveCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop add emeral 1");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
@@ -125,7 +116,6 @@ class AddCommandTest {
 
     @Test
     @DisplayName("Test Add - main functionality - no store")
-    @Order(6)
     void testDepositCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop add emerald 1");

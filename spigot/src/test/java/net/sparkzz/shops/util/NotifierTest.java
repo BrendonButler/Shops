@@ -3,7 +3,6 @@ package net.sparkzz.shops.util;
 import net.sparkzz.shops.Store;
 import org.bukkit.Material;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,10 +43,10 @@ class NotifierTest {
         stopServer();
     }
 
-    @AfterEach
+    @BeforeEach
     void resetCustomMessages() {
-        Notifier.resetMessage(Notifier.CipherKey.NO_PERMS_CMD);
-        Notifier.resetMessage(Notifier.CipherKey.NOT_BUYING);
+        for (Notifier.CipherKey key : Notifier.CipherKey.values())
+            Notifier.resetMessage(key);
     }
 
     @Test

@@ -8,10 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -24,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Deposit Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DepositCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
@@ -62,7 +58,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - permissions")
-    @Order(1)
     void testWithdrawCommand_Permissions() {
         performCommand(player2, "shop deposit 100");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
@@ -71,7 +66,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - deposit 100")
-    @Order(2)
     void testDepositCommand() {
         performCommand(mrSparkzz, "shop deposit 100");
         assertEquals(Notifier.compose(DEPOSIT_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
@@ -82,7 +76,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - invalid amount")
-    @Order(3)
     void testDepositCommand_InvalidAmount() {
         performCommand(mrSparkzz, "shop deposit fail");
         assertEquals("§cInvalid numerical value (fail)!", mrSparkzz.nextMessage());
@@ -94,7 +87,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - not the owner")
-    @Order(4)
     void testDepositCommand_NotOwner() {
         player2.setOp(true);
         performCommand(player2, "shop deposit 100");
@@ -106,7 +98,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - insufficient funds")
-    @Order(5)
     void testDepositCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop deposit 200");
         assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_PLAYER, null), mrSparkzz.nextMessage());
@@ -117,7 +108,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - shop has infinite funds")
-    @Order(6)
     void testDepositCommand_InfiniteFunds() {
         store.setInfiniteFunds(true);
         performCommand(mrSparkzz, "shop deposit 15");
@@ -129,7 +119,6 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - main functionality - no store")
-    @Order(7)
     void testDepositCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop deposit 100");

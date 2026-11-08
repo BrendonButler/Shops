@@ -9,10 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -21,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Entrance Listener")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EntranceListenerTest {
 
     private static Location home, inStore;
@@ -64,7 +60,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player entering store")
-    @Order(1)
     void testPlayerEnteringStore() {
         mrSparkzz.simulatePlayerMove(inStore);
         assertEquals("§9Welcome to §6BetterBuy§9!", mrSparkzz.nextMessage());
@@ -73,7 +68,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player exiting store")
-    @Order(2)
     void testPlayerExitingStore() {
         Location location = inStore.clone();
         location.setPitch(location.getPitch() + 1);
@@ -88,7 +82,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player entering and exiting store")
-    @Order(3)
     void testPlayerEnteringAndExitingStore() {
         mrSparkzz.simulatePlayerMove(inStore);
         assertEquals("§9Welcome to §6BetterBuy§9!", mrSparkzz.nextMessage());
@@ -99,7 +92,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player exiting and entering store")
-    @Order(4)
     void testPlayerExitingAndEnteringStore() {
         mrSparkzz.setLocation(inStore);
         mrSparkzz.simulatePlayerMove(inStore.add(1, 1, 1));
@@ -113,7 +105,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player entering store - wrong world")
-    @Order(5)
     void testPlayerEnteringStore_WrongWorld() {
         Location otherWorldHome = home.clone();
         Location otherWorldInStore = inStore.clone();
@@ -128,7 +119,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player exiting store - wrong world")
-    @Order(6)
     void testPlayerExitingStore_WrongWorld() {
         Location otherWorldHome = home.clone();
         Location otherWorldInStore = inStore.clone();
@@ -143,7 +133,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player moving around in the store")
-    @Order(7)
     void testPlayerWalkingAroundInStore() {
         mrSparkzz.setLocation(inStore);
         mrSparkzz.simulatePlayerMove(inStore.add(1, 1, 1));
@@ -154,7 +143,6 @@ public class EntranceListenerTest {
 
     @Test
     @DisplayName("Test Player moving around out of the store")
-    @Order(8)
     void testPlayerWalkingAroundOutOfStore() {
         mrSparkzz.setLocation(home);
         mrSparkzz.simulatePlayerMove(home.add(1, 1, 1));

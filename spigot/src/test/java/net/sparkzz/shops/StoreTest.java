@@ -9,10 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.math.BigDecimal;
@@ -21,7 +18,6 @@ import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Entrance Listener")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StoreTest {
 
     private static ServerMock server;
@@ -47,7 +43,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test get buy price - material not in store")
-    @Order(1)
     void testGetBuyPrice_MaterialNotInStore() {
         assertEquals(-1D, Store.getDefaultStore(null).get().getBuyPrice(Material.BEEF));
         printSuccessMessage("get buy price test - material not in store");
@@ -55,7 +50,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test get sell price - material not in shop")
-    @Order(2)
     void testGetSellPrice_MaterialNotInStore() {
         assertEquals(-1D, Store.getDefaultStore(null).get().getSellPrice(Material.BEEF));
         printSuccessMessage("get sell price test - material not in store");
@@ -63,7 +57,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test removing funds - more than store balance")
-    @Order(3)
     void testRemoveFunds_MoreThanStoreBalance() {
         Store.getDefaultStore(null).get().removeFunds(BigDecimal.valueOf(10D));
         assertEquals(BigDecimal.ZERO, Store.getDefaultStore(null).get().getBalance());
@@ -72,7 +65,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test removing funds")
-    @Order(4)
     void testRemoveFunds() {
         Store.getDefaultStore(null).get().setBalance(BigDecimal.valueOf(15.52D));
         Store.getDefaultStore(null).get().removeFunds(BigDecimal.valueOf(10D));
@@ -82,7 +74,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test removing item stack")
-    @Order(5)
     void testRemoveItemStack() {
         Store.getDefaultStore(null).get().addItem(new ItemStack(Material.SNOWBALL, 20));
         Store.getDefaultStore(null).get().removeItem(new ItemStack(Material.SNOWBALL, 15));
@@ -92,7 +83,6 @@ public class StoreTest {
 
     @Test
     @DisplayName("Test setting cuboid location")
-    @Order(6)
     void testSetCuboidLocation() {
         World world = server.createWorld(WorldCreator.name("world"));
         Cuboid cuboid = new Cuboid(world, 1D, 1D, 1D, 2D, 2D, 2D);

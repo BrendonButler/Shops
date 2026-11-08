@@ -7,10 +7,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.util.List;
@@ -20,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Config Test")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConfigTest {
 
     private static ServerMock server;
@@ -62,7 +58,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test get root node children")
-    @Order(1)
     void testGetRootNodeChildren() {
         assertEquals("[store, messages]", Config.getRootNode().childrenMap().keySet().toString());
         printSuccessMessage("getting root node");
@@ -70,7 +65,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set minimum dimensions")
-    @Order(2)
     void testSetMinDimensions() {
         Config.setMinDimensions(2.5D, 1.75D, 3.2D);
         double[] coordinates = Config.getMinDimensions();
@@ -82,7 +76,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set maximum dimensions")
-    @Order(3)
     void testSetMaxDimensions() {
         Config.setMaxDimensions(5.95D, 15D, 7.25D);
         double[] coordinates = Config.getMaxDimensions();
@@ -94,7 +87,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set minimum volume")
-    @Order(4)
     void testSetMinVolume() {
         Config.setMinVolume(15.75D);
         assertEquals(15.75D, Config.getMinVolume());
@@ -103,7 +95,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set maximum volume")
-    @Order(5)
     void testSetMaxVolume() {
         Config.setMaxVolume(200.1D);
         assertEquals(200.1D, Config.getMaxVolume());
@@ -112,7 +103,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set off-limits areas")
-    @Order(6)
     void testSetOffLimitsAreas() {
         List<Cuboid> cuboids = List.of(
                 new Cuboid(world, -15, -64, -15, 20, 320, 20),
@@ -128,7 +118,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set max owned stores")
-    @Order(7)
     void testSetMaxOwnedStores() {
         Config.setMaxOwnedStores(5);
         assertEquals(5, Config.getMaxOwnedStores());
@@ -137,7 +126,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set default store for all worlds")
-    @Order(8)
     void testGlobalDefaultStore() {
         Config.setDefaultStore(world, otherStore);
         Config.setDefaultStore(server.getWorld("null"), store);
@@ -150,7 +138,6 @@ public class ConfigTest {
 
     @Test
     @DisplayName("Test set default store for specific worlds")
-    @Order(9)
     void testDefaultStore_PerWorld() {
         Config.setDefaultStore(world, store);
         Config.setDefaultStore(world_nether, otherStore);

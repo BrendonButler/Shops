@@ -10,10 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -27,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Buy Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BuyCommandTest {
 
     private static ItemStack emeralds;
@@ -45,7 +41,6 @@ class BuyCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
@@ -55,8 +50,8 @@ class BuyCommandTest {
 
     @BeforeEach
     void setUpBuyCommand() {
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        store.addItem(emeralds.getType(), emeralds.getAmount(), -1, 2D, 1.5D);
         store.setBalance(BigDecimal.ZERO);
         setBalance(mrSparkzz, 50);
     }
@@ -64,11 +59,12 @@ class BuyCommandTest {
     @AfterEach
     void tearDownEach() {
         mrSparkzz.getInventory().clear();
+        Store.DEFAULT_STORES.clear();
+        Store.STORES.clear();
     }
 
     @Test
     @DisplayName("Test Buy - permissions")
-    @Order(1)
     void testBuyCommand_Permissions() {
         withoutPermission(player2, "shops.cmd.buy", () -> performCommand(player2, "shop buy emerald 1"));
         assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
@@ -77,7 +73,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality")
-    @Order(2)
     void testBuyCommand() {
         performCommand(mrSparkzz, "shop buy emerald 12");
         assertEquals(Notifier.compose(BUY_SUCCESS, Map.of("quantity", 12, "material", Material.EMERALD, "cost", 24D)), mrSparkzz.nextMessage());
@@ -88,7 +83,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality - below minimum amount")
-    @Order(3)
     void testBuyCommand_BelowMinimum() {
         performCommand(mrSparkzz, "shop buy emerald -1");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
@@ -99,7 +93,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality - above maximum amount")
-    @Order(4)
     void testBuyCommand_AboveMaximum() {
         performCommand(mrSparkzz, "shop buy emerald 2305");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
@@ -110,7 +103,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality - invalid material")
-    @Order(4)
     void testBuyCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop buy emeral 10");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
@@ -122,7 +114,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality - query price")
-    @Order(5)
     void testBuyCommand_QueryPrice() {
         performCommand(mrSparkzz, "shop buy emerald");
         assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 2D)), mrSparkzz.nextMessage());
@@ -133,7 +124,6 @@ class BuyCommandTest {
 
     @Test
     @DisplayName("Test Buy - main functionality - no store")
-    @Order(6)
     void testBuyCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop buy emerald 2");

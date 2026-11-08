@@ -10,10 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -24,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("InventoryManagementSystem Test")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class InventoryManagementSystemTest {
 
     private static ItemStack emeralds;
@@ -69,7 +65,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can insert item")
-    @Order(1)
     void testCanInsert() {
         boolean canInsert = InventoryManagementSystem.canInsert(mrSparkzz, emeralds.getType(), emeralds.getAmount());
         assertTrue(canInsert);
@@ -78,7 +73,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can't insert item")
-    @Order(2)
     void testCantInsert() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 2304));
 
@@ -89,7 +83,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can insert all items")
-    @Order(3)
     void testCanInsertAll() {
         boolean canInsertAll = InventoryManagementSystem.canInsertAll(mrSparkzz, List.of(emeralds, snowballs));
         assertTrue(canInsertAll);
@@ -98,7 +91,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can't insert all items")
-    @Order(4)
     void testCantInsertAll() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 2176), snowballs);
 
@@ -109,7 +101,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can remove")
-    @Order(5)
     void testCanRemove() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.EMERALD, 2176), snowballs);
 
@@ -120,7 +111,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - can't remove item")
-    @Order(6)
     void testCantRemove() {
         boolean canRemove = InventoryManagementSystem.canRemove(mrSparkzz, snowballs.getType(), snowballs.getAmount());
         assertFalse(canRemove);
@@ -129,7 +119,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - contains at least")
-    @Order(7)
     void testContainsAtLeast() {
         boolean containsAtLeast = InventoryManagementSystem.containsAtLeast(store, emeralds);
         assertTrue(containsAtLeast);
@@ -138,7 +127,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - contains at least - infinite stock")
-    @Order(8)
     void testContainsAtLeast_InfiniteStock() {
         store.setInfiniteStock(true);
 
@@ -149,7 +137,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - doesn't contain at least")
-    @Order(9)
     void testContainsAtLeast_Fail() {
         boolean containsAtLeast = InventoryManagementSystem.containsAtLeast(store, snowballs);
         assertFalse(containsAtLeast);
@@ -158,7 +145,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - count quantity (player)")
-    @Order(10)
     void testCountQuantity_Player() {
         mrSparkzz.getInventory().addItem(emeralds);
 
@@ -169,7 +155,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - count quantity (store)")
-    @Order(11)
     void testCountQuantity_Store() {
         int quantity = InventoryManagementSystem.countQuantity(store, emeralds.getType());
         assertEquals(64, quantity);
@@ -178,7 +163,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - count quantity (store) - item infinite stock")
-    @Order(12)
     void testCountQuantity_Store_ItemInfiniteStock() {
         store.addItem(Material.BUCKET, -1);
 
@@ -189,7 +173,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - get available space (store)")
-    @Order(13)
     void testGetAvailableSpace_Store() {
         int quantity = InventoryManagementSystem.getAvailableSpace(store, emeralds.getType());
         assertEquals(64, quantity);
@@ -198,7 +181,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - get available space (store) - no material in store")
-    @Order(14)
     void testGetAvailableSpace_Store_NoMaterialInStore() {
         int quantity = InventoryManagementSystem.getAvailableSpace(store, snowballs.getType());
         assertEquals(0, quantity);
@@ -207,7 +189,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - get available space (store) - no material in store - infinite stock")
-    @Order(15)
     void testGetAvailableSpace_Store_NoMaterialInStore_InfiniteStock() {
         store.setInfiniteStock(true);
 
@@ -218,7 +199,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - get available space (store) - infinite stock")
-    @Order(16)
     void testGetAvailableSpace_Store_InfiniteStock() {
         store.setInfiniteStock(true);
 
@@ -229,7 +209,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - get available space (store) - max quantity negative")
-    @Order(17)
     void testGetAvailableSpace_Store_MaxQuantityNegative() {
         store.getAttributes(emeralds.getType()).put("max_quantity", -1);
 
@@ -240,7 +219,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - identify store - within secondary store")
-    @Order(18)
     void testIdentifyStore_WithinSecondaryStore() {
         Store.setDefaultStore(null, null);
         mrSparkzz.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
@@ -251,7 +229,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - identify store - within default store")
-    @Order(19)
     void testIdentifyStore_NotWithinSecondaryStore() {
         mrSparkzz.setLocation(new Location(server.getWorld("world"), 21D, 0D, 0D));
 
@@ -261,7 +238,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - identify store - not within any store")
-    @Order(20)
     void testIdentifyStore_NotWithinAnyStore() {
         mrSparkzz.setLocation(new Location(server.createWorld(WorldCreator.name("empty-world")), 0D, 0D, 0D));
         Store.DEFAULT_STORES.clear();
@@ -273,7 +249,6 @@ public class InventoryManagementSystemTest {
 
     @Test
     @DisplayName("Test IMS - identify store - inter-global default in another world")
-    @Order(21)
     void testIdentifyStore_InterGlobalDefaultInAnotherWorld() {
         mrSparkzz.setLocation(new Location(server.getWorld("world_nether"), 0D, 0D, 0D));
 
