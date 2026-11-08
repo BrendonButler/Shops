@@ -10,10 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -27,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Sell Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SellCommandTest {
     private static ItemStack emeralds;
 
@@ -44,7 +40,6 @@ class SellCommandTest {
         player2 = server.addPlayer();
 
         mrSparkzz.setOp(true);
-        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
     }
 
     @AfterAll
@@ -54,9 +49,9 @@ class SellCommandTest {
 
     @BeforeEach
     void setUpSellCommand() {
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().clear();
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
-        Store.getDefaultStore(mrSparkzz.getWorld()).get().setBalance(BigDecimal.valueOf(100));
+        Store.setDefaultStore(mrSparkzz.getWorld(), (store = new Store("BetterBuy", mrSparkzz.getUniqueId())));
+        store.addItem(emeralds.getType(), 0, -1, 2D, 1.5D);
+        store.setBalance(BigDecimal.valueOf(100));
         mrSparkzz.getInventory().addItem(emeralds);
         setBalance(mrSparkzz, 50);
     }
@@ -64,11 +59,12 @@ class SellCommandTest {
     @AfterEach
     void tearDownEach() {
         mrSparkzz.getInventory().clear();
+        Store.DEFAULT_STORES.clear();
+        Store.STORES.clear();
     }
 
     @Test
     @DisplayName("Test Sell - permissions")
-    @Order(1)
     void testSellCommand_Permissions() {
         withoutPermission(player2, "shops.cmd.sell", () -> performCommand(player2, "shop sell emerald 1"));
         assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
@@ -77,7 +73,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - sell 1")
-    @Order(2)
     void testSellCommand() {
         performCommand(mrSparkzz, "shop sell emerald 1");
         assertEquals(Notifier.compose(SELL_SUCCESS, Map.of("quantity", 1, "material", Material.EMERALD, "cost", 1.5D)), mrSparkzz.nextMessage());
@@ -88,7 +83,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - below minimum amount")
-    @Order(3)
     void testSellCommand_BelowMinimum() {
         performCommand(mrSparkzz, "shop sell emerald -1");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", -1)), mrSparkzz.nextMessage());
@@ -99,7 +93,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - above maximum amount")
-    @Order(4)
     void testSellCommand_AboveMaximum() {
         performCommand(mrSparkzz, "shop sell emerald 2305");
         assertEquals(Notifier.compose(INVALID_QUANTITY, Collections.singletonMap("quantity", 2305)), mrSparkzz.nextMessage());
@@ -110,7 +103,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - invalid material")
-    @Order(5)
     void testSellCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop sell emeral 1");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
@@ -122,7 +114,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - query price")
-    @Order(6)
     void testSellCommand_QueryPrice() {
         performCommand(mrSparkzz, "shop sell emerald");
         assertEquals(Notifier.compose(PRICE, Collections.singletonMap("cost", 1.5D)), mrSparkzz.nextMessage());
@@ -133,7 +124,6 @@ class SellCommandTest {
 
     @Test
     @DisplayName("Test Sell - main functionality - no store")
-    @Order(7)
     void testSellCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop sell emerald 2");

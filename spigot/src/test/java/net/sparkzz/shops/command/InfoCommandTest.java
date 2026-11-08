@@ -6,10 +6,7 @@ import net.sparkzz.shops.util.BuildInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -21,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Info Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class InfoCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
@@ -49,7 +45,6 @@ class InfoCommandTest {
 
     @Test
     @DisplayName("Test Info - permissions")
-    @Order(1)
     void testInfoCommand_Permissions() {
         withoutPermission(player2, "shops.cmd.shops", () -> performCommand(player2, "shops"));
         // The server sends its own no-permission message; only check that the command was blocked
@@ -61,7 +56,6 @@ class InfoCommandTest {
 
     @Test
     @DisplayName("Test Info")
-    @Order(2)
     void testInfoCommand() {
         performCommand(mrSparkzz, "shops");
         // MockBukkit doesn't load the plugin from a JAR, so there's no manifest and the placeholders are expected
@@ -72,7 +66,6 @@ class InfoCommandTest {
 
     @Test
     @DisplayName("Test Info - info tab complete")
-    @Order(3)
     void testShopTabComplete() {
         List<String> actualOptions = server.getCommandTabComplete(mrSparkzz, "shops ");
 

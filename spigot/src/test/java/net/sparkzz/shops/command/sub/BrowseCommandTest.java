@@ -11,10 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -23,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Browse Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BrowseCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
@@ -72,7 +68,6 @@ public class BrowseCommandTest {
 
     @Test
     @DisplayName("Test Browse - permissions")
-    @Order(1)
     void testBrowseShop_Permissions() {
         withoutPermission(player2, "shops.cmd.browse", () -> performCommand(player2, "shop browse"));
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
@@ -81,7 +76,6 @@ public class BrowseCommandTest {
 
     @Test
     @DisplayName("Test Browse - main functionality")
-    @Order(2)
     void testBrowseShop() {
         performCommand(mrSparkzz, "shop browse");
         assertEquals("""
@@ -103,7 +97,6 @@ public class BrowseCommandTest {
 
     @Test
     @DisplayName("Test Browse - main functionality - invalid shop")
-    @Order(2)
     void testBrowse_InvalidShop() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop browse");
@@ -113,7 +106,6 @@ public class BrowseCommandTest {
 
     @Test
     @DisplayName("Test Browse - main functionality - second page")
-    @Order(4)
     void testBrowseShop_SecondPage() {
         performCommand(mrSparkzz, "shop browse 2");
         assertEquals("""
@@ -127,7 +119,6 @@ public class BrowseCommandTest {
 
     @Test
     @DisplayName("Test Browse - main functionality - invalid page")
-    @Order(5)
     void testBrowseShop_InvalidPage() {
         performCommand(mrSparkzz, "shop browse 3");
         assertEquals("§cInvalid page number!", mrSparkzz.nextMessage());

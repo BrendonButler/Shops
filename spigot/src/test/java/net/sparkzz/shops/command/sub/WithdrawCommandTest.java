@@ -8,10 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -24,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Withdraw Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WithdrawCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
@@ -62,7 +58,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - permissions")
-    @Order(1)
     void testWithdrawCommand_Permissions() {
         performCommand(player2, "shop withdraw 100");
         assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
@@ -71,7 +66,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - main functionality - withdraw 100")
-    @Order(2)
     void testWithdrawCommand() {
         performCommand(mrSparkzz, "shop withdraw 100");
         assertEquals(Notifier.compose(WITHDRAW_SUCCESS, Collections.singletonMap("amount", 100D)), mrSparkzz.nextMessage());
@@ -82,7 +76,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - main functionality - invalid amount")
-    @Order(3)
     void testWithdrawCommand_InvalidAmount() {
         performCommand(mrSparkzz, "shop withdraw fail");
         assertEquals("§cInvalid numerical value (fail)!", mrSparkzz.nextMessage());
@@ -93,7 +86,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - main functionality - not the owner")
-    @Order(4)
     void testWithdrawCommand_NotOwner() {
         player2.setOp(true);
         performCommand(player2, "shop withdraw 100");
@@ -104,7 +96,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - main functionality - insufficient funds")
-    @Order(5)
     void testWithdrawCommand_InsufficientFunds() {
         performCommand(mrSparkzz, "shop withdraw 200");
         assertEquals(Notifier.compose(INSUFFICIENT_FUNDS_STORE, null), mrSparkzz.nextMessage());
@@ -114,7 +105,6 @@ class WithdrawCommandTest {
 
     @Test
     @DisplayName("Test Withdraw - main functionality - no store")
-    @Order(6)
     void testWithdrawCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop withdraw all");

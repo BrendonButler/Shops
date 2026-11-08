@@ -9,10 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -27,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Remove Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RemoveCommandTest {
 
     private static ItemStack emeralds;
@@ -60,13 +56,13 @@ public class RemoveCommandTest {
 
     @AfterEach
     void tearDownEach() {
+        mrSparkzz.getInventory().clear();
         Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
     }
 
     @Test
     @DisplayName("Test Remove - permissions")
-    @Order(1)
     void testRemoveCommand_Permissions() {
         performCommand(player2, "shop remove acacia_log 1");
         assertEquals(Notifier.compose(NO_PERMS_CMD, null), player2.nextMessage());
@@ -75,7 +71,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - main functionality - remove 1")
-    @Order(2)
     void testRemoveCommand_RemoveOne() {
         Material material = emeralds.getType();
 
@@ -88,7 +83,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - main functionality - remove all")
-    @Order(3)
     void testRemoveCommand_RemoveAll() {
         Material material = emeralds.getType();
 
@@ -100,7 +94,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - material not found in store")
-    @Order(4)
     void testRemoveCommand_NoMaterial() {
         performCommand(mrSparkzz, "shop remove stick 1");
         assertEquals(Notifier.compose(MATERIAL_MISSING_STORE, Collections.singletonMap("material", Material.STICK)), mrSparkzz.nextMessage());
@@ -109,7 +102,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - invalid material")
-    @Order(5)
     void testRemoveCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop remove emeral 1");
         assertEquals(Notifier.compose(INVALID_MATERIAL, Collections.singletonMap("material", "emeral")), mrSparkzz.nextMessage());
@@ -119,7 +111,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - main functionality - no store")
-    @Order(6)
     void testRemoveCommand_NoStore() {
         Store.DEFAULT_STORES.clear();
         performCommand(mrSparkzz, "shop remove emerald 1");
@@ -129,7 +120,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - main functionality - insufficient inventory store")
-    @Order(7)
     void testRemoveCommand_InsufficientInventoryStore() {
         performCommand(mrSparkzz, "shop remove emerald 1000");
         assertEquals(Notifier.compose(INSUFFICIENT_INV_STORE, Collections.singletonMap("material", Material.EMERALD)), mrSparkzz.nextMessage());
@@ -138,7 +128,6 @@ public class RemoveCommandTest {
 
     @Test
     @DisplayName("Test Remove - main functionality - insufficient inventory player")
-    @Order(8)
     void testRemoveCommand_InsufficientInventoryPlayer() {
         mrSparkzz.getInventory().addItem(new ItemStack(Material.MILK_BUCKET, 2304));
         performCommand(mrSparkzz, "shop remove emerald 64");

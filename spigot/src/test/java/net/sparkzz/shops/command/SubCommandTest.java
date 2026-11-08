@@ -6,10 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -20,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Sub Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SubCommandTest {
 
     private static Store store;
@@ -45,7 +41,6 @@ class SubCommandTest {
 
     @Test
     @DisplayName("Test identify store - name")
-    @Order(1)
     void testIdentifyStore_Name() {
         Optional<Store> identifiedStore = testClass.identifyStore(store.getName());
         assertEquals(store, identifiedStore.orElse(null));
@@ -54,7 +49,6 @@ class SubCommandTest {
 
     @Test
     @DisplayName("Test identify store - UUID")
-    @Order(2)
     void testIdentifyStore_UUID() {
         Optional<Store> identifiedStore = testClass.identifyStore(store.getUUID().toString());
         assertEquals(store, identifiedStore.orElse(null));
@@ -63,7 +57,6 @@ class SubCommandTest {
 
     @Test
     @DisplayName("Test identify store - name~UUID")
-    @Order(3)
     void testIdentifyStore_NameAndUUID() {
         Optional<Store> identifiedStore = testClass.identifyStore(String.format("%s~%s", store.getName(), store.getUUID()));
         assertEquals(store, identifiedStore.orElse(null));

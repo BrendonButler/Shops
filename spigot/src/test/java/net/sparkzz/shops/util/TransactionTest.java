@@ -13,10 +13,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -27,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Transaction Test")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionTest {
 
     private static ItemStack emeralds;
@@ -73,7 +69,6 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - purchase is ready when the player can afford it")
-    @Order(1)
     void testValidateReady_PurchaseAffordable() {
         prepareEmeraldPurchase(24);
         Transaction transaction = new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE);
@@ -84,7 +79,6 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - purchase is not ready when the player can't afford it")
-    @Order(2)
     void testValidateReady_PurchaseUnaffordable() {
         prepareEmeraldPurchase(23.99);
         Transaction transaction = new Transaction(mrSparkzz, new ItemStack(Material.EMERALD, 12), Transaction.TransactionType.PURCHASE);
@@ -95,7 +89,6 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - purchase changes nothing when the economy rejects the withdrawal")
-    @Order(3)
     void testProcess_PurchaseWithdrawRejected() {
         prepareEmeraldPurchase(24);
         BigDecimal storeBalance = store.getBalance();
@@ -109,7 +102,6 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - sale changes nothing when the economy rejects the deposit")
-    @Order(4)
     void testProcess_SaleDepositRejected() {
         store.getItems().clear();
         store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
@@ -162,7 +154,6 @@ public class TransactionTest {
 
     @Test
     @DisplayName("Test Transaction - get type")
-    @Order(5)
     void testGetType() {
         assertEquals(Transaction.TransactionType.PURCHASE, purchase.getType());
         assertEquals(Transaction.TransactionType.SALE, sale.getType());

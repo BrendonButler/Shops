@@ -11,10 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
@@ -28,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Delete Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DeleteCommandTest {
 
     private static PlayerMock mrSparkzz, player2;
@@ -66,7 +62,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - permissions")
-    @Order(1)
     void testDeleteShop_Permissions() {
         performCommand(player2, "shop delete DollHairStore");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
@@ -75,7 +70,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - main functionality")
-    @Order(2)
     void testDeleteShop() {
         performCommand(mrSparkzz, String.format("shop delete DollHairStore~%s", tempStore.getUUID()));
         assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "DollHairStore", GREEN), mrSparkzz.nextMessage());
@@ -84,7 +78,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - main functionality - UUID")
-    @Order(2)
     void testDeleteShop_ByUUID() {
         performCommand(mrSparkzz, String.format("shop delete %s", tempStore.getUUID()));
         assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "DollHairStore", GREEN), mrSparkzz.nextMessage());
@@ -93,7 +86,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - duplicate Store(s)")
-    @Order(3)
     void testDeleteShop_DuplicateShops() {
         new Store("TestDuplicate");
         new Store("TestDuplicate");
@@ -105,7 +97,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - store not found")
-    @Order(4)
     void testDeleteShop_NotFound() {
         performCommand(mrSparkzz, "shop delete TestShop2");
         assertEquals(String.format("%sCould not find a store with the name and/or UUID of: %s%s%s!", RED, GOLD, "TestShop2", RED), mrSparkzz.nextMessage());
@@ -114,7 +105,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - fail to delete")
-    @Order(5)
     void testDeleteShop_Fail() {
         Command command = server.getCommandMap().getCommand("shop");
         Store store = new Store("FailStore");
@@ -137,7 +127,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - ignore stock")
-    @Order(6)
     void testDeleteShop_IgnoreStock() {
         tempStore.addItem(new ItemStack(Material.EMERALD, 128));
         tempStore.addItem(new ItemStack(Material.BUCKET, 14));
@@ -152,7 +141,6 @@ class DeleteCommandTest {
 
     @Test
     @DisplayName("Test Delete - ignore stock and funds")
-    @Order(7)
     void testDeleteShop_IgnoreStockAndFunds() {
         tempStore.addItem(new ItemStack(Material.EMERALD, 128));
         tempStore.addItem(new ItemStack(Material.BUCKET, 14));

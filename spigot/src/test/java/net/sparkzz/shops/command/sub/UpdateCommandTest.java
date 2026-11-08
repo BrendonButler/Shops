@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Update Command")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UpdateCommandTest {
 
     private static Cuboid defaultLocation, cuboidLocation, cuboidLocationNether;
@@ -62,7 +61,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - customer buy price")
-    @Order(1)
     void testUpdateCommand_BuyPrice() {
         performCommand(mrSparkzz, "shop update emerald customer-buy-price 5");
         assertEquals("§aYou have successfully updated §6customer-buy-price§a to §65§a in BetterBuy!", mrSparkzz.nextMessage());
@@ -72,7 +70,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - customer sell price")
-    @Order(2)
     void testUpdateCommand_SellPrice() {
         performCommand(mrSparkzz, "shop update emerald customer-sell-price 5");
         assertEquals("§aYou have successfully updated §6customer-sell-price§a to §65§a in BetterBuy!", mrSparkzz.nextMessage());
@@ -82,7 +79,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - max quantity")
-    @Order(3)
     void testUpdateCommand_MaxQuantity() {
         performCommand(mrSparkzz, "shop update emerald max-quantity 128");
         assertEquals("§aYou have successfully updated §6max-quantity§a to §6128§a in BetterBuy!", mrSparkzz.nextMessage());
@@ -92,7 +88,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - too few args")
-    @Order(4)
     void testUpdateCommand_TooFewArgs() {
         performCommand(mrSparkzz, "shop update");
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
@@ -101,7 +96,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - infinite-funds true")
-    @Order(5)
     void testUpdateCommand_InfFunds() {
         performCommand(mrSparkzz, "shop update infinite-funds true");
         assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in BetterBuy!", GREEN, GOLD, "infinite-funds", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
@@ -111,7 +105,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - inf-stock true")
-    @Order(6)
     void testUpdateCommand_InfStock() {
         performCommand(mrSparkzz, "shop update infinite-stock true");
         assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in BetterBuy!", GREEN, GOLD, "infinite-stock", GREEN, GOLD, "true", GREEN), mrSparkzz.nextMessage());
@@ -121,7 +114,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - shop name")
-    @Order(7)
     void testUpdateCommand_ShopName() {
         performCommand(mrSparkzz, "shop update store-name TestShop99");
         assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in TestShop99!", GREEN, GOLD, "store-name", GREEN, GOLD, "TestShop99", GREEN), mrSparkzz.nextMessage());
@@ -131,7 +123,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - invalid material")
-    @Order(8)
     void testUpdateCommand_InvalidMaterial() {
         performCommand(mrSparkzz, "shop update emeral customer-buy-price 10");
         assertEquals("§cInvalid material (emeral)!", mrSparkzz.nextMessage());
@@ -141,7 +132,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - material not in shop")
-    @Order(9)
     void testUpdateCommand_MaterialNotInShop() {
         performCommand(mrSparkzz, "shop update diamond customer-buy-price 10");
         assertEquals("§cThis material doesn't currently exist in the store, use `/shop add diamond` to add this item", mrSparkzz.nextMessage());
@@ -150,7 +140,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - invalid option")
-    @Order(10)
     void testUpdateCommand_InvalidOption() {
         performCommand(mrSparkzz, "shop update invalid-option true");
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
@@ -159,7 +148,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - invalid option for material")
-    @Order(11)
     void testUpdateCommand_InvalidOptionMaterial() {
         performCommand(mrSparkzz, "shop update emerald invalid-option true");
         assertEquals("/shop [buy|sell|browse]", mrSparkzz.nextMessage());
@@ -168,7 +156,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - infinite stock per item allow but has stock")
-    @Order(12)
     void testUpdateCommand_Permissions_InfStockItemHasStock() {
         performCommand(mrSparkzz, "shop update bucket infinite-quantity true");
         assertEquals("§cPlease ensure there is no stock in the store for this item and try again!", mrSparkzz.nextMessage());
@@ -178,7 +165,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - infinite stock per item allow false")
-    @Order(13)
     void testUpdateCommand_Permissions_InfStockItemFalse() {
         performCommand(mrSparkzz, "shop update bucket infinite-quantity false");
         assertEquals("§aYou have successfully updated §6infinite-quantity§a to §6false§a in BetterBuy!", mrSparkzz.nextMessage());
@@ -188,7 +174,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - infinite stock per item allow")
-    @Order(14)
     void testUpdateCommand_Permissions_InfStockItem() {
         store.removeItem(Material.BUCKET, store.getAttributes(Material.BUCKET).get("quantity").intValue());
 
@@ -200,7 +185,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location")
-    @Order(15)
     void testUpdateCommand_Location() {
         performCommand(mrSparkzz, "shop update location 10 20 30 40 50 60");
         assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world!", mrSparkzz.nextMessage());
@@ -210,7 +194,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with store")
-    @Order(16)
     void testUpdateCommand_Location_WithStore() {
         performCommand(mrSparkzz, "shop update location BetterBuy 10 20 30 40 50 60");
         assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world!", mrSparkzz.nextMessage());
@@ -220,7 +203,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with world")
-    @Order(17)
     void testUpdateCommand_Location_WithWorld() {
         performCommand(mrSparkzz, "shop update location world-nether 10 20 30 40 50 60");
         assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world-nether!", mrSparkzz.nextMessage());
@@ -230,7 +212,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with store and world")
-    @Order(18)
     void testUpdateCommand_Location_WithStoreAndWorld() {
         performCommand(mrSparkzz, "shop update location BetterBuy world-nether 10 20 30 40 50 60");
         assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world-nether!", mrSparkzz.nextMessage());
@@ -240,7 +221,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with null world")
-    @Order(19)
     void testUpdateCommand_Location_WithNullWorld() {
         performCommand(mrSparkzz, "shop update location world-the-start 10 20 30 40 50 60");
         assertEquals("§cCould not find world (world-the-start)!", mrSparkzz.nextMessage());
@@ -250,7 +230,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with store and null world")
-    @Order(20)
     void testUpdateCommand_Location_WithStoreAndNullWorld() {
         performCommand(mrSparkzz, "shop update location BetterBuy world-the-start 10 20 30 40 50 60");
         assertEquals("§cCould not find world (world-the-start)!", mrSparkzz.nextMessage());
@@ -260,7 +239,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location with world and invalid store")
-    @Order(23)
     void testUpdateCommand_Location_WithWorldAndInvalidStore() {
         performCommand(mrSparkzz, "shop update location DiscountPlus world 10 20 30 40 50 60");
         assertEquals("§cCould not find a store with the name and/or UUID of: §6DiscountPlus§c!", mrSparkzz.nextMessage());
@@ -270,7 +248,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - player not in a store")
-    @Order(24)
     void testUpdateCommand_Location_PlayerNotInStore() {
         mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
         performCommand(mrSparkzz, "shop update location 10 20 30 40 50 60");
@@ -280,7 +257,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location update - player not in a store")
-    @Order(25)
     void testUpdateCommand_Location_PlayerNotInStore_2() {
         mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
         performCommand(mrSparkzz, "shop update location world 10 20 30 40 50 60");
@@ -290,7 +266,6 @@ class UpdateCommandTest {
 
     @Test
     @DisplayName("Test Update - main functionality - location update - player not in a store")
-    @Order(26)
     void testUpdateCommand_PlayerNotInStore() {
         mrSparkzz.setLocation(new Location(Bukkit.getWorld("world-nether"), 0D, 0D, 0D));
         performCommand(mrSparkzz, "shop update infinite-stock true");
@@ -300,7 +275,6 @@ class UpdateCommandTest {
 
     @Nested
     @DisplayName("Update Permissions Test")
-    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class PermissionsTest {
 
         private static boolean cmdUse = true;
@@ -330,7 +304,6 @@ class UpdateCommandTest {
 
         @Test
         @DisplayName("Test Update - permissions")
-        @Order(1)
         void testUpdateCommand_Permissions() {
             cmdUse = false;
             performCommand(player, "shop update shop-name TestShop99");
@@ -340,7 +313,6 @@ class UpdateCommandTest {
 
         @Test
         @DisplayName("Test Update - permissions - infinite funds deny")
-        @Order(2)
         void testUpdateCommand_Permissions_InfFunds() {
             performCommand(player, "shop update infinite-funds true");
             assertEquals("§cYou do not have permission to set infinite funds in your store!", player.nextMessage());
@@ -350,7 +322,6 @@ class UpdateCommandTest {
 
         @Test
         @DisplayName("Test Update - permissions - infinite stock deny")
-        @Order(3)
         void testUpdateCommand_Permissions_InfStock() {
             performCommand(player, "shop update infinite-stock true");
             assertEquals("§cYou do not have permission to set infinite stock in your store!", player.nextMessage());
@@ -360,7 +331,6 @@ class UpdateCommandTest {
 
         @Test
         @DisplayName("Test Update - permissions - infinite stock per item deny")
-        @Order(4)
         void testUpdateCommand_Permissions_InfStockItem() {
             performCommand(player, "shop update emerald infinite-quantity true");
             assertEquals("§cYou do not have permission to set infinite stock in your store!", player.nextMessage());
