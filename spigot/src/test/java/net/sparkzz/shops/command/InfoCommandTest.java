@@ -2,6 +2,7 @@ package net.sparkzz.shops.command;
 
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.Store;
+import net.sparkzz.shops.util.BuildInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -63,7 +64,9 @@ class InfoCommandTest {
     @Order(2)
     void testInfoCommand() {
         performCommand(mrSparkzz, "shops");
-        assertEquals(String.format("§3Shops v%s (local, build dev)", plugin.getDescription().getVersion()), mrSparkzz.nextMessage());
+        // MockBukkit doesn't load the plugin from a JAR, so there's no manifest and the placeholders are expected
+        assertEquals(String.format("§3Shops v%s (%s, build %s)", plugin.getDescription().getVersion(),
+                BuildInfo.UNKNOWN_COMMIT, BuildInfo.UNKNOWN_BUILD), mrSparkzz.nextMessage());
         printSuccessMessage("info command test");
     }
 
