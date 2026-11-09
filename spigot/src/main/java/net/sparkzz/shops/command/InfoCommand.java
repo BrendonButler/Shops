@@ -3,6 +3,8 @@ package net.sparkzz.shops.command;
 import net.sparkzz.shops.Shops;
 import net.sparkzz.shops.util.BuildInfo;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Permissions;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +30,7 @@ public class InfoCommand extends CommandManager {
      */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!sender.hasPermission("shops.cmd.shops")) {
+        if (!Permissions.isPermitted(sender, ShopAction.INFO)) {
             Notifier.process(sender, Notifier.CipherKey.NO_PERMS_CMD, null);
             return true;
         }

@@ -4,6 +4,7 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.*;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -15,19 +16,13 @@ import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
+import static net.sparkzz.shops.util.Permissions.isPermitted;
+import static net.sparkzz.shops.util.ShopAction.*;
 import static org.bukkit.ChatColor.RED;
 
 /**
@@ -38,6 +33,13 @@ import static org.bukkit.ChatColor.RED;
 public class ShopCommand extends CommandManager {
 
     private final Server server = Bukkit.getServer();
+
+    private static final Map<String, ShopAction> UPDATE_OPTIONS = new LinkedHashMap<>() {{
+        put("infinite-funds", UPDATE_INF_FUNDS);
+        put("infinite-stock", UPDATE_INF_STOCK);
+        put("location", UPDATE_LOCATION);
+        put("store-name", UPDATE);
+    }};
 
     private final Map<String, SubCommand> subCommands = new HashMap<>() {{
         put("add", new AddCommand());
@@ -58,52 +60,35 @@ public class ShopCommand extends CommandManager {
         Set<Material> shopItems = (currentStore.map(store -> store.getItems().keySet()).orElse(Collections.emptySet()));
 
         return switch (arg0) {
-            case "add" -> {
+            case "add", "sell" -> {
                 Player player = (Player) sender;
                 ItemStack[] inventoryContents = player.getInventory().getContents();
 
                 yield Arrays.stream(inventoryContents)
                         .filter(Objects::nonNull)
-                        .filter(m -> sender.hasPermission("shops.cmd.add"))
                         .map(item -> item.getType().toString().toLowerCase())
                         .toList();
             }
-            case "browse" -> (sender.hasPermission("shops.cmd.browse") ? Collections.singletonList("<page-number>") : new ArrayList<String>());
+            case "browse" -> Collections.singletonList("<page-number>");
             case "buy", "remove" -> shopItems.stream()
-                    .filter(s -> (sender.hasPermission("shops.cmd." + arg0)))
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
-            case "create" -> (sender.hasPermission("shops.cmd.create") ? Collections.singletonList("<name>") : new ArrayList<String>());
+            case "create" -> Collections.singletonList("<name>");
             case "delete", "transfer" -> Store.STORES.stream()
-                    .filter(s -> (sender.hasPermission("shops.cmd." + arg0)) &&
-                                 s.getOwner().equals(((Player) sender).getUniqueId()))
+                    .filter(s -> s.getOwner().equals(((Player) sender).getUniqueId()))
                     .map(s -> String.format("%s~%s", s.getName(), s.getUUID()))
                     .toList();
-            case "deposit" -> (sender.hasPermission("shops.cmd.deposit") ? Collections.singletonList("<amount>") : new ArrayList<String>());
-            case "withdraw" -> (sender.hasPermission("shops.cmd.withdraw") ? List.of("<amount>", "all") : new ArrayList<String>());
+            case "deposit" -> Collections.singletonList("<amount>");
+            case "withdraw" -> List.of("<amount>", "all");
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update"))
-                    yield Collections.emptyList();
-
                 ArrayList<String> tempList = shopItems.stream()
-                        .filter(m -> sender.hasPermission("shops.cmd.update"))
                         .map(m -> m.toString().toLowerCase())
                         .collect(Collectors.toCollection(ArrayList::new));
-                if (sender.hasPermission("shops.update.inf-funds")) tempList.add("infinite-funds");
-                if (sender.hasPermission("shops.update.inf-stock")) tempList.add("infinite-stock");
-                if (sender.hasPermission("shops.update.location")) tempList.add("location");
-                tempList.add("store-name");
+
+                UPDATE_OPTIONS.forEach((option, action) -> {
+                   if (isPermitted(sender, action)) tempList.add(option);
+                });
 
                 yield tempList;
-            }
-            case "sell" -> {
-                Player player = (Player) sender;
-                ItemStack[] inventoryContents = player.getInventory().getContents();
-
-                yield Arrays.stream(inventoryContents)
-                        .filter(Objects::nonNull)
-                        .filter(m -> player.hasPermission("shops.cmd.sell"))
-                        .map(item -> item.getType().toString().toLowerCase())
-                        .toList();
             }
             default -> Collections.emptyList();
         };
@@ -111,57 +96,38 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleThirdArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "add" -> (sender.hasPermission("shops.cmd.add") ? List.of("<customer-buy-price>", "[<quantity>]", "all") : new ArrayList<String>());
-            case "buy" -> (sender.hasPermission("shops.cmd.buy") ? Collections.singletonList("[<quantity>]") : new ArrayList<String>());
+            case "add" -> List.of("<customer-buy-price>", "[<quantity>]", "all");
+            case "buy" -> Collections.singletonList("[<quantity>]");
             case "create" -> {
                 List<String> options = server.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
                 options.add("<x1>");
 
                 yield options;
             }
-            case "remove", "sell" -> (sender.hasPermission("shops.cmd." + args[0]) ? List.of("[<quantity>]", "all") : new ArrayList<String>());
-            case "transfer" -> (sender.hasPermission("shops.cmd.transfer") ? server.getOnlinePlayers().stream().map(HumanEntity::getName).toList() : new ArrayList<String>());
-            case "update" -> {
-                List<String> options = new ArrayList<>();
-
-                if (!sender.hasPermission("shops.cmd.update"))
-                    yield options;
-
-                if ((sender.hasPermission("shops.update.inf-funds") && args[1].equals("infinite-funds")) ||
-                    (sender.hasPermission("shops.update.inf-stock")) && args[1].equals("infinite-stock")) {
-                    options = List.of("true", "false");
-                } else if (args[1].equals("store-name")) {
-                    options = Collections.singletonList("<name>");
-                } else if (args[1].equals("location")) {
+            case "remove", "sell" -> List.of("[<quantity>]", "all");
+            case "transfer" -> server.getOnlinePlayers().stream().map(HumanEntity::getName).toList();
+            case "update" -> switch (args[1]) {
+                case "infinite-funds", "infinite-stock": yield List.of("true", "false");
+                case "store-name": yield Collections.singletonList("<name>");
+                case "location": {
                     yield Stream.concat(Store.STORES.stream()
                                     .filter(s -> s.getOwner().equals(((Player) sender).getUniqueId()))
                                     .map(s -> String.format("%s~%s", s.getName(), s.getUUID())),
                             Bukkit.getWorlds().stream().map(WorldInfo::getName)
                     ).toList();
-                } else {
-                    options = List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
                 }
-
-                yield options;
-            }
+                default: yield List.of("customer-buy-price", "customer-sell-price", "infinite-quantity", "max-quantity");
+            };
             default -> Collections.emptyList();
         };
     }
 
     private List<String> handleFourthArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "add" -> (sender.hasPermission("shops.cmd.add") ? Collections.singletonList("<customer-sell-price>") : new ArrayList<String>());
-            case "create" -> {
-                if (!sender.hasPermission("shops.cmd.create"))
-                    yield Collections.emptyList();
-
-                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x1>") : Collections.singletonList("<y1>");
-            }
+            case "add" -> Collections.singletonList("<customer-sell-price>");
+            case "create" -> (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x1>") : Collections.singletonList("<y1>");
             case "update" -> {
                 if (args[1].equals("location")) {
-                    if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                        yield Collections.emptyList();
-
                     List<String> options = Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(Collectors.toList());
 
                     boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
@@ -184,17 +150,9 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleFifthArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "add" -> (sender.hasPermission("shops.cmd.add") ? Collections.singletonList("<max-quantity>") : new ArrayList<String>());
-            case "create" -> {
-                if (!sender.hasPermission("shops.cmd.create"))
-                    yield Collections.emptyList();
-
-                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y1>") : Collections.singletonList("<z1>");
-            }
+            case "add" -> Collections.singletonList("<max-quantity>");
+            case "create" -> (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y1>") : Collections.singletonList("<z1>");
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                    yield Collections.emptyList();
-
                 List<String> options = Collections.singletonList("<x1>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w ->
@@ -214,17 +172,9 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleSixthArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "add" -> (sender.hasPermission("shops.cmd.add") ? List.of("[<quantity>]", "all") : new ArrayList<String>());
-            case "create" -> {
-                if (!sender.hasPermission("shops.cmd.create"))
-                    yield Collections.emptyList();
-
-                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<z1>") : Collections.singletonList("<x2>");
-            }
+            case "add" -> List.of("[<quantity>]", "all");
+            case "create" -> (server.getPlayer(args[2]) != null) ? Collections.singletonList("<z1>") : Collections.singletonList("<x2>");
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                    yield Collections.emptyList();
-
                 List<String> options = Collections.singletonList("<y1>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
@@ -243,16 +193,8 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleSeventhArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "create" -> {
-                if (!sender.hasPermission("shops.cmd.create"))
-                    yield Collections.emptyList();
-
-                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x2>") : Collections.singletonList("<y2>");
-            }
+            case "create" -> (server.getPlayer(args[2]) != null) ? Collections.singletonList("<x2>") : Collections.singletonList("<y2>");
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                    yield Collections.emptyList();
-
                 List<String> options = Collections.singletonList("<z1>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
@@ -271,16 +213,8 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleEighthArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "create" -> {
-                if (!sender.hasPermission("shops.cmd.create"))
-                    yield Collections.emptyList();
-
-                yield (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y2>") : Collections.singletonList("<z2>");
-            }
+            case "create" -> (server.getPlayer(args[2]) != null) ? Collections.singletonList("<y2>") : Collections.singletonList("<z2>");
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                    yield Collections.emptyList();
-
                 List<String> options = Collections.singletonList("<x2>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
@@ -299,12 +233,9 @@ public class ShopCommand extends CommandManager {
 
     private List<String> handleNinthArgs(CommandSender sender, String[] args) {
         return switch (args[0]) {
-            case "create" -> (sender.hasPermission("shops.cmd.create") && server.getPlayer(args[2]) != null)
+            case "create" -> server.getPlayer(args[2]) != null
                              ? Collections.singletonList("<z2>") : Collections.emptyList();
             case "update" -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
-                    yield Collections.emptyList();
-
                 List<String> options = Collections.singletonList("<y2>");
 
                 boolean containsWorld = Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(w -> w.equalsIgnoreCase(args[2]) || w.equalsIgnoreCase(args[3]));
@@ -338,14 +269,26 @@ public class ShopCommand extends CommandManager {
             return new ArrayList<>();
         }
 
-        return switch (args.length) {
-            case 1 -> {
-                List<String> subCommandsFiltered = subCommands.keySet().stream().filter(s -> {
-                    return sender.hasPermission(String.format("shops.cmd.%s", s));
-                }).collect(Collectors.toList());
+        if (args.length == 1) {
+            return subCommands.entrySet().stream()
+                    .filter(entry -> isPermitted(sender, entry.getValue().getAction()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        }
 
-                yield subCommandsFiltered;
-            }
+        SubCommand subCommand = subCommands.get(args[0].toLowerCase());
+
+        if (subCommand == null || !isPermitted(sender, subCommand.getAction()))
+            return Collections.emptyList();
+
+        if (args[0].equalsIgnoreCase("update") && args.length > 2) {
+            ShopAction required = (args.length >= 5) ? UPDATE_LOCATION : UPDATE_OPTIONS.get(args[1].toLowerCase());
+
+            if (required != null && !isPermitted(sender, required))
+                return Collections.emptyList();
+        }
+
+        return switch (args.length) {
             case 2 -> handleSecondArgs(sender, args[0].toLowerCase());
             case 3 -> handleThirdArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
             case 4 -> handleFourthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
@@ -355,7 +298,7 @@ public class ShopCommand extends CommandManager {
             case 8 -> handleEighthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
             case 9 -> handleNinthArgs(sender, Arrays.stream(args).map(s -> s.toLowerCase()).toArray(String[]::new));
             case 10 -> {
-                if (!sender.hasPermission("shops.cmd.update") || !sender.hasPermission("shops.update.location"))
+                if (!args[0].equalsIgnoreCase("update"))
                     yield Collections.emptyList();
 
                 List<String> options = Collections.singletonList("<z2>");
@@ -392,15 +335,18 @@ public class ShopCommand extends CommandManager {
         try {
             if (args.length == 0 || (args.length < 2 && !(args[0].equalsIgnoreCase("browse") || args[0].equalsIgnoreCase("update")))) throw new IllegalArgumentException();
 
-            String subCommand = args[0].toLowerCase();
+            String subCommandString = args[0].toLowerCase();
 
-            if (!sender.hasPermission(String.format("shops.cmd.%s", subCommand))) {
-                Notifier.process(sender, NO_PERMS_CMD, getAttributes());
-                return true;
+            if (subCommands.containsKey(subCommandString)) {
+                SubCommand subCommand = subCommands.get(subCommandString);
+
+                if (!isPermitted(sender, subCommand.getAction())) {
+                    Notifier.process(sender, NO_PERMS_CMD, getAttributes());
+                    return true;
+                }
+
+                return subCommand.process(sender, command, label, args);
             }
-
-            if (subCommands.containsKey(subCommand))
-                return subCommands.get(subCommand).process(sender, command, label, args);
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {

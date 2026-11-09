@@ -5,6 +5,8 @@ import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Permissions;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -34,7 +36,7 @@ public class UpdateCommand extends SubCommand {
         Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
-            if (!player.hasPermission("shops.update.location")) {
+            if (!Permissions.isPermitted(sender, ShopAction.UPDATE_LOCATION)) {
                 Notifier.process(sender, NO_PERMS_LOCATION, getAttributes());
                 return true;
             }
@@ -106,7 +108,7 @@ public class UpdateCommand extends SubCommand {
         if (args.length == 3) {
             switch (args[1].toLowerCase()) {
                 case "infinite-funds" -> {
-                    if (!player.hasPermission("shops.update.inf-funds")) {
+                    if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_FUNDS)) {
                         Notifier.process(sender, NO_PERMS_INF_FUNDS, getAttributes());
                         return true;
                     }
@@ -114,7 +116,7 @@ public class UpdateCommand extends SubCommand {
                     store.setInfiniteFunds(Boolean.parseBoolean(args[2]));
                 }
                 case "infinite-stock" -> {
-                    if (!player.hasPermission("shops.update.inf-stock")) {
+                    if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
                         Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                         return true;
                     }
@@ -157,7 +159,7 @@ public class UpdateCommand extends SubCommand {
             String mapped = inputMapping.get(args[2]);
 
             if (mapped.equals("quantity")) {
-                if (!player.hasPermission("shops.update.inf-stock")) {
+                if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
                     Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
                     return true;
                 }
@@ -175,6 +177,16 @@ public class UpdateCommand extends SubCommand {
 
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
+    }
+
+    /**
+     * The getAction method is used to identify the action that the subcommand is performing for permissions
+     *
+     * @return the ShopAction being performed
+     */
+    @Override
+    public ShopAction getAction() {
+        return ShopAction.UPDATE;
     }
 
     private Cuboid generateCuboid(World world, String x1String, String y1String, String z1String, String x2String, String y2String, String z2String) {
