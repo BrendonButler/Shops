@@ -4,6 +4,7 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -69,5 +70,15 @@ public class RemoveCommand extends SubCommand {
         setAttribute("material", args[1]);
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
+    }
+
+    /**
+     * The getAction method is used to identify the action that the subcommand is performing for permissions
+     *
+     * @return the ShopAction being performed
+     */
+    @Override
+    public ShopAction getAction() {
+        return ShopAction.REMOVE;
     }
 }

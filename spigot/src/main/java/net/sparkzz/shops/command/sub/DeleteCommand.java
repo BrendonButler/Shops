@@ -6,6 +6,7 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -87,5 +88,15 @@ public class DeleteCommand extends SubCommand {
             Notifier.process(sender, STORE_MULTI_MATCH, getAttributes());
         }
         return true;
+    }
+
+    /**
+     * The getAction method is used to identify the action that the subcommand is performing for permissions
+     *
+     * @return the ShopAction being performed
+     */
+    @Override
+    public ShopAction getAction() {
+        return ShopAction.DELETE;
     }
 }

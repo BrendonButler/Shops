@@ -5,6 +5,8 @@ import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Permissions;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -46,7 +48,7 @@ public class CreateCommand extends SubCommand {
         setAttribute("target", owner);
 
         if (args.length == 3 || args.length == 9) {
-            if (!sender.hasPermission("shops.create.other-player")) {
+            if (!Permissions.isPermitted(sender, ShopAction.CREATE_FOR_OTHER)) {
                 Notifier.process(sender, NO_PERMS_CREATE_OTHER, getAttributes());
                 return true;
             }
@@ -154,5 +156,15 @@ public class CreateCommand extends SubCommand {
             Notifier.process(sender, STORE_CREATE_SUCCESS, getAttributes());
         else Notifier.process(sender, STORE_CREATE_SUCCESS_OTHER_PLAYER, getAttributes());
         return true;
+    }
+
+    /**
+     * The getAction method is used to identify the action that the subcommand is performing for permissions
+     *
+     * @return the ShopAction being performed
+     */
+    @Override
+    public ShopAction getAction() {
+        return ShopAction.CREATE;
     }
 }

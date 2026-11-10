@@ -5,6 +5,8 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Permissions;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -54,7 +56,7 @@ public class TransferCommand extends SubCommand {
 
             setAttribute("target", targetPlayer.getName());
 
-            if (!sender.isOp()) {
+            if (!Permissions.isPermitted(sender, ShopAction.TRANSFER_IGNORE_LIMIT)) {
                 int shopsOwned = 0;
 
                 for (Store existingStore : Store.getStores())
@@ -74,5 +76,15 @@ public class TransferCommand extends SubCommand {
             Notifier.process(sender, STORE_MULTI_MATCH, getAttributes());
         }
         return true;
+    }
+
+    /**
+     * The getAction method is used to identify the action that the subcommand is performing for permissions
+     *
+     * @return the ShopAction being performed
+     */
+    @Override
+    public ShopAction getAction() {
+        return ShopAction.TRANSFER;
     }
 }

@@ -1,6 +1,7 @@
 package net.sparkzz.shops.command;
 
 import net.sparkzz.shops.Store;
+import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.AfterAll;
@@ -73,6 +74,16 @@ class SubCommandTest {
         @Override
         public Optional<Store> identifyStore(String name) {
             return super.identifyStore(name);
+        }
+
+        /**
+         * The getAction method is used to identify the action that the subcommand is performing for permissions
+         *
+         * @return the ShopAction being performed
+         */
+        @Override
+        public ShopAction getAction() {
+            return ShopAction.BROWSE;
         }
     }
 }

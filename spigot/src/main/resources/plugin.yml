@@ -21,9 +21,18 @@ permissions:
   shops.*:
     description: Allows access to all shops permissions
     children:
+      shops.admin.*: true
       shops.cmd.*: true
       shops.create.*: true
+      shops.transfer.*: true
       shops.update.*: true
+  shops.admin.*:
+    description: Allows access to all admin commands
+    default: op
+    children:
+      shops.admin.override: true
+  shops.admin.override:
+    description: Allows a player to manage stores they do not own
   shops.cmd.*:
     description: Allows access to all shops commands
     children:
@@ -72,6 +81,13 @@ permissions:
       shops.create.other-player: true
   shops.create.other-player:
     description: Allows a player to create a store for another player
+    default: op
+  shops.transfer.*:
+    description: Allows access to all transfer permissions
+    children:
+      shops.transfer.ignore-limit: true
+  shops.transfer.ignore-limit:
+    description: Allows a player to transfer a shop to another player without checking the limit
     default: op
   shops.update.*:
     description: Allows access to all update commands
