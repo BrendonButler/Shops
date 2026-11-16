@@ -1,6 +1,5 @@
 package net.sparkzz.shops.command.sub;
 
-import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
@@ -26,55 +25,49 @@ import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 public class TransferCommand extends SubCommand {
 
     @Override
-    public boolean process(CommandSender sender, Command command, String label, String[] args)
-            throws NumberFormatException {
-        try {
-            resetAttributes();
-            setArgsAsAttributes(args);
-            setAttribute("sender", sender);
-            Optional<Store> foundStore;
-                foundStore = identifyStore(args[1]);
-            setAttribute("store", (foundStore.isPresent() ? foundStore.get() : args[1]));
+    public boolean process(CommandSender sender, Command command, String label, String[] args) {
+        resetAttributes();
+        setArgsAsAttributes(args);
+        setAttribute("sender", sender);
+        Optional<Store> foundStore;
+            foundStore = identifyStore(args[1]);
+        setAttribute("store", (foundStore.isPresent() ? foundStore.get() : args[1]));
 
-            if (foundStore.isEmpty()) {
-                Notifier.process(sender, STORE_NO_STORE_FOUND, getAttributes());
-                return true;
-            }
-
-            boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-
-            setAttribute("target", args[2]);
-            Server server = Bukkit.getServer();
-            OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
-
-            if (targetPlayer == null) {
-                Notifier.process(sender, PLAYER_NOT_FOUND, getAttributes());
-                return true;
-            }
-
-            Store store = foundStore.get();
-
-            setAttribute("target", targetPlayer.getName());
-
-            if (!Permissions.isPermitted(sender, ShopAction.TRANSFER_IGNORE_LIMIT)) {
-                int shopsOwned = 0;
-
-                for (Store existingStore : Store.getStores())
-                    if (existingStore.getOwner().equals(targetPlayer.getUniqueId())) {
-                        shopsOwned++;
-                    }
-
-                if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
-                    Notifier.process(sender, STORE_TRANSFER_FAIL_MAX_STORES, getAttributes());
-                    return true;
-                }
-            }
-
-            store.setOwner(targetPlayer.getUniqueId());
-            Notifier.process(sender, STORE_TRANSFER_SUCCESS, getAttributes());
-        } catch (Core.MultipleStoresMatchedException exception) {
-            Notifier.process(sender, STORE_MULTI_MATCH, getAttributes());
+        if (foundStore.isEmpty()) {
+            Notifier.process(sender, STORE_NO_STORE_FOUND, getAttributes());
+            return true;
         }
+
+        if (isDenied(sender, foundStore.get())) return true;
+
+        boolean isUUID = args[2].matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+        setAttribute("target", args[2]);
+        Server server = Bukkit.getServer();
+        OfflinePlayer targetPlayer = (!isUUID) ? server.getPlayer(args[2]) : server.getOfflinePlayer(UUID.fromString(args[2]));
+
+        if (targetPlayer == null) {
+            Notifier.process(sender, PLAYER_NOT_FOUND, getAttributes());
+            return true;
+        }
+
+        Store store = foundStore.get();
+
+        setAttribute("target", targetPlayer.getName());
+        UUID targetUUID = targetPlayer.getUniqueId();
+
+        if (!Permissions.isPermitted(sender, ShopAction.TRANSFER_IGNORE_LIMIT)) {
+            long shopsOwned = Store.countOwnedBy(targetUUID);
+
+            if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
+                Notifier.process(sender, STORE_TRANSFER_FAIL_MAX_STORES, getAttributes());
+                return true;
+            }
+        }
+
+        store.setOwner(targetUUID);
+        Notifier.process(sender, STORE_TRANSFER_SUCCESS, getAttributes());
+
         return true;
     }
 

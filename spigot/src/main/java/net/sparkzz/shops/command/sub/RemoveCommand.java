@@ -34,6 +34,8 @@ public class RemoveCommand extends SubCommand {
             return true;
         }
 
+        if (isDenied(sender, store)) return true;
+
         int quantity = 0;
 
         if (args.length == 3)

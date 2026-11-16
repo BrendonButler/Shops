@@ -1,9 +1,11 @@
 package net.sparkzz.shops.command;
 
+import net.sparkzz.shops.Core;
 import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.sub.*;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
+import net.sparkzz.shops.util.Permissions;
 import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -74,7 +76,7 @@ public class ShopCommand extends CommandManager {
                     .map(m -> m.toString().toLowerCase()).collect(Collectors.toList());
             case "create" -> Collections.singletonList("<name>");
             case "delete", "transfer" -> Store.STORES.stream()
-                    .filter(s -> s.getOwner().equals(((Player) sender).getUniqueId()))
+                    .filter(s -> Permissions.isPermitted(sender, subCommands.get(arg0).getAction(), s))
                     .map(s -> String.format("%s~%s", s.getName(), s.getUUID()))
                     .toList();
             case "deposit" -> Collections.singletonList("<amount>");
@@ -111,7 +113,7 @@ public class ShopCommand extends CommandManager {
                 case "store-name": yield Collections.singletonList("<name>");
                 case "location": {
                     yield Stream.concat(Store.STORES.stream()
-                                    .filter(s -> s.getOwner().equals(((Player) sender).getUniqueId()))
+                                    .filter(s -> Permissions.isPermitted(sender, UPDATE_LOCATION, s))
                                     .map(s -> String.format("%s~%s", s.getName(), s.getUUID())),
                             Bukkit.getWorlds().stream().map(WorldInfo::getName)
                     ).toList();
@@ -347,6 +349,9 @@ public class ShopCommand extends CommandManager {
 
                 return subCommand.process(sender, command, label, args);
             }
+        } catch (Core.MultipleStoresMatchedException exception) {
+            Notifier.process(sender, STORE_MULTI_MATCH, getAttributes());
+            return true;
         } catch (NumberFormatException exception) {
             sender.sendMessage(String.format("%sInvalid numerical value (%s)!", RED, exception.getMessage().subSequence(exception.getMessage().indexOf("\"") + 1, exception.getMessage().length() - 1)));
         } catch (IllegalArgumentException exception) {

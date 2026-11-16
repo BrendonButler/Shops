@@ -21,11 +21,23 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class TestHelper {
 
     private static final Logger log = Logger.getLogger("ShopsTest");
+
+    private static void withPermissionValue(PlayerMock player, String permission, boolean value, Runnable action) {
+        Plugin shops = MockBukkit.getMock().getPluginManager().getPlugin("Shops");
+        PermissionAttachment attachment = player.addAttachment(shops, permission, value);
+
+        try {
+            action.run();
+        } finally {
+            player.removeAttachment(attachment);
+        }
+    }
 
     /**
      * Starts a fresh mock server with a mock Vault plugin and an in-memory economy, then loads Shops and the
@@ -82,6 +94,36 @@ public class TestHelper {
     }
 
     /**
+     * Runs an action while the player has the given permission explicitly permitted
+     *
+     * @param player the player to deny the permission for
+     * @param permission the permission to deny
+     * @param action the action to run while the permission is denied
+     */
+    public static void withPermission(PlayerMock player, String permission, Runnable action) {
+        withPermissionValue(player, permission, true, action);
+    }
+
+    /**
+     * Runs an action while the player has all the given permissions explicitly permitted
+     *
+     * @param player the player to grant the permissions to
+     * @param permissions the permissions to grant
+     * @param action the action to run while the permissions are granted
+     */
+    public static void withPermissions(PlayerMock player, List<String> permissions, Runnable action) {
+        Plugin shops = MockBukkit.getMock().getPluginManager().getPlugin("Shops");
+        PermissionAttachment attachment = player.addAttachment(shops);
+        permissions.forEach(permission -> attachment.setPermission(permission, true));
+
+        try {
+            action.run();
+        } finally {
+            player.removeAttachment(attachment);
+        }
+    }
+
+    /**
      * Runs an action while the player has the given permission explicitly denied. Used for permissions that
      * plugin.yml grants to everyone by default.
      *
@@ -90,14 +132,7 @@ public class TestHelper {
      * @param action the action to run while the permission is denied
      */
     public static void withoutPermission(PlayerMock player, String permission, Runnable action) {
-        Plugin shops = MockBukkit.getMock().getPluginManager().getPlugin("Shops");
-        PermissionAttachment attachment = player.addAttachment(shops, permission, false);
-
-        try {
-            action.run();
-        } finally {
-            player.removeAttachment(attachment);
-        }
+        withPermissionValue(player, permission, false, action);
     }
 
     /**

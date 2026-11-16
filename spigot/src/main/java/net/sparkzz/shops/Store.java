@@ -95,6 +95,17 @@ public class Store extends AbstractStore {
         return STORES;
     }
 
+
+    /**
+     * Counts the number of Stores owned by a UUID (Player)
+     *
+     * @param owner UUID
+     * @return the number of stores a UUID (Player) owns
+     */
+    public static long countOwnedBy(UUID owner) {
+        return STORES.stream().filter(store -> owner.equals(store.getOwner())).count();
+    }
+
     /**
      * Gets the default store based on the input world
      *

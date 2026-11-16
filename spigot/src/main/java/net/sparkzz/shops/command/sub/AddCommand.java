@@ -4,7 +4,6 @@ import net.sparkzz.shops.Store;
 import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
-import net.sparkzz.shops.util.Permissions;
 import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -37,31 +36,47 @@ public class AddCommand extends SubCommand {
             return true;
         }
 
+        if (isDenied(sender, store)) return true;
+
         if (material != null) {
             if (args.length == 3) {
-                quantity = setAttribute("quantity", args[2].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[2]));
+                quantity = setAttribute("quantity", parseQuantity(args[2], player, material));
 
                 if (!store.containsMaterial(material)) {
                     Notifier.process(sender, MATERIAL_MISSING_STORE, getAttributes());
                     return true;
                 }
 
-                if (quantity < 0 && !Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
-                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
-                    return true;
+                if (quantity < 0) {
+                    if (isDenied(sender, ShopAction.UPDATE_INF_STOCK)) return true;
+
+                    // switching to infinite stock would discard any existing stock, matching the update command
+                    if (store.getAttributes(material).get("quantity").intValue() > 0) {
+                        Notifier.process(sender, STORE_UPDATE_NO_STOCK, getAttributes());
+                        return true;
+                    }
+
+                    store.getItems().get(material).put("quantity", quantity);
+                } else {
+                    // TODO #83 adding to the infinite value (-1) would make the value finite
+                    if (store.getAttributes(material).get("quantity").intValue() < 0) {
+                        Notifier.process(sender, ADD_INF_STOCK, getAttributes());
+                        return true;
+                    }
+
+                    if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
+                        Notifier.process(sender, INSUFFICIENT_STOCK_PLAYER, getAttributes());
+                        return true;
+                    }
+
+                    store.addItem(material, quantity);
                 }
 
-                if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
-                    Notifier.process(sender, INSUFFICIENT_STOCK_PLAYER, getAttributes());
-                    return true;
-                }
-
-                store.addItem(material, quantity);
                 message = Notifier.compose((quantity > 0 ? ADD_SUCCESS_QUANTITY : ADD_SUCCESS), getAttributes());
             }
 
             if (args.length == 6) {
-                quantity = setAttribute("quantity", args[5].equalsIgnoreCase("all") ? InventoryManagementSystem.countQuantity((Player) sender, material) : Integer.parseInt(args[5]));
+                quantity = setAttribute("quantity", parseQuantity(args[5], player, material));
 
                 double buyPrice = setAttribute("buy-price", Double.parseDouble(args[2]));
                 double sellPrice = setAttribute("sell-price", Double.parseDouble(args[3]));
@@ -72,10 +87,7 @@ public class AddCommand extends SubCommand {
                     return true;
                 }
 
-                if (quantity < 0 && !Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
-                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
-                    return true;
-                }
+                if (quantity < 0 && isDenied(sender, ShopAction.UPDATE_INF_STOCK)) return true;
 
                 if (!InventoryManagementSystem.canRemove(player, material, quantity)) {
                     Notifier.process(sender, INSUFFICIENT_STOCK_PLAYER, getAttributes());
@@ -87,7 +99,9 @@ public class AddCommand extends SubCommand {
             }
 
             if (quantity <= 0 && message.isBlank()) throw new IllegalArgumentException();
-            player.getInventory().removeItem(new ItemStack(material, quantity));
+
+            // infinite (negative) and zero quantities don't take anything from the player
+            if (quantity > 0) player.getInventory().removeItem(new ItemStack(material, quantity));
             sender.sendMessage(message);
             return true;
         }
@@ -95,6 +109,12 @@ public class AddCommand extends SubCommand {
         setAttribute("material", args[1]);
         Notifier.process(sender, INVALID_MATERIAL, getAttributes());
         return false;
+    }
+
+    private int parseQuantity(String arg, Player player, Material material) {
+        if (arg.equalsIgnoreCase("all")) return InventoryManagementSystem.countQuantity(player, material);
+
+        return Math.max(Integer.parseInt(arg), -1);
     }
 
     /**

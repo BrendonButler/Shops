@@ -7,17 +7,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.ItemStack;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.command.ConsoleCommandSenderMock;
 import org.mockbukkit.mockbukkit.entity.EntityMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static net.sparkzz.shops.TestHelper.*;
@@ -781,6 +791,62 @@ class ShopCommandTest {
 
             assertEquals(Collections.emptyList(), actualOptions);
             printSuccessMessage("tab complete - \"shop invalid 2 3 4 5 6 7 8 9 10\"");
+        }
+
+        /**
+         * Runs a tab completion as the non-op player while they hold the given permissions
+         */
+        private List<String> tabCompleteAsPlayer(String input, String... permissions) {
+            AtomicReference<List<String>> options = new AtomicReference<>();
+            withPermissions(player, List.of(permissions), () -> options.set(server.getCommandTabComplete(player, input)));
+            return options.get();
+        }
+
+        @Test
+        @DisplayName("Test Shop - 2 args - delete tab complete - only owned stores")
+        void testShopTabComplete_Delete2Args_NonOwner() {
+            Store playerStore = new Store("PlayerStore", player.getUniqueId());
+            new Store("Ownerless");
+
+            List<String> expectedOptions = List.of(String.format("%s~%s", playerStore.getName(), playerStore.getUUID()));
+
+            assertEquals(expectedOptions, tabCompleteAsPlayer("shop delete ", "shops.cmd.delete"));
+            printSuccessMessage("tab complete - \"shop delete\" - only owned stores");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 2 args - transfer tab complete - only owned stores")
+        void testShopTabComplete_Transfer2Args_NonOwner() {
+            Store playerStore = new Store("PlayerStore", player.getUniqueId());
+
+            List<String> expectedOptions = List.of(String.format("%s~%s", playerStore.getName(), playerStore.getUUID()));
+
+            assertEquals(expectedOptions, tabCompleteAsPlayer("shop transfer ", "shops.cmd.transfer"));
+            printSuccessMessage("tab complete - \"shop transfer\" - only owned stores");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 2 args - delete tab complete - admin override")
+        void testShopTabComplete_Delete2Args_Override() {
+            new Store("PlayerStore", player.getUniqueId());
+            new Store("Ownerless");
+
+            List<String> expectedOptions = Store.STORES.stream().map(s -> String.format("%s~%s", s.getName(), s.getUUID())).toList();
+
+            assertEquals(expectedOptions, tabCompleteAsPlayer("shop delete ", "shops.cmd.delete", "shops.admin.override"));
+            printSuccessMessage("tab complete - \"shop delete\" - admin override");
+        }
+
+        @Test
+        @DisplayName("Test Shop - 3 args - update tab complete - location - only owned stores")
+        void testShopTabComplete_Update3Args_Location_NonOwner() {
+            Store playerStore = new Store("PlayerStore", player.getUniqueId());
+
+            List<String> expectedOptions = new ArrayList<>(List.of(String.format("%s~%s", playerStore.getName(), playerStore.getUUID())));
+            expectedOptions.addAll(Bukkit.getWorlds().stream().map(WorldInfo::getName).toList());
+
+            assertEquals(expectedOptions, tabCompleteAsPlayer("shop update location ", "shops.cmd.update", "shops.update.location"));
+            printSuccessMessage("tab complete - \"shop update location\" - only owned stores");
         }
     }
 

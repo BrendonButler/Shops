@@ -35,12 +35,9 @@ public class DepositCommand extends SubCommand {
             return true;
         }
 
-        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new NumberFormatException(String.format("Invalid amount: \"%s\"", args[1]));
+        if (isDenied(sender, store)) return true;
 
-        if (!store.getOwner().equals(player.getUniqueId())) {
-            Notifier.process(sender, NOT_OWNER, getAttributes());
-            return true;
-        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new NumberFormatException(String.format("Invalid amount: \"%s\"", args[1]));
 
         if (store.hasInfiniteFunds()) {
             Notifier.process(sender, DEPOSIT_INF_FUNDS, getAttributes());
