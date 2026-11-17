@@ -125,6 +125,7 @@ public class AbstractNotifier {
         ADD_SUCCESS_QUANTITY("§aYou have successfully added §6{quantity} §aof §6{material}§a to the store!"),
         ADDED_MATERIAL_TO_STORE("§aYou have successfully added §6{material}§a to the store with a buy price of §6{buy-price}§a, a sell price of §6{sell-price}§a, and a max quantity of §6{max-quantity}§a!"),
         ADDED_MATERIAL_TO_STORE_QUANTITY("§aYou have successfully added §6{quantity}§a of §6{material}§a to the store with a buy price of §6{buy-price}§a, a sell price of §6{sell-price}§a, and a max quantity of §6{max-quantity}§a!"),
+        ADD_INF_STOCK("§aThis item has infinite stock, adding more isn't necessary!"),
         PRICE("§9Price: §a{cost}"),
         BUY_SUCCESS("§aSuccess! You have purchased §6{quantity}§a of §6{material}§a for §6{cost}§a."),
         DEPOSIT_INF_FUNDS("§aThis store has infinite funds, depositing funds isn't necessary!"),

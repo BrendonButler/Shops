@@ -14,13 +14,13 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Remove Command")
@@ -57,8 +57,29 @@ public class RemoveCommandTest {
     @AfterEach
     void tearDownEach() {
         mrSparkzz.getInventory().clear();
+        player2.getInventory().clear();
         Store.DEFAULT_STORES.clear();
         Store.STORES.clear();
+    }
+
+    @Test
+    @DisplayName("Test Remove - not the owner")
+    void testRemoveCommand_NotOwner() {
+        withPermission(player2, "shops.cmd.remove", () -> performCommand(player2, "shop remove emerald 1"));
+        assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
+        assertTrue(player2.getInventory().isEmpty());
+        assertEquals(64, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(Material.EMERALD).get("quantity").intValue());
+        printSuccessMessage("remove command test - not the owner");
+    }
+
+    @Test
+    @DisplayName("Test Remove - not the owner - admin override")
+    void testRemoveCommand_NotOwner_Override() {
+        withPermissions(player2, List.of("shops.cmd.remove", "shops.admin.override"), () -> performCommand(player2, "shop remove emerald 1"));
+        assertEquals(Notifier.compose(REMOVE_SUCCESS_QUANTITY, Map.of("material", Material.EMERALD, "quantity", 1)), player2.nextMessage());
+        assertEquals(1, Objects.requireNonNull(player2.getInventory().getItem(0)).getAmount());
+        assertEquals(63, Store.getDefaultStore(mrSparkzz.getWorld()).get().getItems().get(Material.EMERALD).get("quantity").intValue());
+        printSuccessMessage("remove command test - not the owner with admin override");
     }
 
     @Test

@@ -5,7 +5,6 @@ import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.InventoryManagementSystem;
 import net.sparkzz.shops.util.Notifier;
-import net.sparkzz.shops.util.Permissions;
 import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,10 +35,7 @@ public class UpdateCommand extends SubCommand {
         Store store = setAttribute("store", InventoryManagementSystem.locateCurrentStore(player).orElse(null));
 
         if (args.length >= 8 && args[1].equalsIgnoreCase("location")) {
-            if (!Permissions.isPermitted(sender, ShopAction.UPDATE_LOCATION)) {
-                Notifier.process(sender, NO_PERMS_LOCATION, getAttributes());
-                return true;
-            }
+            if (isDenied(sender, ShopAction.UPDATE_LOCATION)) return true;
 
             switch (args.length) {
                 case 8 -> {
@@ -47,6 +43,8 @@ public class UpdateCommand extends SubCommand {
                         Notifier.process(player, NO_STORE_FOUND, getAttributes());
                         return true;
                     }
+
+                    if (isDenied(sender, ShopAction.UPDATE_LOCATION, store)) return true;
 
                     World world = Bukkit.getWorld(setAttribute("world", store.getCuboidLocation().getWorld().getName()));
 
@@ -68,6 +66,8 @@ public class UpdateCommand extends SubCommand {
                     } else if (foundStore.isPresent())
                         world = Bukkit.getWorld(setAttribute("world", store.getCuboidLocation().getWorld().getName()));
 
+                    if (isDenied(sender, ShopAction.UPDATE_LOCATION, store)) return true;
+
                     store.setCuboidLocation(generateCuboid(world, args[3], args[4], args[5], args[6], args[7], args[8]));
                 }
                 case 10 -> {
@@ -87,6 +87,8 @@ public class UpdateCommand extends SubCommand {
                         return true;
                     }
 
+                    if (isDenied(sender, ShopAction.UPDATE_LOCATION, store)) return true;
+
                     store.setCuboidLocation(generateCuboid(world, args[4], args[5], args[6], args[7], args[8], args[9]));
                 }
                 default -> {
@@ -105,21 +107,17 @@ public class UpdateCommand extends SubCommand {
             return true;
         }
 
+        if (isDenied(sender, store)) return true;
+
         if (args.length == 3) {
             switch (args[1].toLowerCase()) {
                 case "infinite-funds" -> {
-                    if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_FUNDS)) {
-                        Notifier.process(sender, NO_PERMS_INF_FUNDS, getAttributes());
-                        return true;
-                    }
+                    if (isDenied(sender, ShopAction.UPDATE_INF_FUNDS)) return true;
 
                     store.setInfiniteFunds(Boolean.parseBoolean(args[2]));
                 }
                 case "infinite-stock" -> {
-                    if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
-                        Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
-                        return true;
-                    }
+                    if (isDenied(sender, ShopAction.UPDATE_INF_STOCK)) return true;
 
                     store.setInfiniteStock(Boolean.parseBoolean(args[2]));
                 }
@@ -159,10 +157,7 @@ public class UpdateCommand extends SubCommand {
             String mapped = inputMapping.get(args[2]);
 
             if (mapped.equals("quantity")) {
-                if (!Permissions.isPermitted(sender, ShopAction.UPDATE_INF_STOCK)) {
-                    Notifier.process(sender, NO_PERMS_INF_STOCK, getAttributes());
-                    return true;
-                }
+                if (isDenied(sender, ShopAction.UPDATE_INF_STOCK, store)) return true;
 
                 if (args[3].equalsIgnoreCase("true") && store.getAttributes(material).get("quantity").intValue() > 0) {
                     Notifier.process(sender, STORE_UPDATE_NO_STOCK, getAttributes());

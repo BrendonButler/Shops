@@ -16,12 +16,13 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Delete Command")
@@ -151,5 +152,60 @@ class DeleteCommandTest {
         assertEquals(0, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals("§aYou have successfully deleted §6DollHairStore§a!", mrSparkzz.nextMessage());
         printSuccessMessage("delete command test - ignore stock and funds");
+    }
+
+    @Test
+    @DisplayName("Test Delete - not the owner")
+    void testDeleteShop_NotOwner() {
+        Store ownedStore = new Store("SparkzzOnly", mrSparkzz.getUniqueId());
+
+        withPermission(player2, "shops.cmd.delete", () -> performCommand(player2, "shop delete SparkzzOnly"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertTrue(Store.STORES.contains(ownedStore));
+        Store.STORES.remove(ownedStore);
+        printSuccessMessage("delete command test - not the owner");
+    }
+
+    @Test
+    @DisplayName("Test Delete - not the owner - admin override")
+    void testDeleteShop_NotOwner_Override() {
+        Store ownedStore = new Store("SparkzzOnly", mrSparkzz.getUniqueId());
+
+        withPermissions(player2, List.of("shops.cmd.delete", "shops.admin.override"), () -> performCommand(player2, "shop delete SparkzzOnly"));
+        assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "SparkzzOnly", GREEN), player2.nextMessage());
+        assertFalse(Store.STORES.contains(ownedStore));
+        printSuccessMessage("delete command test - not the owner with admin override");
+    }
+
+    @Test
+    @DisplayName("Test Delete - non-op owner")
+    void testDeleteShop_NonOpOwner() {
+        withPermission(player2, "shops.cmd.delete", () -> performCommand(player2, "shop delete DollHairStore"));
+        assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "DollHairStore", GREEN), player2.nextMessage());
+        assertFalse(Store.STORES.contains(tempStore));
+        printSuccessMessage("delete command test - non-op owner");
+    }
+
+    @Test
+    @DisplayName("Test Delete - insufficient inventory space")
+    void testDeleteShop_InsufficientInventory() {
+        tempStore.addItem(new ItemStack(Material.EMERALD, 128));
+        mrSparkzz.getInventory().addItem(new ItemStack(Material.MILK_BUCKET, 2304));
+
+        performCommand(mrSparkzz, "shop delete DollHairStore");
+        assertEquals(Notifier.compose(Notifier.CipherKey.STORE_DELETE_INSUFFICIENT_INV_PLAYER, null), mrSparkzz.nextMessage());
+        assertTrue(Store.STORES.contains(tempStore));
+        printSuccessMessage("delete command test - insufficient inventory space");
+    }
+
+    @Test
+    @DisplayName("Test Delete - unknown flag is ignored")
+    void testDeleteShop_UnknownFlag() {
+        tempStore.addItem(new ItemStack(Material.EMERALD, 10));
+
+        performCommand(mrSparkzz, "shop delete DollHairStore -x");
+        assertEquals(String.format("%sYou have successfully deleted %s%s%s!", GREEN, GOLD, "DollHairStore", GREEN), mrSparkzz.nextMessage());
+        assertEquals(10, Objects.requireNonNull(mrSparkzz.getInventory().getItem(0)).getAmount());
+        printSuccessMessage("delete command test - unknown flag is ignored");
     }
 }

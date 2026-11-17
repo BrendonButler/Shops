@@ -13,18 +13,19 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("Entrance Listener")
+@DisplayName("Store")
 public class StoreTest {
 
     private static ServerMock server;
 
     @BeforeAll
     static void setUp() {
-        printMessage("==[ TEST ENTRANCE LISTENER ]==");
+        printMessage("==[ TEST STORE ]==");
         server = startServer();
 
         Store.setDefaultStore(null, new Store("BetterBuy"));
@@ -89,5 +90,20 @@ public class StoreTest {
         Store.getDefaultStore(null).get().setCuboidLocation(cuboid);
         assertEquals(cuboid, Store.getDefaultStore(null).get().getCuboidLocation());
         printSuccessMessage("set cuboid location");
+    }
+
+    @Test
+    @DisplayName("Test counting stores owned by a player")
+    void testCountOwnedBy() {
+        UUID owner = UUID.randomUUID();
+
+        new Store("Owned1", owner);
+        new Store("Owned2", owner);
+        new Store("SomeoneElse", UUID.randomUUID());
+        new Store("Ownerless");
+
+        assertEquals(2, Store.countOwnedBy(owner));
+        assertEquals(0, Store.countOwnedBy(UUID.randomUUID()));
+        printSuccessMessage("count stores owned by a player");
     }
 }

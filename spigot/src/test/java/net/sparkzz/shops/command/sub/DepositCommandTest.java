@@ -14,6 +14,7 @@ import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
@@ -58,7 +59,7 @@ class DepositCommandTest {
 
     @Test
     @DisplayName("Test Deposit - permissions")
-    void testWithdrawCommand_Permissions() {
+    void testDepositCommand_Permissions() {
         performCommand(player2, "shop deposit 100");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_CMD, null), player2.nextMessage());
         printSuccessMessage("deposit command permission check");
@@ -88,8 +89,8 @@ class DepositCommandTest {
     @Test
     @DisplayName("Test Deposit - main functionality - not the owner")
     void testDepositCommand_NotOwner() {
-        player2.setOp(true);
-        performCommand(player2, "shop deposit 100");
+        withPermission(player2, "shops.cmd.deposit", 
+                () -> performCommand(player2, "shop deposit 100"));
         assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
         assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
         assertEquals(BigDecimal.valueOf(25), store.getBalance());
@@ -124,5 +125,28 @@ class DepositCommandTest {
         performCommand(mrSparkzz, "shop deposit 100");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
         printSuccessMessage("deposit command test - no store");
+    }
+
+    @Test
+    @DisplayName("Test Deposit - main functionality - not the owner - admin override")
+    void testDepositCommand_NotOwner_Override() {
+        setBalance(player2, 150);
+
+        withPermissions(player2, List.of("shops.cmd.deposit", "shops.admin.override"), () -> performCommand(player2, "shop deposit 100"));
+        assertEquals(Notifier.compose(DEPOSIT_SUCCESS, Collections.singletonMap("amount", 100D)), player2.nextMessage());
+        assertEquals(50, Shops.getEconomy().getBalance(player2));
+        assertEquals(125D, store.getBalance().doubleValue());
+        printSuccessMessage("deposit command test - not the owner with admin override");
+    }
+
+    @Test
+    @DisplayName("Test Deposit - main functionality - negative amount")
+    void testDepositCommand_NegativeAmount() {
+        performCommand(mrSparkzz, "shop deposit -5");
+        assertEquals("§cInvalid numerical value (-5)!", mrSparkzz.nextMessage());
+        assertEquals("/shop deposit <amount>", mrSparkzz.nextMessage());
+        assertEquals(150, Shops.getEconomy().getBalance(mrSparkzz));
+        assertEquals(BigDecimal.valueOf(25), store.getBalance());
+        printSuccessMessage("deposit command test - negative amount");
     }
 }

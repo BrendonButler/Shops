@@ -5,7 +5,6 @@ import net.sparkzz.shops.command.SubCommand;
 import net.sparkzz.shops.util.Config;
 import net.sparkzz.shops.util.Cuboid;
 import net.sparkzz.shops.util.Notifier;
-import net.sparkzz.shops.util.Permissions;
 import net.sparkzz.shops.util.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -33,11 +32,7 @@ public class CreateCommand extends SubCommand {
         setAttribute("sender", sender);
         setArgsAsAttributes(args);
         // TODO: new permission to limit a player to a number of shops (shops.create.<quantity>)
-        int shopsOwned = 0;
-
-        for (Store store : Store.STORES)
-            if (store.getOwner().equals(((Player) sender).getUniqueId()))
-                shopsOwned++;
+        long shopsOwned = Store.countOwnedBy(((Player) sender).getUniqueId());
 
         if (shopsOwned >= setAttribute("max-stores", Config.getMaxOwnedStores())) {
             Notifier.process(sender, STORE_CREATE_FAIL_MAX_STORES, getAttributes());
@@ -48,10 +43,7 @@ public class CreateCommand extends SubCommand {
         setAttribute("target", owner);
 
         if (args.length == 3 || args.length == 9) {
-            if (!Permissions.isPermitted(sender, ShopAction.CREATE_FOR_OTHER)) {
-                Notifier.process(sender, NO_PERMS_CREATE_OTHER, getAttributes());
-                return true;
-            }
+            if (isDenied(sender, ShopAction.CREATE_FOR_OTHER)) return true;
 
             setAttribute("target", args[2]);
 

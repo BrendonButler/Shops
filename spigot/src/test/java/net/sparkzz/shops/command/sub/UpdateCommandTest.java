@@ -8,9 +8,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WorldCreator;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
+
+import java.util.List;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static org.bukkit.ChatColor.GOLD;
@@ -22,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UpdateCommandTest {
 
     private static Cuboid defaultLocation, cuboidLocation, cuboidLocationNether;
-    private static PlayerMock mrSparkzz;
+    private static PlayerMock mrSparkzz, player2;
     private static ServerMock server;
     private static Store store;
 
@@ -33,6 +41,7 @@ class UpdateCommandTest {
 
         mrSparkzz = server.addPlayer("MrSparkzz");
         mrSparkzz.setOp(true);
+        player2 = server.addPlayer();
         server.createWorld(WorldCreator.name("world"));
         server.createWorld(WorldCreator.name("world-nether"));
         defaultLocation = new Cuboid(server.getWorld("world"), 0D, 0D, 0D, 50D, 50D, 50D);
@@ -48,6 +57,7 @@ class UpdateCommandTest {
     @BeforeEach
     void setupShop() {
         mrSparkzz.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
+        player2.setLocation(new Location(server.getWorld("world"), 0D, 0D, 0D));
         store = new Store("BetterBuy", mrSparkzz.getUniqueId(), new Cuboid(server.getWorld("world"), 0D, 0D, 0D, 50D, 50D, 50D));
         store.addItem(Material.EMERALD, 0, -1, 2D, 1.5D);
         store.addItem(Material.BUCKET, 1, 64, 1D, 0.5D);
@@ -271,6 +281,78 @@ class UpdateCommandTest {
         performCommand(mrSparkzz, "shop update infinite-stock true");
         assertEquals("§cYou are not currently in a store!", mrSparkzz.nextMessage());
         printSuccessMessage("update command test - player not in a store");
+    }
+
+    @Test
+    @DisplayName("Test Update - not the owner - store name")
+    void testUpdateCommand_NotOwner_StoreName() {
+        withPermission(player2, "shops.cmd.update", () -> performCommand(player2, "shop update store-name Hijacked"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertEquals("BetterBuy", store.getName());
+        printSuccessMessage("update command test - not the owner - store name");
+    }
+
+    @Test
+    @DisplayName("Test Update - not the owner - item price")
+    void testUpdateCommand_NotOwner_ItemPrice() {
+        withPermission(player2, "shops.cmd.update", () -> performCommand(player2, "shop update emerald customer-buy-price 5"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertEquals(2D, store.getAttributes(Material.EMERALD).get("buy").doubleValue());
+        printSuccessMessage("update command test - not the owner - item price");
+    }
+
+    @Test
+    @DisplayName("Test Update - not the owner - store name - admin override")
+    void testUpdateCommand_NotOwner_StoreName_Override() {
+        withPermissions(player2, List.of("shops.cmd.update", "shops.admin.override"), () -> performCommand(player2, "shop update store-name Renamed"));
+        assertEquals(String.format("%sYou have successfully updated %s%s%s to %s%s%s in Renamed!", GREEN, GOLD, "store-name", GREEN, GOLD, "Renamed", GREEN), player2.nextMessage());
+        assertEquals("Renamed", store.getName());
+        printSuccessMessage("update command test - not the owner - store name with admin override");
+    }
+
+    @Test
+    @DisplayName("Test Update - location - missing location permission")
+    void testUpdateCommand_Location_NoLocationPermission() {
+        withPermission(player2, "shops.cmd.update", () -> performCommand(player2, "shop update location 10 20 30 40 50 60"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NO_PERMS_LOCATION, null), player2.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location without the location permission");
+    }
+
+    @Test
+    @DisplayName("Test Update - location - not the owner")
+    void testUpdateCommand_Location_NotOwner() {
+        withPermissions(player2, List.of("shops.cmd.update", "shops.update.location"), () -> performCommand(player2, "shop update location 10 20 30 40 50 60"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location - not the owner");
+    }
+
+    @Test
+    @DisplayName("Test Update - location with store - not the owner")
+    void testUpdateCommand_Location_WithStore_NotOwner() {
+        withPermissions(player2, List.of("shops.cmd.update", "shops.update.location"), () -> performCommand(player2, "shop update location BetterBuy 10 20 30 40 50 60"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with store - not the owner");
+    }
+
+    @Test
+    @DisplayName("Test Update - location with store and world - not the owner")
+    void testUpdateCommand_Location_WithStoreAndWorld_NotOwner() {
+        withPermissions(player2, List.of("shops.cmd.update", "shops.update.location"), () -> performCommand(player2, "shop update location BetterBuy world-nether 10 20 30 40 50 60"));
+        assertEquals(Notifier.compose(Notifier.CipherKey.NOT_OWNER, null), player2.nextMessage());
+        assertEquals(defaultLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location with store and world - not the owner");
+    }
+
+    @Test
+    @DisplayName("Test Update - location - not the owner - admin override")
+    void testUpdateCommand_Location_NotOwner_Override() {
+        withPermissions(player2, List.of("shops.cmd.update", "shops.update.location", "shops.admin.override"), () -> performCommand(player2, "shop update location 10 20 30 40 50 60"));
+        assertEquals("§aYou have successfully updated the location of BetterBuy to (10.0, 20.0, 30.0) (40.0, 50.0, 60.0) in world!", player2.nextMessage());
+        assertEquals(cuboidLocation, store.getCuboidLocation());
+        printSuccessMessage("update command test - location - not the owner with admin override");
     }
 
     @Nested

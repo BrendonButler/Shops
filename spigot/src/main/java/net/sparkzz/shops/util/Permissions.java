@@ -21,6 +21,10 @@ public class Permissions extends AbstractPermissions<CommandSender> {
         return INSTANCE.evaluate(sender, action, store).isEmpty();
     }
 
+    public static Optional<AbstractNotifier.CipherKey> denialFor(CommandSender sender, ShopAction action) {
+        return INSTANCE.evaluate(sender, action);
+    }
+
     public static Optional<AbstractNotifier.CipherKey> denialFor(CommandSender sender, ShopAction action, AbstractStore store) {
         return INSTANCE.evaluate(sender, action, store);
     }

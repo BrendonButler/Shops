@@ -35,12 +35,9 @@ public class WithdrawCommand extends SubCommand {
             return true;
         }
 
-        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new NumberFormatException(String.format("Invalid amount: \"%s\"", args[1]));
+        if (isDenied(player, store)) return true;
 
-        if (!store.getOwner().equals(player.getUniqueId())) {
-            Notifier.process(sender, NOT_OWNER, getAttributes());
-            return true;
-        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new NumberFormatException(String.format("Invalid amount: \"%s\"", args[1]));
 
         if (amount.compareTo(store.getBalance()) > 0) {
             Notifier.process(sender, INSUFFICIENT_FUNDS_STORE, getAttributes());

@@ -22,6 +22,7 @@ import java.util.Map;
 import static net.sparkzz.shops.TestHelper.*;
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("SpellCheckingInspection")
 @DisplayName("Create Command")
@@ -287,5 +288,14 @@ class CreateCommandTest {
         performCommand(mrSparkzz, "shop create TestShop 205 205 205 308 308 308");
         assertEquals(Notifier.compose(STORE_CREATE_SUCCESS, Collections.singletonMap("store", "TestShop")), mrSparkzz.nextMessage());
         printSuccessMessage("create command test - zero max volume");
+    }
+
+    @Test
+    @DisplayName("Test Create - for another player - permission denied")
+    void testCreateShop_ForAnotherPlayer_Denied() {
+        withPermission(player2, "shops.cmd.create", () -> performCommand(player2, String.format("shop create TestShop %s", mrSparkzz.getName())));
+        assertEquals(Notifier.compose(NO_PERMS_CREATE_OTHER, null), player2.nextMessage());
+        assertTrue(Store.STORES.stream().noneMatch(store -> store.getName().equals("TestShop")));
+        printSuccessMessage("create command test - for another player without permission");
     }
 }

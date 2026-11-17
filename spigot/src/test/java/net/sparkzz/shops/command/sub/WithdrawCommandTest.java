@@ -14,6 +14,7 @@ import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 
 import static net.sparkzz.shops.TestHelper.*;
 import static net.sparkzz.shops.util.AbstractNotifier.CipherKey.*;
@@ -87,8 +88,8 @@ class WithdrawCommandTest {
     @Test
     @DisplayName("Test Withdraw - main functionality - not the owner")
     void testWithdrawCommand_NotOwner() {
-        player2.setOp(true);
-        performCommand(player2, "shop withdraw 100");
+        withPermission(player2, "shops.cmd.withdraw",
+                () -> performCommand(player2, "shop withdraw 100"));
         assertEquals(Notifier.compose(NOT_OWNER, null), player2.nextMessage());
         assertEquals(BigDecimal.valueOf(125), store.getBalance());
         printSuccessMessage("withdraw command test - not the owner");
@@ -110,5 +111,27 @@ class WithdrawCommandTest {
         performCommand(mrSparkzz, "shop withdraw all");
         assertEquals(Notifier.compose(Notifier.CipherKey.NO_STORE_FOUND, null), mrSparkzz.nextMessage());
         printSuccessMessage("withdraw command test - no store");
+    }
+
+    @Test
+    @DisplayName("Test Withdraw - main functionality - not the owner - admin override")
+    void testWithdrawCommand_NotOwner_Override() {
+        setBalance(player2, 0);
+
+        withPermissions(player2, List.of("shops.cmd.withdraw", "shops.admin.override"), () -> performCommand(player2, "shop withdraw 100"));
+        assertEquals(Notifier.compose(WITHDRAW_SUCCESS, Collections.singletonMap("amount", 100D)), player2.nextMessage());
+        assertEquals(100, Shops.getEconomy().getBalance(player2));
+        assertEquals(25D, store.getBalance().doubleValue());
+        printSuccessMessage("withdraw command test - not the owner with admin override");
+    }
+
+    @Test
+    @DisplayName("Test Withdraw - main functionality - negative amount")
+    void testWithdrawCommand_NegativeAmount() {
+        performCommand(mrSparkzz, "shop withdraw -5");
+        assertEquals("§cInvalid numerical value (-5)!", mrSparkzz.nextMessage());
+        assertEquals("/shop withdraw <amount>", mrSparkzz.nextMessage());
+        assertEquals(BigDecimal.valueOf(125), store.getBalance());
+        printSuccessMessage("withdraw command test - negative amount");
     }
 }
